@@ -7,200 +7,279 @@ template: splash
 import Hero from '~/components/Hero.astro';
 import PathCard from '~/components/PathCard.astro';
 import ResumeBanner from '~/components/ResumeBanner.tsx';
-import Callout from '~/components/Callout.astro';
 import Link from '~/components/Link.astro';
+
+import SectionLabel from '~/components/landing/SectionLabel.astro';
+import ValueProp from '~/components/landing/ValueProp.astro';
+import HowItWorks from '~/components/landing/HowItWorks.astro';
+import CtaBanner from '~/components/landing/CtaBanner.astro';
+import FeaturedPath from '~/components/landing/FeaturedPath.astro';
+import BentoCard from '~/components/landing/BentoCard.astro';
 
 <Hero
   eyebrow="Atlas · v0.1 · the map for self-taught developers"
   title="Your map to <em>modern</em> web development."
-  lede="One opinionated, beautiful, free destination — from how the web works, through HTML/CSS/JS and TypeScript, into React, Svelte, full-stack, performance, accessibility, testing, DevOps, and the modern frontier (edge, AI, real-time)."
+  lede="One opinionated, beautiful, free destination — from how the web works, through HTML/CSS/JS and TypeScript, into React, Svelte, full-stack, performance, accessibility, testing, DevOps, and the modern frontier."
 />
 
 <div style="margin: 2rem 0;">
   <ResumeBanner client:idle />
 </div>
 
-<div class="atlas-section-heading">
-  <div>
-    <h2>Pick a path. Earn the next.</h2>
-    <p>Each path is a structured journey. Stack them up, or jump straight to the one you need.</p>
+{/* ============================================================
+    FEATURED PATHS — three highlighted entry points
+    ============================================================ */}
+
+<div class="atlas-section">
+  <div class="atlas-section-head">
+    <SectionLabel label="Pick your path" />
+    <h2>Three ways to start, depending on where you are.</h2>
+    <p>Atlas has nine learning paths. These three are the most common entry points — pick the one that fits your day-1 reality.</p>
   </div>
-  <Link href="/paths/" class="atlas-btn atlas-btn--ghost">All paths →</Link>
-</div>
 
-<div class="atlas-grid atlas-grid--cards">
-  <PathCard
-    number={1}
-    href="/paths/foundations/"
-    title="Foundations of the Web"
-    description="HTTP, browsers, HTML5, CSS, modern JavaScript, the DOM, async, modules. Every developer's bedrock."
-    difficulty="beginner"
-    modules={9}
-    hours={28}
-    accent="#2bb4a4"
-  />
-  <PathCard
-    number={2}
-    href="/paths/modern-css/"
-    title="Modern CSS & Design Systems"
-    description="Subgrid, container queries, :has(), cascade layers, view transitions, design tokens, Tailwind, theming."
-    difficulty="intermediate"
-    modules={7}
-    hours={18}
-    accent="#F5B14A"
-  />
-  <PathCard
-    number={3}
-    href="/paths/typescript/"
-    title="TypeScript Mastery"
-    description="From basics to wizardry: generics, conditional and template-literal types, narrowing, type-driven APIs."
-    difficulty="intermediate"
-    modules={6}
-    hours={14}
-    accent="#3178c6"
-  />
-  <PathCard
-    number={4}
-    href="/paths/frontend-frameworks/"
-    title="Frontend Frameworks"
-    description="React, Vue, Svelte, Solid, Angular, Qwik, Astro, Lit, HTMX. When to pick which — and why."
-    difficulty="mixed"
-    modules={10}
-    hours={32}
-    accent="#e25c64"
-  />
-  <PathCard
-    number={5}
-    href="/paths/full-stack/"
-    title="Full-Stack Web Development"
-    description="Node, Deno, Bun · Hono, Fastify · REST, GraphQL, tRPC · auth, databases, ORMs, deploy."
-    difficulty="intermediate"
-    modules={11}
-    hours={36}
-    accent="#6abf6e"
-  />
-  <PathCard
-    number={6}
-    href="/paths/performance-a11y-seo/"
-    title="Performance, A11y & SEO"
-    description="Core Web Vitals, image optimization, code splitting, WCAG 2.2, screen readers, structured data."
-    difficulty="intermediate"
-    modules={6}
-    hours={16}
-    accent="#9b59f5"
-  />
-  <PathCard
-    number={7}
-    href="/paths/testing/"
-    title="Testing & Quality"
-    description="Unit, component, E2E. Vitest, Testing Library, Playwright, Storybook. TDD that actually pays off."
-    difficulty="intermediate"
-    modules={5}
-    hours={12}
-    accent="#0eaae6"
-  />
-  <PathCard
-    number={8}
-    href="/paths/devops/"
-    title="DevOps for Web Developers"
-    description="Git deep-dive, GitHub Actions, Docker, deploy to Pages/Vercel/Cloudflare/Fly, observability."
-    difficulty="intermediate"
-    modules={6}
-    hours={14}
-    accent="#566cf0"
-  />
-  <PathCard
-    number={9}
-    href="/paths/frontier/"
-    title="The Modern Frontier"
-    description="Edge runtimes, RSC streaming, islands, WebAssembly, WebGPU, CRDTs, AI in web apps, security."
-    difficulty="advanced"
-    modules={8}
-    hours={22}
-    accent="#f5b14a"
-  />
-</div>
-
-<div class="atlas-section-heading" style="margin-top: 4rem;">
-  <div>
-    <h2>What makes Atlas different</h2>
-    <p>Not another link dump. A coherent, opinionated curriculum that treats you like an adult.</p>
+  <div class="atlas-featured-paths">
+    <FeaturedPath
+      number={1}
+      href="/paths/foundations/"
+      title="Foundations of the Web"
+      description="HTTP, browsers, HTML5, CSS, modern JS, the DOM, async, modules, accessibility. The bedrock under every framework."
+      difficulty="beginner"
+      modules={9}
+      hours={28}
+      highlights={[
+        'How the web actually works',
+        'Modern HTML5 + semantic CSS',
+        'JavaScript through ES2026',
+        'Web platform APIs',
+      ]}
+      accent="oklch(70% 0.16 195)"
+    />
+    <FeaturedPath
+      number={5}
+      href="/paths/full-stack/"
+      title="Full-Stack Web Development"
+      description="Node, Deno, Bun · Hono, Fastify · REST, GraphQL, tRPC · auth, databases, ORMs, deploy. Ship complete apps end-to-end."
+      difficulty="intermediate"
+      modules={11}
+      hours={36}
+      highlights={[
+        'Hono on every JS runtime',
+        'Postgres + Drizzle, type-safe',
+        'Auth: sessions, OIDC, passkeys',
+        'Real-time, queues, observability',
+      ]}
+      accent="oklch(72% 0.18 65)"
+    />
+    <FeaturedPath
+      number={9}
+      href="/paths/frontier/"
+      title="The Modern Frontier"
+      description="Edge runtimes, Server Components, WebAssembly, WebGPU, real-time CRDTs, AI integration, and security."
+      difficulty="advanced"
+      modules={8}
+      hours={22}
+      highlights={[
+        'React Server Components + streaming',
+        'Edge runtimes & Cloudflare Workers',
+        'AI: LLMs, embeddings, RAG, MCP',
+        'Real-time collaboration with CRDTs',
+      ]}
+      accent="oklch(62% 0.18 295)"
+    />
   </div>
 </div>
 
-<div class="atlas-grid atlas-grid--cards">
-  <div class="atlas-card">
-    <span class="atlas-card__eyebrow">Curated, not crowdsourced</span>
-    <h3 class="atlas-card__title">One voice, one curriculum</h3>
-    <p class="atlas-card__desc">Every lesson follows the same template — concept, example, live playground, quiz, what's next. No filler. No clickbait.</p>
+{/* ============================================================
+    ALL 9 PATHS — compact grid
+    ============================================================ */}
+
+<div class="atlas-section">
+  <div class="atlas-section-head">
+    <SectionLabel label="Every path, one map" accent="oklch(68% 0.16 145)" />
+    <h2>All nine paths, in order or à la carte.</h2>
+    <p>Each path is a structured journey. Stack them up, or jump straight to the one you need today.</p>
   </div>
-  <div class="atlas-card">
-    <span class="atlas-card__eyebrow">Interactive</span>
-    <h3 class="atlas-card__title">Every concept is runnable</h3>
-    <p class="atlas-card__desc">Real Sandpack playgrounds inline — edit, see output instantly. No "watch this 90-minute video and trust me."</p>
-  </div>
-  <div class="atlas-card">
-    <span class="atlas-card__eyebrow">Modern by default</span>
-    <h3 class="atlas-card__title">Built on what's shipping in 2026</h3>
-    <p class="atlas-card__desc">Server Components, container queries, edge runtimes, AI integration. We teach the web you're going to build, not the one from 2018.</p>
-  </div>
-  <div class="atlas-card">
-    <span class="atlas-card__eyebrow">Free forever · open source</span>
-    <h3 class="atlas-card__title">MIT for code, CC BY-SA for content</h3>
-    <p class="atlas-card__desc">Fork it, translate it, run it offline as a PWA. <Link href="/contribute/">Contribute lessons</Link> back so the next learner has it better.</p>
-  </div>
-  <div class="atlas-card">
-    <span class="atlas-card__eyebrow">Respects your time</span>
-    <h3 class="atlas-card__title">Lessons are 10–15 minutes</h3>
-    <p class="atlas-card__desc">Bite-sized so you actually finish. Progress saves locally. Pick up exactly where you left off.</p>
-  </div>
-  <div class="atlas-card">
-    <span class="atlas-card__eyebrow">Practitioner-grade</span>
-    <h3 class="atlas-card__title">Reference + cheatsheets + projects</h3>
-    <p class="atlas-card__desc">Beyond tutorials — searchable reference, printable cheatsheets, and build-along projects that go on your portfolio.</p>
+
+  <div class="atlas-grid atlas-grid--cards">
+    <PathCard number={1} href="/paths/foundations/" title="Foundations of the Web"
+      description="HTTP, browsers, HTML5, CSS, JavaScript, the DOM, async, modules. The bedrock."
+      difficulty="beginner" modules={9} hours={28} accent="oklch(70% 0.16 195)" />
+    <PathCard number={2} href="/paths/modern-css/" title="Modern CSS & Design Systems"
+      description="Subgrid, container queries, :has(), cascade layers, design tokens, Tailwind, theming."
+      difficulty="intermediate" modules={7} hours={18} accent="oklch(75% 0.17 70)" />
+    <PathCard number={3} href="/paths/typescript/" title="TypeScript Mastery"
+      description="From basics to wizardry: generics, conditional and template-literal types, type-driven APIs."
+      difficulty="intermediate" modules={6} hours={14} accent="oklch(60% 0.16 250)" />
+    <PathCard number={4} href="/paths/frontend-frameworks/" title="Frontend Frameworks"
+      description="React, Vue, Svelte, Solid, Angular, Qwik, Astro, Lit, HTMX. When to pick which."
+      difficulty="mixed" modules={10} hours={32} accent="oklch(68% 0.18 20)" />
+    <PathCard number={5} href="/paths/full-stack/" title="Full-Stack Web Development"
+      description="Node, Deno, Bun · Hono, Fastify · REST, GraphQL, tRPC · auth, databases, ORMs, deploy."
+      difficulty="intermediate" modules={11} hours={36} accent="oklch(68% 0.16 145)" />
+    <PathCard number={6} href="/paths/performance-a11y-seo/" title="Performance, A11y & SEO"
+      description="Core Web Vitals, image optimization, code splitting, WCAG 2.2, screen readers, structured data."
+      difficulty="intermediate" modules={6} hours={16} accent="oklch(62% 0.18 295)" />
+    <PathCard number={7} href="/paths/testing/" title="Testing & Quality"
+      description="Unit, component, E2E. Vitest, Testing Library, Playwright, Storybook. TDD that actually pays off."
+      difficulty="intermediate" modules={5} hours={12} accent="oklch(68% 0.16 215)" />
+    <PathCard number={8} href="/paths/devops/" title="DevOps for Web Developers"
+      description="Git deep-dive, GitHub Actions, Docker, deploy to Pages/Vercel/Cloudflare/Fly, observability."
+      difficulty="intermediate" modules={6} hours={14} accent="oklch(60% 0.16 270)" />
+    <PathCard number={9} href="/paths/frontier/" title="The Modern Frontier"
+      description="Edge runtimes, RSC streaming, islands, WebAssembly, WebGPU, CRDTs, AI in web apps, security."
+      difficulty="advanced" modules={8} hours={22} accent="oklch(72% 0.18 65)" />
   </div>
 </div>
 
-<Callout variant="tip" title="New here?">
-Take the 60-second [start quiz](/start/) and we'll point you to the right path. Already a seasoned dev? Browse the [Reference](/reference/) or grab a [cheatsheet](/cheatsheets/).
-</Callout>
+{/* ============================================================
+    HOW ATLAS WORKS — 4 step flow
+    ============================================================ */}
 
-<div class="atlas-section-heading" style="margin-top: 4rem;">
-  <div>
-    <h2>Beyond the paths</h2>
-    <p>Tools to use Atlas as a daily companion, not just a course.</p>
+<div class="atlas-section">
+  <div class="atlas-section-head">
+    <SectionLabel label="How it works" accent="oklch(70% 0.16 195)" />
+    <h2>Bite-sized lessons, real <em>practice</em>, real ships.</h2>
+    <p>Every lesson follows the same shape. You read, you run real code, you check yourself, you ship.</p>
+  </div>
+
+  <HowItWorks steps={[
+    { num: 1, title: 'Pick a path', description: 'Take the 60-second start quiz, or browse the nine paths and choose the one that fits today.' },
+    { num: 2, title: 'Run real code', description: 'Every concept ships with a live Sandpack playground. Edit, see output, no setup.' },
+    { num: 3, title: 'Check yourself', description: 'Built-in quizzes per lesson — multiple choice, true/false, predict-output. Instant feedback.' },
+    { num: 4, title: 'Build & ship', description: 'Build-along projects (todo, e-commerce, real-time chat, AI buddy) ready for your portfolio.' },
+  ]} />
+</div>
+
+{/* ============================================================
+    VALUE PROPS — what makes Atlas different
+    ============================================================ */}
+
+<div class="atlas-section">
+  <div class="atlas-section-head">
+    <SectionLabel label="What makes Atlas different" accent="oklch(68% 0.18 20)" />
+    <h2>Not another link dump. A coherent curriculum.</h2>
+    <p>One voice. One template. One opinionated path through the web platform — built for people who learn by doing.</p>
+  </div>
+
+  <div class="atlas-grid atlas-grid--cards">
+    <ValueProp
+      icon="compass"
+      title="Curated, not crowdsourced"
+      description="Every lesson follows the same template — concept, example, live playground, quiz, what's next. No filler. No clickbait."
+      accent="oklch(72% 0.18 65)"
+    />
+    <ValueProp
+      icon="play"
+      title="Every concept is runnable"
+      description="Real Sandpack playgrounds inline — edit, see output instantly. No 'watch this 90-minute video and trust me.'"
+      accent="oklch(70% 0.16 195)"
+    />
+    <ValueProp
+      icon="zap"
+      title="Built on what's shipping in 2026"
+      description="Server Components, container queries, edge runtimes, AI integration. We teach the web you'll build, not the one from 2018."
+      accent="oklch(62% 0.18 295)"
+    />
+    <ValueProp
+      icon="heart"
+      title="Free forever · open source"
+      description="MIT for code, CC BY-SA for content. Fork it, translate it, run it offline as a PWA."
+      accent="oklch(68% 0.18 20)"
+    />
+    <ValueProp
+      icon="clock"
+      title="Respects your time"
+      description="Lessons are 10–15 minutes. Bite-sized so you actually finish. Progress saves locally. Pick up exactly where you left off."
+      accent="oklch(68% 0.16 145)"
+    />
+    <ValueProp
+      icon="layers"
+      title="Practitioner-grade"
+      description="Beyond tutorials — searchable reference, printable cheatsheets, visual roadmaps, build-along projects."
+      accent="oklch(60% 0.16 270)"
+    />
   </div>
 </div>
 
-<div class="atlas-grid atlas-grid--cards">
-  <Link class="atlas-card" href="/reference/">
-    <span class="atlas-card__eyebrow">Reference</span>
-    <h3 class="atlas-card__title">Learner-friendly docs</h3>
-    <p class="atlas-card__desc">HTML elements, CSS properties, JS APIs, Web APIs — explained for humans, not spec authors.</p>
-  </Link>
-  <Link class="atlas-card" href="/cheatsheets/">
-    <span class="atlas-card__eyebrow">Cheatsheets</span>
-    <h3 class="atlas-card__title">Printable, beautifully designed</h3>
-    <p class="atlas-card__desc">Flexbox, grid, git, regex, HTTP status codes, a11y checklist, TS utility types.</p>
-  </Link>
-  <Link class="atlas-card" href="/roadmaps/">
-    <span class="atlas-card__eyebrow">Roadmaps</span>
-    <h3 class="atlas-card__title">Visual learning graphs</h3>
-    <p class="atlas-card__desc">See the whole landscape — frontend, backend, full-stack, DevOps. Each node links to a lesson.</p>
-  </Link>
-  <Link class="atlas-card" href="/projects/">
-    <span class="atlas-card__eyebrow">Projects</span>
-    <h3 class="atlas-card__title">Build-along, portfolio-ready</h3>
-    <p class="atlas-card__desc">Markdown blog → e-commerce store → real-time chat → AI study buddy. Ship them.</p>
-  </Link>
-  <Link class="atlas-card" href="/glossary/">
-    <span class="atlas-card__eyebrow">Glossary</span>
-    <h3 class="atlas-card__title">Decode the jargon</h3>
-    <p class="atlas-card__desc">Hover any underlined term in a lesson → instant definition. The vocabulary of the web in one place.</p>
-  </Link>
-  <Link class="atlas-card" href="/playground/">
-    <span class="atlas-card__eyebrow">Playground</span>
-    <h3 class="atlas-card__title">Scratch space for ideas</h3>
-    <p class="atlas-card__desc">Pick a template, prototype an idea. No setup. Runs entirely in your browser.</p>
-  </Link>
+{/* ============================================================
+    BENTO GRID — tools beyond the lessons
+    ============================================================ */}
+
+<div class="atlas-section">
+  <div class="atlas-section-head">
+    <SectionLabel label="Tools beyond the lessons" accent="oklch(62% 0.18 295)" />
+    <h2>A daily companion, not just a course.</h2>
+    <p>Reference docs, printable cheatsheets, visual roadmaps, a code playground, and a glossary that hovers in.</p>
+  </div>
+
+  <div class="atlas-bento-grid">
+    <BentoCard
+      href="/reference/"
+      eyebrow="Reference"
+      title="Learner-friendly docs"
+      description="HTML elements, CSS properties, JS APIs, Web APIs — explained for humans, not spec authors."
+      size="lg"
+      icon="book"
+      accent="oklch(70% 0.16 195)"
+    />
+    <BentoCard
+      href="/cheatsheets/"
+      eyebrow="9 cheatsheets"
+      title="Printable, beautifully designed"
+      description="Flexbox, Grid, Git, regex, HTTP status, WCAG, TS utility types, npm scripts, DOM events."
+      size="md"
+      icon="grid"
+      accent="oklch(75% 0.17 70)"
+    />
+    <BentoCard
+      href="/roadmaps/"
+      eyebrow="6 roadmaps"
+      title="Visual learning graphs"
+      description="See the whole landscape. Click any node to jump to its lesson."
+      size="md"
+      icon="map"
+      accent="oklch(62% 0.18 295)"
+    />
+    <BentoCard
+      href="/projects/"
+      eyebrow="5 projects"
+      title="Build-along, portfolio-ready"
+      description="Todo (vanilla JS) · Markdown blog (Astro) · E-commerce + Stripe · Real-time chat · AI study buddy."
+      size="wide"
+      icon="box"
+      accent="oklch(68% 0.18 20)"
+    />
+    <BentoCard
+      href="/glossary/"
+      eyebrow="Glossary"
+      title="Decode the jargon"
+      description="78 entries, hover-tooltips throughout."
+      size="md"
+      icon="search"
+      accent="oklch(68% 0.16 145)"
+    />
+    <BentoCard
+      href="/playground/"
+      eyebrow="Playground"
+      title="Scratch space"
+      description="Pick a template, prototype an idea. Browser-only."
+      size="md"
+      icon="play"
+      accent="oklch(60% 0.16 270)"
+    />
+  </div>
 </div>
+
+{/* ============================================================
+    FINAL CTA
+    ============================================================ */}
+
+<CtaBanner
+  eyebrow="Free · forever · open source"
+  title="Stop bookmarking tutorials. <em>Start</em> shipping."
+  description="60 seconds to find your starting path. The next 250 lessons take care of themselves."
+  primaryHref="/start/"
+  primaryLabel="Start your journey"
+  secondaryHref="/paths/"
+  secondaryLabel="Browse all paths"
+/>

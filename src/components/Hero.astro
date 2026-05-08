@@ -1,5 +1,5 @@
 ---
-import Compass from './Compass.astro';
+import HeroStack from './HeroStack.astro';
 import { withBase } from '../lib/url';
 
 interface Props {
@@ -21,9 +21,18 @@ const {
   secondaryHref = '/paths/',
   secondaryLabel = 'Browse all paths',
 } = Astro.props;
+
+const TOPICS = [
+  'HTML5', 'Modern CSS', 'TypeScript', 'React', 'Vue', 'Svelte',
+  'Server Components', 'Hono', 'Postgres', 'Drizzle', 'Auth & passkeys',
+  'Web Vitals', 'Accessibility', 'Playwright', 'GitHub Actions',
+  'Edge runtimes', 'WebAssembly', 'WebGPU', 'CRDTs', 'AI · RAG · MCP',
+];
 ---
 
 <section class="atlas-hero">
+  <div class="atlas-hero__grid" aria-hidden="true"></div>
+
   <div class="atlas-hero__copy">
     <span class="atlas-hero__eyebrow">
       <span class="atlas-hero__eyebrow-dot" aria-hidden="true"></span>
@@ -31,6 +40,7 @@ const {
     </span>
     <h1 class="atlas-hero__title" set:html={title} />
     {lede && <p class="atlas-hero__lede">{lede}</p>}
+
     <div class="atlas-hero__cta">
       <a class="atlas-btn" href={withBase(primaryHref)}>
         {primaryLabel}
@@ -58,15 +68,54 @@ const {
         <span class="atlas-hero__stat-label">free, forever</span>
       </li>
     </ul>
+
+    {/* Topic marquee — scrolling pills demonstrating breadth */}
+    <div class="atlas-hero__topics" aria-label="Topics you'll learn">
+      <div class="atlas-hero__topics-fade atlas-hero__topics-fade--left" aria-hidden="true"></div>
+      <div class="atlas-hero__topics-track">
+        {[...TOPICS, ...TOPICS].map((t) => (
+          <span class="atlas-hero__topic">{t}</span>
+        ))}
+      </div>
+      <div class="atlas-hero__topics-fade atlas-hero__topics-fade--right" aria-hidden="true"></div>
+    </div>
   </div>
 
   <div class="atlas-hero__art" aria-hidden="true">
-    <div class="atlas-hero__art-glow"></div>
-    <Compass spin class="atlas-hero__compass" />
+    <HeroStack />
   </div>
+
+  {/* Scroll cue at the bottom */}
+  <a class="atlas-hero__scroll" href="#below" aria-label="Scroll to content">
+    <span class="atlas-hero__scroll-track">
+      <span class="atlas-hero__scroll-dot"></span>
+    </span>
+    <span class="atlas-hero__scroll-text">Scroll</span>
+  </a>
 </section>
 
+<span id="below"></span>
+
 <style>
+  /* Dotted grid pattern overlay — subtle structure beneath the mesh */
+  .atlas-hero__grid {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background-image:
+      radial-gradient(oklch(100% 0 0 / 0.06) 1px, transparent 1px);
+    background-size: 28px 28px;
+    background-position: -1px -1px;
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 0%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, black 0%, transparent 80%);
+    pointer-events: none;
+  }
+  :root[data-theme='light'] .atlas-hero__grid {
+    background-image:
+      radial-gradient(oklch(20% 0.04 250 / 0.08) 1px, transparent 1px);
+  }
+
+  /* Eyebrow with pulsing dot */
   .atlas-hero__eyebrow-dot {
     display: inline-block;
     width: 6px; height: 6px;
@@ -80,15 +129,29 @@ const {
     50%      { box-shadow: 0 0 0 6px oklch(72% 0.18 65 / 0.04); }
   }
 
-  .atlas-hero__copy { position: relative; z-index: 1; }
+  .atlas-hero__copy {
+    position: relative;
+    z-index: 1;
+    /* Subtle reveal-on-load */
+    animation: atlas-hero-rise 700ms var(--atlas-ease-out) both;
+  }
+  @keyframes atlas-hero-rise {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .atlas-hero__copy { animation: none; }
+  }
 
+  /* Stats row */
   .atlas-hero__stats {
     display: flex;
     gap: var(--atlas-sp-8);
     list-style: none;
-    margin: var(--atlas-sp-12) 0 0;
-    padding: 0;
+    margin: var(--atlas-sp-10) 0 0;
+    padding: var(--atlas-sp-6) 0 0;
     flex-wrap: wrap;
+    border-top: 1px solid var(--sl-color-hairline-light);
   }
   .atlas-hero__stats li {
     display: flex;
@@ -99,7 +162,7 @@ const {
     font-family: var(--atlas-font-display);
     font-size: var(--atlas-fs-2xl);
     font-weight: 600;
-    letter-spacing: var(--atlas-tracking-tight);
+    letter-spacing: -0.025em;
     line-height: 1;
     background: var(--grad-text-amber);
     -webkit-background-clip: text;
@@ -114,39 +177,113 @@ const {
     letter-spacing: 0.08em;
   }
 
+  /* Topic marquee */
+  .atlas-hero__topics {
+    position: relative;
+    margin-top: var(--atlas-sp-8);
+    overflow: hidden;
+    mask-image: linear-gradient(90deg, transparent 0, black 8%, black 92%, transparent 100%);
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, black 8%, black 92%, transparent 100%);
+  }
+  .atlas-hero__topics-track {
+    display: flex;
+    gap: 0.5rem;
+    width: max-content;
+    animation: atlas-topics-scroll 36s linear infinite;
+  }
+  @keyframes atlas-topics-scroll {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .atlas-hero__topics-track { animation: none; }
+  }
+  .atlas-hero__topics-fade { display: none; }
+
+  .atlas-hero__topic {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4em 0.85em;
+    font-size: 0.78rem;
+    font-weight: 500;
+    border-radius: var(--atlas-radius-pill);
+    background: oklch(15% 0.03 250 / 0.6);
+    border: 1px solid oklch(100% 0 0 / 0.07);
+    color: var(--sl-color-gray-2);
+    white-space: nowrap;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition: border-color var(--atlas-dur-fast) var(--atlas-ease);
+  }
+  :root[data-theme='light'] .atlas-hero__topic {
+    background: oklch(100% 0 0 / 0.7);
+    border-color: oklch(20% 0.04 250 / 0.08);
+  }
+  .atlas-hero__topic:hover {
+    border-color: oklch(72% 0.18 65 / 0.4);
+  }
+
+  /* Right-side art (HeroStack) */
   .atlas-hero__art {
     position: relative;
     width: 100%;
-    max-width: 30rem;
-    justify-self: center;
-    color: var(--atlas-amber-400);
+    z-index: 0;
+    animation: atlas-hero-rise 900ms var(--atlas-ease-out) 100ms both;
   }
-  .atlas-hero__art-glow {
+
+  /* Scroll cue */
+  .atlas-hero__scroll {
     position: absolute;
-    inset: 8%;
-    z-index: -1;
-    border-radius: 50%;
-    background:
-      radial-gradient(circle, oklch(72% 0.18 65 / 0.45) 0%, transparent 65%),
-      conic-gradient(from 200deg, oklch(70% 0.18 65 / 0.4), oklch(60% 0.18 280 / 0.3), oklch(68% 0.16 200 / 0.3), oklch(70% 0.18 65 / 0.4));
-    filter: blur(40px);
-    animation: atlas-glow-rotate 16s linear infinite;
+    bottom: var(--atlas-sp-4);
+    left: 50%;
+    transform: translateX(-50%);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    padding: 0.4rem 0.7rem;
+    border-radius: var(--atlas-radius-pill);
+    color: var(--sl-color-gray-3);
+    text-decoration: none;
+    font-size: 0.72rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    opacity: 0.65;
+    transition: opacity var(--atlas-dur-fast) var(--atlas-ease);
   }
-  @keyframes atlas-glow-rotate {
-    to { transform: rotate(360deg); }
+  .atlas-hero__scroll:hover { opacity: 1; }
+  .atlas-hero__scroll-track {
+    width: 16px;
+    height: 22px;
+    border: 1.5px solid currentColor;
+    border-radius: 999px;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .atlas-hero__scroll-dot {
+    position: absolute;
+    top: 4px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 3px;
+    height: 5px;
+    background: currentColor;
+    border-radius: 999px;
+    animation: atlas-scroll-bounce 1.8s ease-in-out infinite;
+  }
+  @keyframes atlas-scroll-bounce {
+    0%, 100% { transform: translate(-50%, 0); opacity: 1; }
+    50%      { transform: translate(-50%, 6px); opacity: 0.4; }
   }
   @media (prefers-reduced-motion: reduce) {
-    .atlas-hero__art-glow { animation: none; }
+    .atlas-hero__scroll-dot { animation: none; }
+  }
+  @media (max-width: 50em) {
+    .atlas-hero__scroll { display: none; }
   }
 
-  .atlas-hero__compass {
-    width: 100%;
-    height: auto;
-    filter: drop-shadow(0 20px 50px oklch(72% 0.18 65 / 0.35));
-  }
-
-  /* On narrow screens, hide the big compass — let the mesh handle visuals */
-  @media (max-width: 60rem) {
+  /* Hide stack on narrow screens */
+  @media (max-width: 60em) {
     .atlas-hero__art { display: none; }
   }
 </style>

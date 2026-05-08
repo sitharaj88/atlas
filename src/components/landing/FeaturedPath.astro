@@ -1,0 +1,192 @@
+---
+import { withBase } from '../../lib/url';
+
+interface Props {
+  number: number | string;
+  href: string;
+  title: string;
+  description: string;
+  difficulty?: 'beginner' | 'intermediate' | 'advanced' | 'mixed';
+  modules?: number;
+  hours?: number;
+  highlights?: string[];
+  accent?: string;
+}
+const {
+  number,
+  href,
+  title,
+  description,
+  difficulty = 'mixed',
+  modules,
+  hours,
+  highlights = [],
+  accent = 'oklch(72% 0.18 65)',
+} = Astro.props;
+---
+
+<a class="atlas-fp" href={withBase(href)} style={`--fp-accent: ${accent}`}>
+  <div class="atlas-fp__head">
+    <span class="atlas-fp__num">{String(number).padStart(2, '0')}</span>
+    <span class="atlas-fp__diff">{difficulty}</span>
+  </div>
+
+  <h3 class="atlas-fp__title">{title}</h3>
+  <p class="atlas-fp__desc">{description}</p>
+
+  {highlights.length > 0 && (
+    <ul class="atlas-fp__list">
+      {highlights.map((h) => (
+        <li>
+          <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true">
+            <circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1.4" opacity="0.4"/>
+            <path d="M5 8.5l2 2 4-4.5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>{h}</span>
+        </li>
+      ))}
+    </ul>
+  )}
+
+  <div class="atlas-fp__foot">
+    {(modules !== undefined || hours !== undefined) && (
+      <div class="atlas-fp__meta">
+        {modules !== undefined && <span>{modules} modules</span>}
+        {hours !== undefined && <span>~{hours}h</span>}
+      </div>
+    )}
+    <span class="atlas-fp__cta">
+      Start path
+      <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+        <path d="M3 8h9M8 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+  </div>
+</a>
+
+<style>
+  .atlas-fp {
+    --fp-soft: oklch(from var(--fp-accent) l c h / 0.15);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--atlas-sp-3);
+    padding: var(--atlas-sp-6);
+    border: 1px solid var(--atlas-card-border);
+    border-radius: var(--atlas-radius-xl);
+    background: var(--atlas-card-bg);
+    color: inherit;
+    text-decoration: none;
+    overflow: hidden;
+    isolation: isolate;
+    transition:
+      transform var(--atlas-dur-base) var(--atlas-ease-out),
+      border-color var(--atlas-dur-base) var(--atlas-ease-out);
+  }
+  .atlas-fp::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle at 100% 0%, var(--fp-soft) 0%, transparent 55%);
+    z-index: -1;
+    opacity: 0.7;
+    transition: opacity var(--atlas-dur-base) var(--atlas-ease-out);
+  }
+  .atlas-fp:hover {
+    transform: translateY(-3px);
+    border-color: oklch(from var(--fp-accent) l c h / 0.4);
+  }
+  .atlas-fp:hover::before { opacity: 1; }
+
+  .atlas-fp__head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--atlas-sp-3);
+  }
+  .atlas-fp__num {
+    font-family: var(--atlas-font-display);
+    font-size: 1.4rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    background: linear-gradient(160deg, var(--fp-accent) 0%, oklch(from var(--fp-accent) calc(l - 0.15) c h));
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .atlas-fp__diff {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--fp-accent);
+    padding: 0.25em 0.7em;
+    border-radius: 999px;
+    background: oklch(from var(--fp-accent) l c h / 0.1);
+    border: 1px solid oklch(from var(--fp-accent) l c h / 0.25);
+  }
+
+  .atlas-fp__title {
+    font-family: var(--atlas-font-display);
+    font-size: var(--atlas-fs-xl);
+    font-weight: 600;
+    letter-spacing: var(--atlas-tracking-tight);
+    line-height: var(--atlas-leading-snug);
+    margin: var(--atlas-sp-1) 0 0;
+    color: var(--sl-color-white);
+  }
+  .atlas-fp__desc {
+    font-size: var(--atlas-fs-sm);
+    line-height: var(--atlas-leading-base);
+    color: var(--sl-color-gray-3);
+    margin: 0;
+  }
+
+  .atlas-fp__list {
+    list-style: none;
+    margin: var(--atlas-sp-2) 0 0;
+    padding: 0;
+    display: grid;
+    gap: 0.4rem;
+  }
+  .atlas-fp__list li {
+    display: flex;
+    gap: 0.55rem;
+    align-items: center;
+    font-size: 0.83rem;
+    color: var(--sl-color-gray-2);
+  }
+  .atlas-fp__list svg {
+    color: var(--fp-accent);
+    flex-shrink: 0;
+  }
+
+  .atlas-fp__foot {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--atlas-sp-3);
+    margin-top: auto;
+    padding-top: var(--atlas-sp-4);
+    border-top: 1px dashed var(--sl-color-hairline-light);
+  }
+  .atlas-fp__meta {
+    display: flex;
+    gap: var(--atlas-sp-3);
+    font-size: 0.78rem;
+    color: var(--sl-color-gray-3);
+  }
+  .atlas-fp__cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.83rem;
+    font-weight: 600;
+    color: var(--fp-accent);
+    transition: gap var(--atlas-dur-fast) var(--atlas-ease-out);
+  }
+  .atlas-fp:hover .atlas-fp__cta {
+    gap: 0.7rem;
+  }
+</style>

@@ -1,0 +1,106 @@
+---
+interface Step {
+  num: string | number;
+  title: string;
+  description: string;
+}
+interface Props {
+  steps: Step[];
+}
+const { steps } = Astro.props;
+---
+
+<ol class="atlas-how">
+  {steps.map((step) => (
+    <li class="atlas-how__step">
+      <div class="atlas-how__num" aria-hidden="true">
+        <span>{String(step.num).padStart(2, '0')}</span>
+      </div>
+      <div class="atlas-how__body">
+        <h3 class="atlas-how__title">{step.title}</h3>
+        <p class="atlas-how__desc">{step.description}</p>
+      </div>
+    </li>
+  ))}
+</ol>
+
+<style>
+  .atlas-how {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: var(--atlas-sp-6);
+    counter-reset: step;
+  }
+  @media (min-width: 60rem) {
+    .atlas-how {
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--atlas-sp-5);
+    }
+  }
+
+  .atlas-how__step {
+    position: relative;
+    padding: var(--atlas-sp-6);
+    border: 1px solid var(--atlas-card-border);
+    border-radius: var(--atlas-radius-xl);
+    background: var(--atlas-card-bg);
+    transition: border-color var(--atlas-dur-base) var(--atlas-ease-out);
+  }
+  .atlas-how__step:hover {
+    border-color: oklch(72% 0.18 65 / 0.35);
+  }
+
+  /* Connecting gradient line between steps (desktop) */
+  @media (min-width: 60rem) {
+    .atlas-how__step::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      right: calc(var(--atlas-sp-5) * -1);
+      width: var(--atlas-sp-5);
+      height: 2px;
+      background: linear-gradient(90deg, oklch(72% 0.18 65 / 0.4), transparent);
+      transform: translateY(-50%);
+      pointer-events: none;
+    }
+    .atlas-how__step:last-child::after { display: none; }
+  }
+
+  .atlas-how__num {
+    display: inline-grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 999px;
+    background: var(--grad-amber);
+    color: oklch(15% 0.04 250);
+    margin-bottom: var(--atlas-sp-4);
+    box-shadow:
+      0 0 0 1px oklch(72% 0.18 65 / 0.55),
+      0 6px 18px -6px oklch(72% 0.18 65 / 0.6);
+  }
+  .atlas-how__num span {
+    font-family: var(--atlas-font-display);
+    font-weight: 600;
+    font-size: 0.95rem;
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+
+  .atlas-how__title {
+    font-family: var(--atlas-font-sans);
+    font-size: var(--atlas-fs-md);
+    font-weight: 600;
+    letter-spacing: var(--atlas-tracking-snug);
+    margin: 0 0 var(--atlas-sp-2);
+    color: var(--sl-color-white);
+  }
+  .atlas-how__desc {
+    font-size: var(--atlas-fs-sm);
+    line-height: var(--atlas-leading-base);
+    color: var(--sl-color-gray-3);
+    margin: 0;
+  }
+</style>

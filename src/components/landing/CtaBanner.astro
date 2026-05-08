@@ -1,0 +1,142 @@
+---
+import { withBase } from '../../lib/url';
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  description?: string;
+  primaryHref?: string;
+  primaryLabel?: string;
+  secondaryHref?: string;
+  secondaryLabel?: string;
+}
+const {
+  eyebrow,
+  title,
+  description,
+  primaryHref = '/start/',
+  primaryLabel = 'Start your journey',
+  secondaryHref,
+  secondaryLabel,
+} = Astro.props;
+---
+
+<section class="atlas-cta">
+  <div class="atlas-cta__inner">
+    {eyebrow && <span class="atlas-cta__eyebrow">{eyebrow}</span>}
+    <h2 class="atlas-cta__title" set:html={title} />
+    {description && <p class="atlas-cta__desc">{description}</p>}
+    <div class="atlas-cta__actions">
+      <a class="atlas-btn" href={withBase(primaryHref)}>
+        {primaryLabel}
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M3 8h9M8 3l5 5-5 5" fill="none" stroke="currentColor"
+            stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </a>
+      {secondaryHref && (
+        <a class="atlas-btn atlas-btn--ghost" href={withBase(secondaryHref)}>
+          {secondaryLabel}
+        </a>
+      )}
+    </div>
+  </div>
+  <div class="atlas-cta__glow" aria-hidden="true"></div>
+</section>
+
+<style>
+  .atlas-cta {
+    position: relative;
+    margin-block: var(--atlas-sp-16);
+    padding: clamp(2rem, 6vw, 4rem) clamp(1.5rem, 5vw, 4rem);
+    border-radius: var(--atlas-radius-2xl);
+    border: 1px solid oklch(72% 0.18 65 / 0.25);
+    background:
+      linear-gradient(135deg,
+        oklch(20% 0.06 250) 0%,
+        oklch(15% 0.04 250) 100%);
+    overflow: hidden;
+    isolation: isolate;
+  }
+  :root[data-theme='light'] .atlas-cta {
+    background:
+      linear-gradient(135deg,
+        oklch(98% 0.02 75) 0%,
+        oklch(94% 0.05 65) 100%);
+    border-color: oklch(72% 0.18 65 / 0.45);
+  }
+  .atlas-cta__glow {
+    position: absolute;
+    inset: -50%;
+    z-index: -1;
+    background:
+      radial-gradient(at 20% 30%, oklch(72% 0.18 65 / 0.45) 0px, transparent 35%),
+      radial-gradient(at 80% 70%, oklch(60% 0.18 280 / 0.35) 0px, transparent 35%);
+    filter: blur(60px);
+    opacity: 0.85;
+    animation: atlas-cta-drift 20s ease-in-out infinite alternate;
+  }
+  @keyframes atlas-cta-drift {
+    0%   { transform: translate3d(0,0,0); }
+    100% { transform: translate3d(3%, -3%, 0); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .atlas-cta__glow { animation: none; }
+  }
+
+  .atlas-cta__inner {
+    max-width: 50rem;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+
+  .atlas-cta__eyebrow {
+    display: inline-block;
+    padding: 0.4em 0.95em;
+    margin-bottom: var(--atlas-sp-4);
+    border-radius: var(--atlas-radius-pill);
+    background: oklch(72% 0.18 65 / 0.15);
+    border: 1px solid oklch(72% 0.18 65 / 0.3);
+    color: var(--sl-color-text-accent);
+    font-size: var(--atlas-fs-xs);
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .atlas-cta__title {
+    font-family: var(--atlas-font-display);
+    font-weight: 500;
+    font-size: var(--atlas-fs-3xl);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    margin: 0 0 var(--atlas-sp-4);
+    color: var(--sl-color-white);
+    text-wrap: balance;
+  }
+  .atlas-cta__title em {
+    font-style: italic;
+    background: var(--grad-text-amber);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .atlas-cta__desc {
+    font-size: var(--atlas-fs-md);
+    color: var(--sl-color-gray-2);
+    margin: 0 0 var(--atlas-sp-6);
+    text-wrap: pretty;
+    max-width: 36rem;
+    margin-inline: auto;
+  }
+
+  .atlas-cta__actions {
+    display: flex;
+    gap: var(--atlas-sp-3);
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+</style>

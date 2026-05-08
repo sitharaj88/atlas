@@ -1,0 +1,176 @@
+---
+import { withBase } from '../../lib/url';
+
+interface Props {
+  href: string;
+  eyebrow?: string;
+  title: string;
+  description: string;
+  size?: 'sm' | 'md' | 'lg' | 'xl' | 'wide' | 'tall';
+  accent?: string;
+  icon?: 'search' | 'grid' | 'map' | 'box' | 'book' | 'play';
+}
+const {
+  href,
+  eyebrow,
+  title,
+  description,
+  size = 'md',
+  accent = 'oklch(72% 0.18 65)',
+  icon,
+} = Astro.props;
+---
+
+<a class={`atlas-bento atlas-bento--${size}`} href={withBase(href)} style={`--bento-accent: ${accent}`}>
+  <div class="atlas-bento__top">
+    {icon && (
+      <div class="atlas-bento__icon" aria-hidden="true">
+        {icon === 'search' && (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>
+          </svg>
+        )}
+        {icon === 'grid' && (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
+            <rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/>
+            <rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>
+          </svg>
+        )}
+        {icon === 'map' && (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round">
+            <path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z"/>
+            <path d="M9 4v14M15 6v14"/>
+          </svg>
+        )}
+        {icon === 'box' && (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 8 12 3 3 8v8l9 5 9-5V8z"/>
+            <path d="M3 8l9 5 9-5M12 13v8"/>
+          </svg>
+        )}
+        {icon === 'book' && (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M4 5a2 2 0 012-2h14v18H6a2 2 0 010-4h14"/>
+          </svg>
+        )}
+        {icon === 'play' && (
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="9"/><path d="M10 8l6 4-6 4z"/>
+          </svg>
+        )}
+      </div>
+    )}
+    {eyebrow && <span class="atlas-bento__eyebrow">{eyebrow}</span>}
+  </div>
+  <h3 class="atlas-bento__title">{title}</h3>
+  <p class="atlas-bento__desc">{description}</p>
+  <span class="atlas-bento__arrow" aria-hidden="true">→</span>
+</a>
+
+<style>
+  .atlas-bento {
+    --bento-soft: oklch(from var(--bento-accent) l c h / 0.12);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: var(--atlas-sp-2);
+    padding: var(--atlas-sp-6);
+    min-height: 14rem;
+    border: 1px solid var(--atlas-card-border);
+    border-radius: var(--atlas-radius-xl);
+    background: var(--atlas-card-bg);
+    color: inherit;
+    text-decoration: none;
+    overflow: hidden;
+    isolation: isolate;
+    transition:
+      transform var(--atlas-dur-base) var(--atlas-ease-out),
+      border-color var(--atlas-dur-base) var(--atlas-ease-out);
+  }
+  .atlas-bento::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle at 100% 0%, var(--bento-soft) 0%, transparent 55%);
+    z-index: -1;
+    opacity: 0.6;
+    transition: opacity var(--atlas-dur-base) var(--atlas-ease-out);
+  }
+  .atlas-bento:hover {
+    transform: translateY(-3px);
+    border-color: oklch(from var(--bento-accent) l c h / 0.4);
+  }
+  .atlas-bento:hover::before { opacity: 1; }
+
+  /* Bento sizes for grid spans (used inside .atlas-bento-grid) */
+  .atlas-bento--sm  { grid-column: span 1; }
+  .atlas-bento--md  { grid-column: span 1; }
+  .atlas-bento--lg  { grid-column: span 2; }
+  .atlas-bento--wide { grid-column: span 2; }
+  .atlas-bento--tall { grid-row: span 2; }
+  .atlas-bento--xl  { grid-column: span 2; grid-row: span 2; min-height: 28rem; }
+
+  @media (max-width: 50rem) {
+    .atlas-bento--lg, .atlas-bento--wide, .atlas-bento--xl {
+      grid-column: span 1;
+      grid-row: span 1;
+      min-height: 14rem;
+    }
+  }
+
+  .atlas-bento__top {
+    display: flex;
+    align-items: center;
+    gap: var(--atlas-sp-3);
+    margin-bottom: var(--atlas-sp-2);
+  }
+  .atlas-bento__icon {
+    width: 2.4rem;
+    height: 2.4rem;
+    display: grid;
+    place-items: center;
+    border-radius: var(--atlas-radius-md);
+    background: oklch(from var(--bento-accent) l c h / 0.15);
+    color: var(--bento-accent);
+    border: 1px solid oklch(from var(--bento-accent) l c h / 0.3);
+  }
+  .atlas-bento__icon svg { width: 1.2rem; height: 1.2rem; }
+
+  .atlas-bento__eyebrow {
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--bento-accent);
+  }
+
+  .atlas-bento__title {
+    font-family: var(--atlas-font-sans);
+    font-size: var(--atlas-fs-lg);
+    font-weight: 600;
+    letter-spacing: var(--atlas-tracking-snug);
+    margin: 0;
+    color: var(--sl-color-white);
+  }
+  .atlas-bento__desc {
+    font-size: var(--atlas-fs-sm);
+    line-height: var(--atlas-leading-base);
+    color: var(--sl-color-gray-3);
+    margin: 0;
+    max-width: 38rem;
+  }
+  .atlas-bento__arrow {
+    margin-top: auto;
+    align-self: flex-start;
+    font-size: 1.1rem;
+    color: var(--bento-accent);
+    transform: translateX(-4px);
+    opacity: 0;
+    transition: transform var(--atlas-dur-base) var(--atlas-ease-out), opacity var(--atlas-dur-base);
+  }
+  .atlas-bento:hover .atlas-bento__arrow {
+    opacity: 1;
+    transform: translateX(0);
+  }
+</style>

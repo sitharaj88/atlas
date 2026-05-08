@@ -1,0 +1,364 @@
+---
+/**
+ * Floating "what a lesson looks like" composition for the hero.
+ * Three layered glass cards — lesson preview, quiz card, progress chip —
+ * floating gently with subtle rotations to add depth.
+ */
+import Compass from './Compass.astro';
+---
+
+<div class="atlas-hero-stack" aria-hidden="true">
+  <div class="atlas-hero-stack__compass">
+    <Compass spin />
+  </div>
+
+  {/* ─────── Lesson preview card (front) ─────── */}
+  <div class="atlas-hero-stack__card atlas-hero-stack__card--lesson">
+    <div class="atlas-hero-stack__card-head">
+      <span class="atlas-hero-stack__chip">Foundations · Lesson 4</span>
+      <span class="atlas-hero-stack__time">12 min</span>
+    </div>
+    <h4 class="atlas-hero-stack__title">How the web works</h4>
+    <pre class="atlas-hero-stack__code"><span class="atlas-hero-stack__c1">curl</span> <span class="atlas-hero-stack__c2">-v</span> https://atlas.dev/
+
+<span class="atlas-hero-stack__c3">&gt;</span> GET / HTTP/2
+<span class="atlas-hero-stack__c3">&gt;</span> Host: atlas.dev
+<span class="atlas-hero-stack__c3">&gt;</span> Accept: text/html
+
+<span class="atlas-hero-stack__c4">&lt;</span> HTTP/2 200 OK
+<span class="atlas-hero-stack__c4">&lt;</span> content-type: text/html</pre>
+    <div class="atlas-hero-stack__progress">
+      <span class="atlas-hero-stack__progress-bar"></span>
+      <span class="atlas-hero-stack__progress-meta">Lesson 4 of 9</span>
+    </div>
+  </div>
+
+  {/* ─────── Quiz card (back-right) ─────── */}
+  <div class="atlas-hero-stack__card atlas-hero-stack__card--quiz">
+    <span class="atlas-hero-stack__chip atlas-hero-stack__chip--quiz">Quiz · 2 of 3</span>
+    <p class="atlas-hero-stack__q">In what order do these happen?</p>
+    <ul class="atlas-hero-stack__opts">
+      <li class="is-wrong">TLS → DNS → TCP → HTTP</li>
+      <li class="is-correct">DNS → TCP → TLS → HTTP <span class="atlas-hero-stack__check">✓</span></li>
+      <li>HTTP → TCP → DNS → TLS</li>
+    </ul>
+  </div>
+
+  {/* ─────── Achievement chip (front-bottom) ─────── */}
+  <div class="atlas-hero-stack__card atlas-hero-stack__card--badge">
+    <div class="atlas-hero-stack__badge-icon" aria-hidden="true">
+      <svg viewBox="0 0 16 16" width="14" height="14">
+        <path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </div>
+    <div>
+      <span class="atlas-hero-stack__badge-title">Module complete</span>
+      <span class="atlas-hero-stack__badge-meta">Web Platform · 4 / 4 lessons</span>
+    </div>
+  </div>
+</div>
+
+<style>
+  .atlas-hero-stack {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1.05;
+    max-width: 32rem;
+    margin-inline: auto;
+    isolation: isolate;
+  }
+
+  /* Background compass */
+  .atlas-hero-stack__compass {
+    position: absolute;
+    inset: 5% 5% 5% 5%;
+    z-index: 0;
+    color: var(--atlas-amber-400);
+    opacity: 0.55;
+    filter: drop-shadow(0 24px 48px oklch(72% 0.18 65 / 0.25));
+  }
+  .atlas-hero-stack__compass :global(svg) { width: 100%; height: 100%; }
+
+  /* Soft glow halo behind the compass */
+  .atlas-hero-stack::before {
+    content: '';
+    position: absolute;
+    inset: 12% 12%;
+    z-index: -1;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, oklch(72% 0.18 65 / 0.4) 0%, transparent 60%),
+      conic-gradient(from 200deg, oklch(70% 0.18 65 / 0.3), oklch(60% 0.18 280 / 0.25), oklch(68% 0.16 200 / 0.25), oklch(70% 0.18 65 / 0.3));
+    filter: blur(50px);
+    animation: atlas-stack-glow 18s linear infinite;
+  }
+  @keyframes atlas-stack-glow {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Common card styling */
+  .atlas-hero-stack__card {
+    position: absolute;
+    border-radius: var(--atlas-radius-lg);
+    background: oklch(15% 0.04 250 / 0.85);
+    border: 1px solid oklch(100% 0 0 / 0.1);
+    box-shadow:
+      0 1px 0 0 oklch(100% 0 0 / 0.05) inset,
+      0 24px 48px -12px oklch(0% 0 0 / 0.55),
+      0 0 0 1px oklch(72% 0.18 65 / 0.08);
+    backdrop-filter: blur(12px) saturate(140%);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+    color: oklch(94% 0.01 250);
+    font-family: var(--atlas-font-sans);
+    z-index: 1;
+  }
+  :root[data-theme='light'] .atlas-hero-stack__card {
+    background: oklch(100% 0 0 / 0.85);
+    border-color: oklch(20% 0.04 250 / 0.1);
+    color: oklch(20% 0.04 250);
+    box-shadow:
+      0 1px 0 0 oklch(100% 0 0 / 0.6) inset,
+      0 18px 40px -12px oklch(20% 0.04 250 / 0.18),
+      0 0 0 1px oklch(72% 0.18 65 / 0.08);
+  }
+
+  /* ─────── LESSON CARD (front, right side, slightly tilted) ─────── */
+  .atlas-hero-stack__card--lesson {
+    inset: 10% 4% auto auto;
+    width: min(78%, 22rem);
+    padding: 1rem 1.1rem;
+    transform: rotate(2deg);
+    animation: atlas-float-a 9s ease-in-out infinite;
+  }
+  @keyframes atlas-float-a {
+    0%, 100% { transform: rotate(2deg) translateY(0); }
+    50%      { transform: rotate(2deg) translateY(-6px); }
+  }
+
+  .atlas-hero-stack__card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.6rem;
+  }
+  .atlas-hero-stack__chip {
+    display: inline-block;
+    padding: 0.2em 0.7em;
+    border-radius: 999px;
+    background: oklch(72% 0.18 65 / 0.15);
+    border: 1px solid oklch(72% 0.18 65 / 0.3);
+    color: var(--atlas-amber-300);
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  :root[data-theme='light'] .atlas-hero-stack__chip {
+    color: oklch(45% 0.16 60);
+  }
+  .atlas-hero-stack__chip--quiz {
+    background: oklch(62% 0.18 295 / 0.15);
+    border-color: oklch(62% 0.18 295 / 0.35);
+    color: oklch(78% 0.13 295);
+  }
+  :root[data-theme='light'] .atlas-hero-stack__chip--quiz {
+    color: oklch(45% 0.18 295);
+  }
+  .atlas-hero-stack__time {
+    font-size: 0.7rem;
+    color: oklch(67% 0.03 250);
+  }
+  :root[data-theme='light'] .atlas-hero-stack__time {
+    color: oklch(50% 0.04 250);
+  }
+
+  .atlas-hero-stack__title {
+    margin: 0 0 0.7rem;
+    font-family: var(--atlas-font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: oklch(99% 0.005 250);
+  }
+  :root[data-theme='light'] .atlas-hero-stack__title {
+    color: oklch(15% 0.04 250);
+  }
+
+  .atlas-hero-stack__code {
+    margin: 0;
+    padding: 0.6rem 0.75rem;
+    border-radius: var(--atlas-radius-md);
+    background: oklch(8% 0.025 250 / 0.8);
+    border: 1px solid oklch(100% 0 0 / 0.06);
+    font-family: var(--atlas-font-mono);
+    font-size: 0.7rem;
+    line-height: 1.65;
+    color: oklch(82% 0.02 250);
+    white-space: pre;
+    overflow: hidden;
+  }
+  :root[data-theme='light'] .atlas-hero-stack__code {
+    background: oklch(96% 0.01 250);
+    border-color: oklch(20% 0.04 250 / 0.08);
+    color: oklch(28% 0.04 250);
+  }
+  .atlas-hero-stack__c1 { color: var(--atlas-amber-300); font-weight: 600; }
+  :root[data-theme='light'] .atlas-hero-stack__c1 { color: oklch(45% 0.16 60); }
+  .atlas-hero-stack__c2 { color: oklch(78% 0.13 295); }
+  :root[data-theme='light'] .atlas-hero-stack__c2 { color: oklch(45% 0.18 295); }
+  .atlas-hero-stack__c3 { color: oklch(78% 0.13 195); }
+  :root[data-theme='light'] .atlas-hero-stack__c3 { color: oklch(45% 0.13 195); }
+  .atlas-hero-stack__c4 { color: oklch(68% 0.16 145); }
+  :root[data-theme='light'] .atlas-hero-stack__c4 { color: oklch(40% 0.14 145); }
+
+  .atlas-hero-stack__progress {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-top: 0.7rem;
+  }
+  .atlas-hero-stack__progress-bar {
+    flex: 1;
+    height: 4px;
+    background: oklch(100% 0 0 / 0.06);
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+  }
+  :root[data-theme='light'] .atlas-hero-stack__progress-bar {
+    background: oklch(20% 0.04 250 / 0.1);
+  }
+  .atlas-hero-stack__progress-bar::after {
+    content: '';
+    position: absolute;
+    inset-block: 0;
+    inset-inline-start: 0;
+    width: 44%;
+    background: var(--grad-amber);
+    border-radius: inherit;
+  }
+  .atlas-hero-stack__progress-meta {
+    font-size: 0.68rem;
+    color: oklch(67% 0.03 250);
+    white-space: nowrap;
+  }
+  :root[data-theme='light'] .atlas-hero-stack__progress-meta {
+    color: oklch(50% 0.04 250);
+  }
+
+  /* ─────── QUIZ CARD (back-left) ─────── */
+  .atlas-hero-stack__card--quiz {
+    inset: auto auto 28% 0%;
+    width: min(60%, 17rem);
+    padding: 0.85rem 1rem;
+    transform: rotate(-3deg);
+    animation: atlas-float-b 10s ease-in-out -2s infinite;
+    z-index: 2;
+  }
+  @keyframes atlas-float-b {
+    0%, 100% { transform: rotate(-3deg) translateY(0); }
+    50%      { transform: rotate(-3deg) translateY(-8px); }
+  }
+  .atlas-hero-stack__q {
+    margin: 0.65rem 0 0.6rem;
+    font-size: 0.78rem;
+    font-weight: 500;
+    color: oklch(99% 0.005 250);
+    line-height: 1.35;
+  }
+  :root[data-theme='light'] .atlas-hero-stack__q {
+    color: oklch(15% 0.04 250);
+  }
+  .atlas-hero-stack__opts {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.3rem;
+  }
+  .atlas-hero-stack__opts li {
+    position: relative;
+    padding: 0.35rem 0.55rem;
+    border-radius: var(--atlas-radius-sm);
+    border: 1px solid oklch(100% 0 0 / 0.08);
+    font-size: 0.7rem;
+    color: oklch(82% 0.02 250);
+  }
+  :root[data-theme='light'] .atlas-hero-stack__opts li {
+    border-color: oklch(20% 0.04 250 / 0.1);
+    color: oklch(28% 0.04 250);
+  }
+  .atlas-hero-stack__opts .is-correct {
+    background: oklch(68% 0.16 145 / 0.15);
+    border-color: oklch(68% 0.16 145 / 0.4);
+    color: oklch(78% 0.16 145);
+  }
+  .atlas-hero-stack__opts .is-wrong {
+    opacity: 0.5;
+  }
+  .atlas-hero-stack__check {
+    float: inline-end;
+    color: oklch(78% 0.16 145);
+    font-weight: 700;
+  }
+
+  /* ─────── BADGE CARD (front-bottom) ─────── */
+  .atlas-hero-stack__card--badge {
+    inset: auto 6% 4% auto;
+    display: flex;
+    align-items: center;
+    gap: 0.7rem;
+    padding: 0.7rem 0.95rem;
+    border-radius: var(--atlas-radius-pill);
+    transform: rotate(-1deg);
+    animation: atlas-float-c 11s ease-in-out -4s infinite;
+    z-index: 3;
+  }
+  @keyframes atlas-float-c {
+    0%, 100% { transform: rotate(-1deg) translateY(0); }
+    50%      { transform: rotate(-1deg) translateY(-5px); }
+  }
+  .atlas-hero-stack__badge-icon {
+    width: 1.7rem;
+    height: 1.7rem;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: oklch(68% 0.16 145 / 0.18);
+    border: 1px solid oklch(68% 0.16 145 / 0.4);
+    color: oklch(78% 0.16 145);
+    flex-shrink: 0;
+  }
+  .atlas-hero-stack__badge-title,
+  .atlas-hero-stack__badge-meta {
+    display: block;
+    line-height: 1.25;
+  }
+  .atlas-hero-stack__badge-title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    color: oklch(99% 0.005 250);
+  }
+  :root[data-theme='light'] .atlas-hero-stack__badge-title {
+    color: oklch(15% 0.04 250);
+  }
+  .atlas-hero-stack__badge-meta {
+    font-size: 0.67rem;
+    color: oklch(67% 0.03 250);
+  }
+  :root[data-theme='light'] .atlas-hero-stack__badge-meta {
+    color: oklch(50% 0.04 250);
+  }
+
+  /* Disable on small viewports — let the mesh handle visuals */
+  @media (max-width: 60em) {
+    .atlas-hero-stack { display: none; }
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .atlas-hero-stack__compass :global(svg),
+    .atlas-hero-stack::before,
+    .atlas-hero-stack__card { animation: none !important; }
+  }
+</style>

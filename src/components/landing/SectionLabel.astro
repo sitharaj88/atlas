@@ -1,0 +1,35 @@
+---
+interface Props {
+  label: string;
+  accent?: string;
+}
+const { label, accent = 'oklch(72% 0.18 65)' } = Astro.props;
+---
+
+<div class="atlas-section-label" style={`--accent: ${accent}`}>
+  <span class="atlas-section-label__line" aria-hidden="true"></span>
+  <span class="atlas-section-label__text">{label}</span>
+</div>
+
+<style>
+  .atlas-section-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+    margin-bottom: 0.85rem;
+  }
+  .atlas-section-label__line {
+    width: 2rem;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    border-radius: 999px;
+  }
+  .atlas-section-label__text {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    color: var(--accent);
+    font-family: var(--atlas-font-sans);
+  }
+</style>

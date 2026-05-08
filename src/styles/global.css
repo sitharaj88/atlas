@@ -8,6 +8,16 @@
   html {
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
+    /* Prevent horizontal scroll from full-bleed elements (e.g., the hero) */
+    overflow-x: clip;
+  }
+  body { overflow-x: clip; }
+
+  /* Wider content rail on splash (home) — applies because the home has neither
+     data-has-toc nor data-has-sidebar set. */
+  :root:not([data-has-toc]):not([data-has-sidebar]) {
+    --sl-content-width: 76rem;
+    --sl-content-pad-x: clamp(1.25rem, 3vw, 2.5rem);
   }
 
   body {
@@ -572,15 +582,53 @@
     filter: none;
   }
 
-  /* ---- Hero ---- */
+  /* ---- Hero ----
+     Parents are now 100vw on splash (see overrides below), so the hero
+     just needs internal padding for content gutters. No margin tricks. */
   .atlas-hero {
     position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
     gap: var(--atlas-sp-12);
-    padding-block: clamp(2rem, 5vw, 5rem) clamp(3rem, 7vw, 7rem);
+    padding-block: clamp(2.5rem, 6vw, 6rem) clamp(3.5rem, 8vw, 8rem);
+    padding-inline: clamp(1.25rem, 4vw, 4rem);
+    width: 100%;
     overflow: hidden;
     isolation: isolate;
+  }
+
+  /* On the home (splash), hide Starlight's auto-generated page title bar.
+     The Hero component renders its own dramatic title; the duplicate H1
+     above creates a white bar above the gradient that looks redundant. */
+  html:not([data-has-toc]):not([data-has-sidebar]) main > .content-panel:first-of-type {
+    display: none !important;
+  }
+
+  /* On the home (splash), nuke Starlight's content-panel + sl-container
+     constraints so the hero and sections can span the full viewport.
+     Each section then handles its own internal max-width / padding. */
+  html:not([data-has-toc]):not([data-has-sidebar]) main > .content-panel,
+  html:not([data-has-toc]):not([data-has-sidebar]) main > .content-panel > .sl-container,
+  html:not([data-has-toc]):not([data-has-sidebar]) main > .content-panel > .sl-container > .sl-markdown-content {
+    max-width: none !important;
+    width: 100% !important;
+    padding-inline: 0 !important;
+    margin-inline: 0 !important;
+  }
+  html:not([data-has-toc]):not([data-has-sidebar]) main > .content-panel {
+    padding-block: 0 !important;
+    border-top: 0 !important;
+  }
+
+  /* Sections need internal max-width to stay readable since their parents
+     are now 100vw wide. Center every landing-page section block. */
+  .atlas-section,
+  .atlas-cta,
+  .sl-markdown-content > div:has(> .atlas-resume) {
+    max-width: 80rem;
+    margin-inline: auto !important;
+    padding-inline: clamp(1.25rem, 4vw, 4rem);
+    box-sizing: border-box;
   }
   .atlas-hero::before {
     content: '';
@@ -602,10 +650,18 @@
 
   @media (min-width: 60rem) {
     .atlas-hero {
-      grid-template-columns: 1.15fr 0.85fr;
+      /* Copy column anchored LEFT with a max readable width;
+         art column flexes into whatever remains on the right.
+         No more centered-grid feel — the title hugs the left gutter. */
+      grid-template-columns: minmax(0, 56rem) minmax(0, 1fr);
       align-items: center;
-      gap: var(--atlas-sp-16);
+      gap: clamp(2rem, 4vw, 4rem);
     }
+  }
+  /* Inside the copy column, content also stays flush left */
+  .atlas-hero__copy {
+    text-align: start;
+    align-self: center;
   }
 
   .atlas-hero__eyebrow {
@@ -685,6 +741,62 @@
   }
   .atlas-grid--cards {
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  }
+
+  /* ---- Landing page: bento grid ---- */
+  .atlas-bento-grid {
+    display: grid;
+    gap: var(--atlas-sp-4);
+    grid-template-columns: repeat(2, 1fr);
+  }
+  @media (min-width: 50rem) {
+    .atlas-bento-grid {
+      grid-template-columns: repeat(4, 1fr);
+      grid-auto-rows: minmax(11rem, auto);
+    }
+  }
+
+  /* ---- Landing page: featured paths grid ---- */
+  .atlas-featured-paths {
+    display: grid;
+    gap: var(--atlas-sp-4);
+    grid-template-columns: 1fr;
+  }
+  @media (min-width: 50rem) {
+    .atlas-featured-paths { grid-template-columns: repeat(3, 1fr); }
+  }
+
+  /* ---- Landing page: section spacing ---- */
+  .atlas-section {
+    padding-block: var(--atlas-section-y);
+  }
+  .atlas-section-head {
+    max-width: 38rem;
+    margin-bottom: var(--atlas-sp-8);
+  }
+  .atlas-section-head h2 {
+    font-family: var(--atlas-font-display);
+    font-size: var(--atlas-fs-2xl);
+    font-weight: 500;
+    letter-spacing: -0.022em;
+    line-height: 1.05;
+    margin: 0 0 var(--atlas-sp-3);
+    color: var(--sl-color-white);
+    text-wrap: balance;
+  }
+  .atlas-section-head h2 em {
+    font-style: italic;
+    background: var(--grad-text-amber);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .atlas-section-head p {
+    font-size: var(--atlas-fs-md);
+    line-height: var(--atlas-leading-base);
+    color: var(--sl-color-gray-3);
+    margin: 0;
+    text-wrap: pretty;
   }
 
   /* ---- Compass background tint (legacy fallback) ---- */

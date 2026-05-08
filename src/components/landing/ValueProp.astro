@@ -1,0 +1,130 @@
+---
+interface Props {
+  title: string;
+  description: string;
+  accent?: string;
+  icon?: 'spark' | 'play' | 'compass' | 'shield' | 'clock' | 'zap' | 'layers' | 'heart' | 'wand';
+}
+const { title, description, accent = 'oklch(72% 0.18 65)', icon = 'spark' } = Astro.props;
+---
+
+<div class="atlas-vp" style={`--vp-accent: ${accent}`}>
+  <div class="atlas-vp__icon" aria-hidden="true">
+    {icon === 'spark' && (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3v3M12 18v3M3 12h3M18 12h3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/>
+        <circle cx="12" cy="12" r="3"/>
+      </svg>
+    )}
+    {icon === 'play' && (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M10 8l6 4-6 4z"/>
+      </svg>
+    )}
+    {icon === 'compass' && (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M16 8l-2 6-6 2 2-6 6-2z"/>
+      </svg>
+    )}
+    {icon === 'shield' && (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3l8 3v6c0 4.5-3.4 8.7-8 9.5C7.4 20.7 4 16.5 4 12V6l8-3z"/>
+        <path d="M9 12l2 2 4-4"/>
+      </svg>
+    )}
+    {icon === 'clock' && (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 7v5l3 2"/>
+      </svg>
+    )}
+    {icon === 'zap' && (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M13 2L4 14h7l-1 8 9-12h-7l1-8z"/>
+      </svg>
+    )}
+    {icon === 'layers' && (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 3l9 5-9 5-9-5 9-5z"/>
+        <path d="M3 13l9 5 9-5"/>
+        <path d="M3 17l9 5 9-5"/>
+      </svg>
+    )}
+    {icon === 'heart' && (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M20.8 5.5a5 5 0 00-7.4 0L12 7l-1.4-1.5a5 5 0 00-7.4 7l1.4 1.4L12 21l7.4-7.1 1.4-1.4a5 5 0 000-7z"/>
+      </svg>
+    )}
+    {icon === 'wand' && (
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M15 4l5 5L8 21l-5-5L15 4z"/>
+        <path d="M19 1v3M22 4h-3M19 7v3M22 10h-3"/>
+      </svg>
+    )}
+  </div>
+  <h3 class="atlas-vp__title">{title}</h3>
+  <p class="atlas-vp__desc">{description}</p>
+</div>
+
+<style>
+  .atlas-vp {
+    --vp-soft: oklch(from var(--vp-accent) l c h / 0.12);
+    --vp-glow: oklch(from var(--vp-accent) l c h / 0.35);
+    position: relative;
+    padding: var(--atlas-sp-6);
+    border: 1px solid var(--atlas-card-border);
+    border-radius: var(--atlas-radius-xl);
+    background: var(--atlas-card-bg);
+    overflow: hidden;
+    transition:
+      transform var(--atlas-dur-base) var(--atlas-ease-out),
+      border-color var(--atlas-dur-base) var(--atlas-ease-out);
+  }
+  .atlas-vp::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(circle at 0% 0%, var(--vp-soft) 0%, transparent 55%);
+    pointer-events: none;
+    opacity: 0.7;
+    transition: opacity var(--atlas-dur-base) var(--atlas-ease-out);
+  }
+  .atlas-vp:hover {
+    transform: translateY(-2px);
+    border-color: oklch(from var(--vp-accent) l c h / 0.4);
+  }
+  .atlas-vp:hover::before { opacity: 1; }
+
+  .atlas-vp__icon {
+    width: 2.75rem;
+    height: 2.75rem;
+    display: grid;
+    place-items: center;
+    border-radius: var(--atlas-radius-md);
+    background: linear-gradient(135deg, var(--vp-accent), oklch(from var(--vp-accent) calc(l + 0.06) c calc(h - 30)));
+    color: oklch(15% 0.04 250);
+    box-shadow:
+      0 0 0 1px oklch(from var(--vp-accent) l c h / 0.5),
+      0 8px 24px -8px var(--vp-glow);
+    margin-bottom: var(--atlas-sp-4);
+  }
+  .atlas-vp__icon svg { width: 1.4rem; height: 1.4rem; }
+
+  .atlas-vp__title {
+    font-family: var(--atlas-font-sans);
+    font-size: var(--atlas-fs-lg);
+    font-weight: 600;
+    letter-spacing: var(--atlas-tracking-snug);
+    margin: 0 0 var(--atlas-sp-2);
+    color: var(--sl-color-white);
+  }
+  .atlas-vp__desc {
+    font-size: var(--atlas-fs-sm);
+    line-height: var(--atlas-leading-base);
+    color: var(--sl-color-gray-3);
+    margin: 0;
+  }
+</style>
