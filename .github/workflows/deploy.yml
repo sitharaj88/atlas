@@ -1,9 +1,14 @@
 name: Deploy Atlas to GitHub Pages
 
+# Manual trigger only — pushes to main do NOT auto-deploy.
+# Run via: Actions tab → "Deploy Atlas to GitHub Pages" → Run workflow.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch, tag, or SHA to deploy'
+        required: false
+        default: 'main'
 
 permissions:
   contents: read
@@ -20,6 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
 
       - uses: pnpm/action-setup@v4
         with:
@@ -35,10 +42,11 @@ jobs:
 
       - name: Build site
         env:
-          # Set BASE to "" if you've configured a custom domain (CNAME).
-          # Otherwise leave as /atlas to match the repo name on github.io.
+          # Set SITE_BASE repo variable to "" if you've configured a custom
+          # domain (CNAME). Otherwise leave as /atlas to match the repo name
+          # at <user>.github.io/atlas/.
           BASE: ${{ vars.SITE_BASE || '/atlas' }}
-          SITE: ${{ vars.SITE_URL || 'https://example.github.io' }}
+          SITE: ${{ vars.SITE_URL || 'https://sitharaj88.github.io' }}
         run: pnpm build
 
       - name: Upload Pages artifact
