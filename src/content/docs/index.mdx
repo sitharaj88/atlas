@@ -8,6 +8,7 @@ import Hero from '~/components/Hero.astro';
 import PathCard from '~/components/PathCard.astro';
 import ResumeBanner from '~/components/ResumeBanner.tsx';
 import Callout from '~/components/Callout.astro';
+import Link from '~/components/Link.astro';
 
 <Hero
   eyebrow="Atlas · v0.1 · the map for self-taught developers"
@@ -24,7 +25,7 @@ import Callout from '~/components/Callout.astro';
     <h2>Pick a path. Earn the next.</h2>
     <p>Each path is a structured journey. Stack them up, or jump straight to the one you need.</p>
   </div>
-  <a href="/paths/" class="atlas-btn atlas-btn--ghost">All paths →</a>
+  <Link href="/paths/" class="atlas-btn atlas-btn--ghost">All paths →</Link>
 </div>
 
 <div class="atlas-grid atlas-grid--cards">
@@ -146,7 +147,7 @@ import Callout from '~/components/Callout.astro';
   <div class="atlas-card">
     <span class="atlas-card__eyebrow">Free forever · open source</span>
     <h3 class="atlas-card__title">MIT for code, CC BY-SA for content</h3>
-    <p class="atlas-card__desc">Fork it, translate it, run it offline as a PWA. <a href="/contribute/">Contribute lessons</a> back so the next learner has it better.</p>
+    <p class="atlas-card__desc">Fork it, translate it, run it offline as a PWA. <Link href="/contribute/">Contribute lessons</Link> back so the next learner has it better.</p>
   </div>
   <div class="atlas-card">
     <span class="atlas-card__eyebrow">Respects your time</span>
@@ -172,34 +173,34 @@ Take the 60-second [start quiz](/start/) and we'll point you to the right path. 
 </div>
 
 <div class="atlas-grid atlas-grid--cards">
-  <a class="atlas-card" href="/reference/">
+  <Link class="atlas-card" href="/reference/">
     <span class="atlas-card__eyebrow">Reference</span>
     <h3 class="atlas-card__title">Learner-friendly docs</h3>
     <p class="atlas-card__desc">HTML elements, CSS properties, JS APIs, Web APIs — explained for humans, not spec authors.</p>
-  </a>
-  <a class="atlas-card" href="/cheatsheets/">
+  </Link>
+  <Link class="atlas-card" href="/cheatsheets/">
     <span class="atlas-card__eyebrow">Cheatsheets</span>
     <h3 class="atlas-card__title">Printable, beautifully designed</h3>
     <p class="atlas-card__desc">Flexbox, grid, git, regex, HTTP status codes, a11y checklist, TS utility types.</p>
-  </a>
-  <a class="atlas-card" href="/roadmaps/">
+  </Link>
+  <Link class="atlas-card" href="/roadmaps/">
     <span class="atlas-card__eyebrow">Roadmaps</span>
     <h3 class="atlas-card__title">Visual learning graphs</h3>
     <p class="atlas-card__desc">See the whole landscape — frontend, backend, full-stack, DevOps. Each node links to a lesson.</p>
-  </a>
-  <a class="atlas-card" href="/projects/">
+  </Link>
+  <Link class="atlas-card" href="/projects/">
     <span class="atlas-card__eyebrow">Projects</span>
     <h3 class="atlas-card__title">Build-along, portfolio-ready</h3>
     <p class="atlas-card__desc">Markdown blog → e-commerce store → real-time chat → AI study buddy. Ship them.</p>
-  </a>
-  <a class="atlas-card" href="/glossary/">
+  </Link>
+  <Link class="atlas-card" href="/glossary/">
     <span class="atlas-card__eyebrow">Glossary</span>
     <h3 class="atlas-card__title">Decode the jargon</h3>
     <p class="atlas-card__desc">Hover any underlined term in a lesson → instant definition. The vocabulary of the web in one place.</p>
-  </a>
-  <a class="atlas-card" href="/playground/">
+  </Link>
+  <Link class="atlas-card" href="/playground/">
     <span class="atlas-card__eyebrow">Playground</span>
     <h3 class="atlas-card__title">Scratch space for ideas</h3>
     <p class="atlas-card__desc">Pick a template, prototype an idea. No setup. Runs entirely in your browser.</p>
-  </a>
+  </Link>
 </div>

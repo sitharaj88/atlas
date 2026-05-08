@@ -1,4 +1,5 @@
 ---
+import { withBase } from '../lib/url';
 interface Props {
   term: string;
   defn: string;
@@ -9,7 +10,7 @@ const target = href ?? `/glossary/#${term.toLowerCase().replace(/\s+/g, '-')}`;
 ---
 
 <span class="atlas-term">
-  <a href={target} class="atlas-term__link">
+  <a href={withBase(target)} class="atlas-term__link">
     <slot>{term}</slot>
   </a>
   <span class="atlas-term__tip" role="tooltip">

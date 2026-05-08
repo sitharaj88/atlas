@@ -2,6 +2,7 @@ import { ReactFlow, Background, Controls, MiniMap, type Node, type Edge } from '
 import '@xyflow/react/dist/style.css';
 import { useEffect, useState } from 'react';
 import { useProgress } from '../lib/progress';
+import { withBase } from '../lib/url';
 
 interface RoadmapNode {
   id: string;
@@ -36,7 +37,7 @@ export default function Roadmap({ nodes, edges, height = 560 }: Props) {
       data: {
         label: (
           <a
-            href={n.href ?? '#'}
+            href={n.href ? withBase(n.href) : '#'}
             className="atlas-roadmap-node"
             aria-label={`${n.label}${done ? ' (completed)' : ''}`}
           >

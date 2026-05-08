@@ -1,4 +1,6 @@
 ---
+import { withBase } from '../lib/url';
+
 interface Props {
   number: number | string;
   href: string;
@@ -21,7 +23,7 @@ const {
 } = Astro.props;
 ---
 
-<a class="atlas-card atlas-path-card" href={href} style={`--accent:${accent}`}>
+<a class="atlas-card atlas-path-card" href={withBase(href)} style={`--accent:${accent}`}>
   <span class="atlas-path-card__num" aria-hidden="true">{String(number).padStart(2, '0')}</span>
   <span class="atlas-card__eyebrow">Path · {difficulty}</span>
   <h3 class="atlas-card__title">{title}</h3>

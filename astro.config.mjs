@@ -4,14 +4,40 @@ import starlight from '@astrojs/starlight';
 import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import AstroPWA from '@vite-pwa/astro';
+import { visit } from 'unist-util-visit';
 
 const SITE = process.env.SITE ?? 'https://example.github.io';
 const BASE = process.env.BASE ?? '/atlas';
+
+/**
+ * Rehype plugin: rewrite root-relative URLs in <a href="/..."> and
+ * <img src="/..."> to include the configured base path. Astro doesn't do this
+ * automatically for Markdown/MDX content; this catches every `[text](/path)`
+ * link, image reference, and raw HTML anchor.
+ */
+function rehypeBaseUrl() {
+  const base = BASE.replace(/\/$/, '');
+  if (!base) return () => {};
+  return (tree) => {
+    visit(tree, 'element', (node) => {
+      const ATTR = node.tagName === 'a' ? 'href' : node.tagName === 'img' ? 'src' : null;
+      if (!ATTR) return;
+      const url = node.properties?.[ATTR];
+      if (typeof url !== 'string') return;
+      if (!url.startsWith('/') || url.startsWith('//')) return;
+      if (url.startsWith(base + '/') || url === base) return; // already prefixed
+      node.properties[ATTR] = base + url;
+    });
+  };
+}
 
 export default defineConfig({
   site: SITE,
   base: BASE,
   trailingSlash: 'ignore',
+  markdown: {
+    rehypePlugins: [rehypeBaseUrl],
+  },
   integrations: [
     starlight({
       title: 'Atlas',

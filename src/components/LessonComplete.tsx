@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useProgress } from '../lib/progress';
+import { withBase } from '../lib/url';
 
 interface Props {
   lessonId: string;
@@ -42,7 +43,7 @@ export default function LessonComplete({
           <span>{isDone ? 'Marked complete' : 'Mark this lesson complete'}</span>
         </label>
         {nextHref && (
-          <a className="atlas-complete__next" href={nextHref}>
+          <a className="atlas-complete__next" href={withBase(nextHref)}>
             Next: {nextTitle ?? 'continue'} →
           </a>
         )}

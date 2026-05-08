@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { withBase } from '../lib/url';
 
 interface Choice {
   label: string;
@@ -168,7 +169,7 @@ export default function StartQuiz() {
         <h3>{recommendation.top.title}</h3>
         <p>{recommendation.top.reason}</p>
         <div className="atlas-startquiz__cta">
-          <a className="atlas-btn" href={recommendation.top.href}>
+          <a className="atlas-btn" href={withBase(recommendation.top.href)}>
             Start this path →
           </a>
           <button className="atlas-btn atlas-btn--ghost" type="button" onClick={reset}>
@@ -182,7 +183,7 @@ export default function StartQuiz() {
               {recommendation.runners.map((r) =>
                 r ? (
                   <li key={r.href}>
-                    <a href={r.href}>{r.title}</a> — {r.reason}
+                    <a href={withBase(r.href)}>{r.title}</a> — {r.reason}
                   </li>
                 ) : null,
               )}

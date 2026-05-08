@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useProgress } from '../lib/progress';
+import { withBase } from '../lib/url';
 
 export default function ResumeBanner() {
   const [mounted, setMounted] = useState(false);
@@ -12,7 +13,7 @@ export default function ResumeBanner() {
   const total = Object.keys(completed).length;
 
   return (
-    <a className="atlas-resume" href={last.href}>
+    <a className="atlas-resume" href={withBase(last.href)}>
       <span className="atlas-resume__pill">Resume</span>
       <span className="atlas-resume__title">{last.title}</span>
       <span className="atlas-resume__meta">
