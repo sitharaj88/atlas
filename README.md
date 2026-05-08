@@ -2,7 +2,9 @@
 
 A free, open-source learning platform that takes you from "what is HTTP?" to shipping a production full-stack app.
 
-**Live site:** _(set after first deploy)_
+**Live site:** https://sitharaj88.github.io/atlas/
+**Repo:** https://github.com/sitharaj88/atlas
+**Author:** Sitharaj Seenivasan — [GitHub](https://github.com/sitharaj88) · [LinkedIn](https://www.linkedin.com/in/sitharaj08) · [Buy me a coffee](https://www.buymeacoffee.com/sitharaj88)
 **Tech:** Astro 5 · Starlight · React · TypeScript · Sandpack · Pagefind · Zustand
 
 ---
@@ -36,16 +38,18 @@ pnpm preview      # serves the production build locally
 
 ## Deploy
 
-Pushes to `main` deploy automatically via `.github/workflows/deploy.yml`.
+Deploys are **manual** via `.github/workflows/deploy.yml` (`workflow_dispatch` only — pushes to `main` do not auto-publish, so a typo fix doesn't ship until you're ready).
 
 **One-time GitHub setup:**
 
 1. Push the repo to GitHub.
 2. **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 3. (Optional) **Settings → Secrets and variables → Actions → Variables** — set `SITE_BASE` and `SITE_URL`:
-   - For `<user>.github.io/atlas/`: `SITE_URL=https://<user>.github.io`, `SITE_BASE=/atlas`
-   - For a custom domain `atlas.dev`: `SITE_URL=https://atlas.dev`, `SITE_BASE=` (empty)
+   - For `sitharaj88.github.io/atlas/`: `SITE_URL=https://sitharaj88.github.io`, `SITE_BASE=/atlas`
+   - For a custom domain: `SITE_URL=https://your-domain`, `SITE_BASE=` (empty)
 4. (Optional) Custom domain — put the hostname in `public/CNAME`, point DNS at GitHub Pages, set the variables above to match.
+
+**To ship a release:** Actions tab → **Deploy Atlas to GitHub Pages** → **Run workflow** → pick the branch/tag/SHA (defaults to `main`).
 
 ## Repo layout
 
@@ -81,4 +85,8 @@ Lessons are MDX files under `src/content/docs/paths/<path>/<module>/<slug>.mdx`.
 - **Code:** MIT — see [LICENSE](./LICENSE).
 - **Content:** CC BY-SA 4.0 — see [LICENSE-CONTENT](./LICENSE-CONTENT).
 
-Atlas is built in public. Pull requests welcome.
+## Support
+
+Atlas is built in public, free forever. If it saved you time and you want to give back, you can [buy me a coffee](https://www.buymeacoffee.com/sitharaj88). Pull requests are welcome regardless.
+
+— Sitharaj Seenivasan ([@sitharaj88](https://github.com/sitharaj88))

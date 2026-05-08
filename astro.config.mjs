@@ -6,7 +6,7 @@ import sitemap from '@astrojs/sitemap';
 import AstroPWA from '@vite-pwa/astro';
 import { visit } from 'unist-util-visit';
 
-const SITE = process.env.SITE ?? 'https://example.github.io';
+const SITE = process.env.SITE ?? 'https://sitharaj88.github.io';
 const BASE = process.env.BASE ?? '/atlas';
 
 /**
@@ -49,10 +49,11 @@ export default defineConfig({
       favicon: '/favicon.svg',
       customCss: ['./src/styles/tokens.css', './src/styles/global.css'],
       social: {
-        github: 'https://github.com/sitharaj/atlas',
+        github: 'https://github.com/sitharaj88/atlas',
+        linkedin: 'https://www.linkedin.com/in/sitharaj08',
       },
       editLink: {
-        baseUrl: 'https://github.com/sitharaj/atlas/edit/main/',
+        baseUrl: 'https://github.com/sitharaj88/atlas/edit/main/',
       },
       lastUpdated: true,
       pagination: true,

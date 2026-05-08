@@ -10,7 +10,7 @@ interface Props {
 }
 
 export default function Comments({
-  repo = 'sitharaj/atlas',
+  repo = 'sitharaj88/atlas',
   repoId,
   category = 'General',
   categoryId,

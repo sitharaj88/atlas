@@ -4,6 +4,20 @@
   "type": "module",
   "private": true,
   "description": "Atlas — your map to modern web development. A free, open-source learning platform.",
+  "author": {
+    "name": "Sitharaj Seenivasan",
+    "url": "https://github.com/sitharaj88"
+  },
+  "license": "MIT",
+  "homepage": "https://sitharaj88.github.io/atlas/",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sitharaj88/atlas.git"
+  },
+  "bugs": {
+    "url": "https://github.com/sitharaj88/atlas/issues"
+  },
+  "funding": "https://www.buymeacoffee.com/sitharaj88",
   "scripts": {
     "dev": "astro dev",
     "start": "astro dev",
