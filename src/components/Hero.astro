@@ -64,7 +64,9 @@ const TOPICS = [
         <span class="atlas-hero__stat-label">lessons</span>
       </li>
       <li>
-        <span class="atlas-hero__stat-num">∞</span>
+        <span class="atlas-hero__stat-num atlas-hero__stat-num--price">
+          <span class="atlas-hero__stat-currency" aria-hidden="true">$</span>0
+        </span>
         <span class="atlas-hero__stat-label">free, forever</span>
       </li>
     </ul>
@@ -176,6 +178,31 @@ const TOPICS = [
     text-transform: uppercase;
     letter-spacing: 0.08em;
   }
+  .atlas-hero__stat-currency {
+    font-size: 0.7em;
+    margin-right: 0.05em;
+    opacity: 0.9;
+    vertical-align: 0.12em;
+    /* Re-apply the gradient on the child so it doesn't render solid white
+       (parent's background-clip:text doesn't always reach nested spans). */
+    background: var(--grad-text-amber);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+  @media (max-width: 50em) {
+    .atlas-hero__stats {
+      gap: 0;
+      margin-top: 1.4rem;
+      padding-top: 1.1rem;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .atlas-hero__stats li { gap: 0.1rem; }
+    .atlas-hero__stat-num { font-size: 1.5rem; }
+    .atlas-hero__stat-label { font-size: 0.66rem; letter-spacing: 0.06em; }
+  }
 
   /* Topic marquee */
   .atlas-hero__topics {
@@ -184,6 +211,11 @@ const TOPICS = [
     overflow: hidden;
     mask-image: linear-gradient(90deg, transparent 0, black 8%, black 92%, transparent 100%);
     -webkit-mask-image: linear-gradient(90deg, transparent 0, black 8%, black 92%, transparent 100%);
+  }
+  @media (max-width: 50em) {
+    .atlas-hero__topics { margin-top: 1.25rem; }
+    .atlas-hero__topic { font-size: 0.72rem; padding: 0.32em 0.7em; }
+    .atlas-hero__topics-track { gap: 0.4rem; }
   }
   .atlas-hero__topics-track {
     display: flex;

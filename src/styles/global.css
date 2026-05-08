@@ -596,6 +596,14 @@
     overflow: hidden;
     isolation: isolate;
   }
+  /* Mobile: tighten the entire hero so it fits in one comfortable scroll. */
+  @media (max-width: 50em) {
+    .atlas-hero {
+      gap: var(--atlas-sp-6);
+      padding-block: 1.75rem 2rem;
+      padding-inline: 1.1rem;
+    }
+  }
 
   /* On the home (splash), hide Starlight's auto-generated page title bar.
      The Hero component renders its own dramatic title; the duplicate H1
@@ -678,6 +686,13 @@
     letter-spacing: 0.08em;
     text-transform: uppercase;
   }
+  @media (max-width: 50em) {
+    .atlas-hero__eyebrow {
+      padding: 0.3em 0.75em;
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+    }
+  }
 
   .atlas-hero__title {
     margin: var(--atlas-sp-5) 0 var(--atlas-sp-5);
@@ -689,6 +704,15 @@
     color: var(--sl-color-white);
     font-feature-settings: 'opsz' 144, 'ss01';
     text-wrap: balance;
+  }
+  @media (max-width: 50em) {
+    .atlas-hero__title {
+      margin: var(--atlas-sp-3) 0 var(--atlas-sp-3);
+      /* Hard-cap mobile title so it doesn't dominate the viewport. */
+      font-size: clamp(2rem, 8.5vw, 2.6rem);
+      line-height: 1.08;
+      letter-spacing: -0.02em;
+    }
   }
   .atlas-hero__title em {
     font-style: italic;
@@ -706,12 +730,29 @@
     max-width: 38rem;
     text-wrap: pretty;
   }
+  @media (max-width: 50em) {
+    .atlas-hero__lede {
+      margin-top: var(--atlas-sp-3);
+      font-size: 0.98rem;
+      line-height: 1.55;
+    }
+  }
 
   .atlas-hero__cta {
     margin-top: var(--atlas-sp-8);
     display: flex;
     flex-wrap: wrap;
     gap: var(--atlas-sp-3);
+  }
+  @media (max-width: 50em) {
+    .atlas-hero__cta {
+      margin-top: var(--atlas-sp-5);
+      gap: var(--atlas-sp-2);
+    }
+    .atlas-hero__cta .atlas-btn {
+      flex: 1 1 auto;
+      justify-content: center;
+    }
   }
 
   /* ---- Section heading ---- */
