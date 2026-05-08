@@ -1,0 +1,38 @@
+---
+title: All learning paths
+description: The full curriculum — nine paths, ~250 lessons, from "what is HTTP?" to "shipping a production full-stack app."
+---
+
+import PathCard from '~/components/PathCard.astro';
+
+There's no single "right order." These paths overlap and feed each other. If you don't know where to start, take the [60-second start quiz](/start/) and we'll point you at one. Otherwise, pick what calls to you — you can always come back.
+
+<div class="atlas-grid atlas-grid--cards">
+  <PathCard number={1} href="/paths/foundations/" title="Foundations of the Web"
+    description="HTTP, browsers, HTML5, CSS, JavaScript, the DOM, async, modules. The bedrock."
+    difficulty="beginner" modules={9} hours={28} accent="#2bb4a4" />
+  <PathCard number={2} href="/paths/modern-css/" title="Modern CSS & Design Systems"
+    description="Subgrid, container queries, :has(), cascade layers, design tokens, Tailwind, theming."
+    difficulty="intermediate" modules={7} hours={18} accent="#F5B14A" />
+  <PathCard number={3} href="/paths/typescript/" title="TypeScript Mastery"
+    description="From basics to wizardry: generics, conditional and template-literal types, type-driven APIs."
+    difficulty="intermediate" modules={6} hours={14} accent="#3178c6" />
+  <PathCard number={4} href="/paths/frontend-frameworks/" title="Frontend Frameworks"
+    description="React, Vue, Svelte, Solid, Angular, Qwik, Astro, Lit, HTMX. When to pick which."
+    difficulty="mixed" modules={10} hours={32} accent="#e25c64" />
+  <PathCard number={5} href="/paths/full-stack/" title="Full-Stack Web Development"
+    description="Node, Deno, Bun · Hono, Fastify · REST, GraphQL, tRPC · auth, databases, ORMs, deploy."
+    difficulty="intermediate" modules={11} hours={36} accent="#6abf6e" />
+  <PathCard number={6} href="/paths/performance-a11y-seo/" title="Performance, A11y & SEO"
+    description="Core Web Vitals, image optimization, code splitting, WCAG 2.2, screen readers, structured data."
+    difficulty="intermediate" modules={6} hours={16} accent="#9b59f5" />
+  <PathCard number={7} href="/paths/testing/" title="Testing & Quality"
+    description="Unit, component, E2E. Vitest, Testing Library, Playwright, Storybook. TDD that actually pays off."
+    difficulty="intermediate" modules={5} hours={12} accent="#0eaae6" />
+  <PathCard number={8} href="/paths/devops/" title="DevOps for Web Developers"
+    description="Git deep-dive, GitHub Actions, Docker, deploy to Pages/Vercel/Cloudflare/Fly, observability."
+    difficulty="intermediate" modules={6} hours={14} accent="#566cf0" />
+  <PathCard number={9} href="/paths/frontier/" title="The Modern Frontier"
+    description="Edge runtimes, RSC streaming, islands, WebAssembly, WebGPU, CRDTs, AI in web apps, security."
+    difficulty="advanced" modules={8} hours={22} accent="#f5b14a" />
+</div>

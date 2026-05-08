@@ -1,0 +1,116 @@
+---
+title: Web Platform APIs
+description: The browser's hidden superpowers — fetch, storage, geolocation, web sockets, and the modern Web APIs.
+sidebar:
+  order: 4
+tags: [web-apis, reference]
+---
+
+## Networking
+
+- **`fetch(url, init?)`** — modern HTTP client. Returns a `Response`.
+- **`Request`**, **`Response`**, **`Headers`** — also work as standalone constructors.
+- **`AbortController`** — cancel a fetch (or anything that takes a `signal`):
+  ```js
+  const c = new AbortController();
+  fetch(url, { signal: c.signal });
+  c.abort();
+  ```
+- **`URL`** — parse and build URLs. `new URL('/path?q=1', base)`. Supports `searchParams`.
+- **`URLSearchParams`** — query string get/set/append/delete.
+- **`Beacon API`** — `navigator.sendBeacon(url, data)` for analytics on `unload`.
+- **`Service Worker`** — intercept network, cache responses, enable offline.
+
+## Real-time
+
+- **`WebSocket`** — bidirectional. `new WebSocket('wss://...')`.
+- **`EventSource`** — server-sent events, one-way streaming.
+- **`WebRTC`** — peer-to-peer video/audio/data. Big surface, niche.
+- **`BroadcastChannel`** — postMessage between same-origin tabs.
+
+## Storage
+
+- **`localStorage`**, **`sessionStorage`** — string KV, synchronous, ~5MB.
+- **`IndexedDB`** — asynchronous, structured, large. Use a wrapper like `idb` for sanity.
+- **`Cache API`** — for service workers; stores `Request`/`Response` pairs.
+- **`Cookies`** — `document.cookie` is awful; prefer `cookieStore` API where available.
+- **`Origin Private File System`** — sandboxed file system per origin.
+
+## Geolocation, sensors, device
+
+- **`navigator.geolocation`** — `getCurrentPosition`, `watchPosition`. Requires permission.
+- **`navigator.permissions.query({name: 'geolocation'})`** — check before asking.
+- **`DeviceOrientationEvent`**, **`DeviceMotionEvent`** — gyro and accelerometer.
+- **`navigator.vibrate(ms)`** — buzz the phone.
+- **`Gamepad API`**, **`Pointer Events`** (preferred over Touch + Mouse).
+
+## Clipboard, share, files
+
+- **`navigator.clipboard`** — `writeText(s)`, `readText()`. Requires user gesture.
+- **`navigator.share({ title, url })`** — native share sheet on mobile.
+- **`<input type="file">`** + **`File`**, **`FileReader`**, **`Blob`** — uploads.
+- **`File System Access API`** — `showOpenFilePicker`, `showSaveFilePicker`. Chromium-only for now.
+- **`Drag and Drop`** — `dragstart`, `dragover` (`preventDefault`!), `drop`.
+
+## Intersection, resize, mutation observers
+
+- **`IntersectionObserver`** — fires when a target enters/leaves the viewport. Lazy load, infinite scroll.
+- **`ResizeObserver`** — fires when an element's size changes.
+- **`MutationObserver`** — fires on DOM tree changes. Use sparingly.
+- **`PerformanceObserver`** — collect performance entries (long tasks, paint, navigation, …).
+
+## Performance & timing
+
+- **`performance.now()`** — high-res monotonic clock (ms).
+- **`performance.mark(name)`**, **`measure(name, start, end)`** — custom timings.
+- **`performance.getEntriesByType('navigation' | 'resource' | 'paint')`** — built-in entries.
+- **`web-vitals` library** — wraps the right APIs to report LCP/INP/CLS.
+
+## Crypto & security
+
+- **`crypto.randomUUID()`** — UUID v4, secure.
+- **`crypto.getRandomValues(arr)`** — secure random into a typed array.
+- **`crypto.subtle`** — modern crypto: AES, RSA, ECDH, HKDF, hashing. Returns Promises.
+- **CSP headers** — read on the server side; the browser enforces.
+
+## Workers
+
+- **`Worker`** — main-thread escape hatch for CPU-heavy work.
+- **`SharedWorker`** — shared between tabs (less common).
+- **`Service Worker`** — network and offline.
+- **Module workers**: `new Worker(url, { type: 'module' })` enables `import` inside the worker.
+
+## Modern UI APIs
+
+- **`navigator.scheduling.isInputPending()`** — yield to the browser if an input is queued.
+- **`scheduler.postTask(fn, { priority })`** — modern scheduling primitive.
+- **`document.startViewTransition(updater)`** — animated transitions between DOM states.
+- **`<dialog>` element** + **`HTMLDialogElement.showModal()`** — accessible modals built in.
+- **`Popover API`** — `popover` attribute, no JS for tooltips/menus.
+- **`HTMLElement.scrollIntoView({ behavior: 'smooth' })`** — built-in smooth scroll.
+
+## Accessibility & input
+
+- **`element.focus({ preventScroll })`**, **`document.activeElement`**.
+- **`navigator.languages`**, **`Intl`** — locale-aware everything.
+- **`prefers-reduced-motion`**, **`prefers-color-scheme`**, **`prefers-contrast`** — read via `matchMedia`.
+
+```js
+const m = matchMedia('(prefers-reduced-motion: reduce)');
+m.matches; // boolean
+m.addEventListener('change', () => /* react */);
+```
+
+## Compute / graphics
+
+- **`Canvas 2D`** — `<canvas>` + `getContext('2d')`. Approachable.
+- **`WebGL` / `WebGPU`** — accelerated graphics. WebGPU is the modern path.
+- **`OffscreenCanvas`** — render in a Worker.
+- **`WebAssembly`** — load/instantiate `.wasm` modules. Call via JS.
+
+## Speech, AI
+
+- **`SpeechRecognition`** (Chrome/Edge), **`SpeechSynthesis`** — speech-to-text and text-to-speech.
+- **Web AI APIs (Chrome built-in)** — on-device LLMs for Translate/Summarize. Experimental, exciting.
+
+> **Coming soon:** per-API pages with examples. [Contribute →](/contribute/)

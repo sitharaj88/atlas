@@ -1,0 +1,285 @@
+---
+title: Build a REST API with Hono
+description: A small, fast, edge-ready HTTP framework. Build a typed REST API with routing, validation, error handling, and tests in under 30 minutes.
+sidebar:
+  order: 1
+pathSlug: full-stack
+module: apis
+lessonNumber: 2
+difficulty: intermediate
+duration: 22 min
+prerequisites:
+  - Comfortable with TypeScript basics
+  - You\'ve used `fetch` from a frontend
+objectives:
+  - Set up a typed REST API with Hono
+  - Add request validation with Zod
+  - Handle errors uniformly and return JSON problem details
+tags: [hono, rest, api, full-stack, typescript]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** How to spin up a small, type-safe REST API with [Hono](https://hono.dev) — from routing and validation to error handling and tests. Hono runs on Node, Bun, Deno, Cloudflare Workers, and Vercel/Netlify edge — so the same code ships everywhere.
+
+## Why Hono?
+
+It's small. The whole framework is a few KB, and it has zero dependencies for the core. It uses **Web Standards** — `Request`, `Response`, `URL`, `fetch` — so what you learn transfers anywhere those exist (which is everywhere now).
+
+## Set up
+
+```bash
+mkdir my-api && cd my-api
+pnpm init
+pnpm add hono zod
+pnpm add -D typescript tsx @types/node
+```
+
+Add a `tsconfig.json`:
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true
+  }
+}
+```
+
+## Hello, Hono
+
+```ts
+// src/server.ts
+import { Hono } from 'hono';
+import { serve } from '@hono/node-server';
+
+const app = new Hono();
+
+app.get('/', (c) => c.json({ ok: true, name: 'My API' }));
+
+const port = 3000;
+serve({ fetch: app.fetch, port });
+console.log(`http://localhost:${port}`);
+```
+
+```bash
+pnpm tsx src/server.ts
+curl http://localhost:3000/
+# {"ok":true,"name":"My API"}
+```
+
+The `app.fetch` part is the key abstraction: Hono is a function that takes a `Request` and returns a `Response`. That's all an HTTP server *is*, in 2026.
+
+## Routing
+
+```ts
+app.get('/health', (c) => c.json({ status: 'ok' }));
+
+app.get('/posts', (c) => c.json([{ id: 1, title: 'Hello' }]));
+
+app.get('/posts/:id', (c) => {
+  const id = c.req.param('id');
+  return c.json({ id, title: 'A post' });
+});
+
+app.post('/posts', async (c) => {
+  const body = await c.req.json();
+  return c.json({ created: body }, 201);
+});
+```
+
+Methods, path params, JSON parsing — all the basics with no ceremony.
+
+## Validation with Zod
+
+Don't trust the body. Validate it. Hono's `@hono/zod-validator` plugs in cleanly:
+
+```bash
+pnpm add @hono/zod-validator
+```
+
+```ts
+import { z } from 'zod';
+import { zValidator } from '@hono/zod-validator';
+
+const CreatePost = z.object({
+  title: z.string().min(1).max(120),
+  body: z.string().min(1),
+});
+
+app.post(
+  '/posts',
+  zValidator('json', CreatePost),
+  (c) => {
+    const data = c.req.valid('json'); // fully typed
+    return c.json({ created: data }, 201);
+  }
+);
+```
+
+If validation fails, Hono returns a `400` with the Zod error. If it passes, `c.req.valid('json')` is **typed** as `{ title: string; body: string }`. You get runtime safety and compile-time types from the same schema.
+
+## Error handling
+
+A single `onError` is tidier than try/catch in every route:
+
+```ts
+import { HTTPException } from 'hono/http-exception';
+
+app.get('/posts/:id', (c) => {
+  const post = findPost(c.req.param('id'));
+  if (!post) throw new HTTPException(404, { message: 'Post not found' });
+  return c.json(post);
+});
+
+app.onError((err, c) => {
+  if (err instanceof HTTPException) return err.getResponse();
+  console.error(err);
+  return c.json(
+    {
+      type: 'about:blank',
+      title: 'Internal Server Error',
+      status: 500,
+    },
+    500
+  );
+});
+```
+
+The shape there is **RFC 7807 Problem Details** — a tiny standard for error JSON that clients can rely on. Adopt it once and never argue about error formats again.
+
+## Middleware
+
+Logging, CORS, auth — all middleware:
+
+```ts
+import { logger } from 'hono/logger';
+import { cors } from 'hono/cors';
+
+app.use('*', logger());
+app.use('/api/*', cors({ origin: ['https://atlas.dev'] }));
+
+app.use('/admin/*', async (c, next) => {
+  const auth = c.req.header('authorization');
+  if (auth !== `Bearer ${process.env.ADMIN_TOKEN}`) {
+    throw new HTTPException(401);
+  }
+  await next();
+});
+```
+
+`use(path, ...mw)` runs middleware before matching routes. The `*` is a wildcard.
+
+## End-to-end type safety with the RPC client
+
+Hono's killer feature: a typed client your **frontend** can import.
+
+```ts
+// src/server.ts
+const routes = app
+  .get('/posts', (c) => c.json([{ id: 1, title: 'A' }]))
+  .get('/posts/:id', (c) => c.json({ id: c.req.param('id'), title: 'A' }));
+
+export type AppType = typeof routes;
+```
+
+```ts
+// frontend
+import { hc } from 'hono/client';
+import type { AppType } from '../api/src/server';
+
+const api = hc<AppType>('https://atlas.dev');
+const res = await api.posts.$get();
+const posts = await res.json(); // typed!
+```
+
+No OpenAPI generator, no schema sync. The types travel with your code.
+
+<Callout variant="tip" title="Same code, every runtime">
+The exact same Hono app deploys to Cloudflare Workers, Vercel Edge, AWS Lambda, Deno Deploy, Bun, or Node. Pick a host based on price, region, and capabilities — not framework lock-in.
+</Callout>
+
+## Testing
+
+Because Hono speaks `Request`/`Response`, you can call it directly — no server needed:
+
+```ts
+// test.ts
+import { describe, expect, it } from 'vitest';
+import app from './server';
+
+describe('GET /health', () => {
+  it('returns ok', async () => {
+    const res = await app.request('/health');
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ status: 'ok' });
+  });
+});
+```
+
+`app.request(url, init?)` is just `app.fetch(new Request(...))`. Tests run in milliseconds.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/apis/rest-api-hono"
+  questions={[
+    {
+      id: 'hono-1',
+      type: 'single',
+      prompt: 'What underlying primitive does Hono use for requests and responses?',
+      options: [
+        { value: 'a', label: 'Node\'s http.IncomingMessage' },
+        { value: 'b', label: 'Express req/res' },
+        { value: 'c', label: 'Web standard Request and Response' },
+        { value: 'd', label: 'Custom Hono-specific objects' },
+      ],
+      answer: 'c',
+      explanation: 'Web Standards portability is the whole point — same code in browsers, Node, Bun, Deno, edge runtimes.',
+    },
+    {
+      id: 'hono-2',
+      type: 'single',
+      prompt: 'What does `c.req.valid(\'json\')` give you when paired with `zValidator(\'json\', schema)`?',
+      options: [
+        { value: 'a', label: 'The raw, unvalidated body' },
+        { value: 'b', label: 'The validated, typed body inferred from the Zod schema' },
+        { value: 'c', label: 'A Promise of the parsed JSON' },
+        { value: 'd', label: 'A boolean indicating validity' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'hono-3',
+      type: 'single',
+      prompt: 'How do you test a Hono app without spinning up a real server?',
+      options: [
+        { value: 'a', label: 'Use supertest' },
+        { value: 'b', label: 'Call `app.request(path, init?)` directly' },
+        { value: 'c', label: 'Mock the entire app object' },
+        { value: 'd', label: 'You can\'t — start a server on a random port' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+Add a database (Drizzle ORM + SQLite) in the next lesson and you've got a real, testable, deployable backend.
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/apis/rest-api-hono"
+  lessonHref="/paths/full-stack/apis/rest-api-hono/"
+  lessonTitle="Build a REST API with Hono"
+  nextHref="/paths/full-stack/"
+  nextTitle="Full-Stack roadmap"
+/>

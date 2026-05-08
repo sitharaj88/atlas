@@ -1,0 +1,238 @@
+---
+title: Container queries
+description: Style elements based on their container's size, not the viewport. The component-responsive primitive we waited a decade for.
+sidebar:
+  order: 1
+pathSlug: modern-css
+module: layout
+lessonNumber: 4
+difficulty: intermediate
+duration: 14 min
+prerequisites:
+  - CSS basics (selectors, the box model)
+  - Comfortable with media queries
+objectives:
+  - Use container queries to style components based on their container width
+  - Set up a `container-type` and `container-name` correctly
+  - Avoid the most common pitfalls (containment, layout thrashing)
+tags: [css, layout, responsive, container-queries]
+---
+
+import Callout from '~/components/Callout.astro';
+import Playground from '~/components/Playground.tsx';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Why media queries fall short for modern component-driven UIs, and how container queries let a component style itself based on the **space it has**, not the **device it's running on**.
+
+## The problem with media queries
+
+A media query asks: *"how big is the **viewport**?"* That was fine when pages had one column. But components live everywhere — sidebars, modals, dashboards — and a "card" component doesn't know whether its container is 200px wide or 800px wide. With media queries, the same component looks identical at every nesting level, even when the design clearly calls for it to adapt.
+
+Container queries flip the question to: *"how big is the **container** I'm sitting in?"*
+
+## The two-step setup
+
+You declare a **container** on the parent, then write a query that looks at it from any descendant.
+
+```css
+/* 1. Mark the parent as a container */
+.card-grid {
+  container-type: inline-size;
+  container-name: cards;
+}
+
+/* 2. Style descendants based on the container's size */
+@container cards (min-width: 32rem) {
+  .card { display: grid; grid-template-columns: 8rem 1fr; }
+}
+
+@container cards (min-width: 48rem) {
+  .card { grid-template-columns: 12rem 1fr 8rem; }
+}
+```
+
+`container-type: inline-size` tells the browser to track the container's width (the inline axis in horizontal writing modes). You can also use `size` to track both axes — though it has bigger layout implications.
+
+`container-name` is optional but recommended; it lets you address a specific container when components are nested.
+
+## See it live
+
+Drag the resizer on the right side of the preview to change the **container's** width. Notice the card layout responds, even though the **viewport** never changes.
+
+<Playground
+  client:visible
+  template="static"
+  files={{
+    '/index.html': `<!doctype html>
+<html lang="en"><head><meta charset="utf-8" /><link rel="stylesheet" href="styles.css"></head>
+<body>
+  <p style="margin: 0 0 1rem; color: #555">Drag the right edge ↘ to resize.</p>
+  <div class="resize">
+    <div class="cards">
+      <article class="card">
+        <img src="https://picsum.photos/seed/atlas-1/240/240" alt="" />
+        <div>
+          <h3>The Compass</h3>
+          <p>Atlas teaches you to navigate the web platform — not memorize it.</p>
+        </div>
+      </article>
+      <article class="card">
+        <img src="https://picsum.photos/seed/atlas-2/240/240" alt="" />
+        <div>
+          <h3>The Map</h3>
+          <p>Nine paths, a couple hundred lessons. Pick one and start.</p>
+        </div>
+      </article>
+    </div>
+  </div>
+</body></html>`,
+    '/styles.css': `:root { font-family: system-ui, sans-serif; color: #111; }
+body { margin: 1.5rem; background: #f7f7fb; }
+.resize {
+  resize: horizontal;
+  overflow: auto;
+  padding: 1rem;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  width: 360px;
+  min-width: 220px;
+  max-width: 100%;
+}
+.cards {
+  container-type: inline-size;
+  container-name: cards;
+  display: grid;
+  gap: 1rem;
+}
+.card {
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.8rem;
+  border: 1px solid #eaeaef;
+  border-radius: 10px;
+  background: #fff;
+}
+.card img { width: 100%; height: auto; border-radius: 8px; aspect-ratio: 1 / 1; object-fit: cover; }
+.card h3 { margin: 0; font-size: 1rem; }
+.card p  { margin: 0; color: #555; font-size: 0.9rem; line-height: 1.45; }
+
+/* Mid-sized container: image and text side-by-side */
+@container cards (min-width: 28rem) {
+  .card { grid-template-columns: 7rem 1fr; align-items: center; }
+}
+
+/* Large container: bigger image, more breathing room */
+@container cards (min-width: 44rem) {
+  .card { grid-template-columns: 10rem 1fr; padding: 1.1rem; }
+  .card h3 { font-size: 1.15rem; }
+}`,
+  }}
+  options={{ editorHeight: 420 }}
+/>
+
+The same `.card` component now looks correct at any container size — no media query needed, no JavaScript, no resize observers.
+
+## The mental shift
+
+```diff
+- "How big is the viewport?"        ← media queries
++ "How big is the container?"       ← container queries
+```
+
+Once you internalize this, you stop thinking about pages as "mobile" or "desktop" and start thinking about components as **resizable** — they should look right at any size. That mental shift makes design systems vastly cleaner.
+
+## Container query units
+
+Inside a container query block, you can use units that resolve relative to the container, not the viewport:
+
+| Unit | Meaning |
+|---|---|
+| `cqi` | 1% of the container's inline size |
+| `cqb` | 1% of the container's block size |
+| `cqw` / `cqh` | width / height (alias) |
+| `cqmin` / `cqmax` | smaller / larger of inline and block |
+
+Useful for fluid type *inside* a component:
+
+```css
+@container cards (min-width: 24rem) {
+  .card h3 { font-size: clamp(1rem, 4cqi, 1.5rem); }
+}
+```
+
+## Common pitfalls
+
+<Callout variant="warn" title="`container-type: size` triggers strict containment">
+With `inline-size`, only the inline axis is contained. With `size`, both axes are — which means the container collapses to its minimum height unless you give it one explicitly. Prefer `inline-size` unless you really need height-based queries.
+</Callout>
+
+- **Forgetting to set `container-type` on the parent.** Containers are opt-in. No `container-type`, no queries fire.
+- **Querying the wrong container.** When containers are nested, `@container` matches the **nearest ancestor with `container-type` set**. Use `container-name` to be explicit.
+- **Treating `container` like a layout primitive.** It's a contextual selector, not a layout method. Containers don't add display, padding, or margin — they just become *queryable*.
+
+## Browser support
+
+As of 2026, container queries (size and style) are supported in all evergreen browsers. You can use them safely in production. For very old browsers, your design just falls back to the unconditional baseline — which should look fine at "card sits in a single column."
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/layout/container-queries"
+  questions={[
+    {
+      id: 'cq-1',
+      type: 'single',
+      prompt: 'Which property MUST you set on the parent for container queries to work on its descendants?',
+      options: [
+        { value: 'a', label: 'container-name' },
+        { value: 'b', label: 'container-type' },
+        { value: 'c', label: 'contain: size' },
+        { value: 'd', label: 'overflow: hidden' },
+      ],
+      answer: 'b',
+      explanation: '`container-type` is required (e.g., `inline-size`). `container-name` is optional but recommended for clarity.',
+    },
+    {
+      id: 'cq-2',
+      type: 'single',
+      prompt: 'What does `cqi` mean inside a `@container` rule?',
+      options: [
+        { value: 'a', label: '1% of the viewport width' },
+        { value: 'b', label: '1% of the container\'s inline (typically horizontal) size' },
+        { value: 'c', label: '1px scaled to the container' },
+        { value: 'd', label: 'A typo — the unit is `cv`' },
+      ],
+      answer: 'b',
+      explanation: '`cqi` is "container query inline" — 1% of the container\'s inline-axis size.',
+    },
+    {
+      id: 'cq-3',
+      type: 'multi',
+      prompt: 'Which are good reasons to reach for container queries over media queries?',
+      options: [
+        { value: 'a', label: 'A card that lives in both a sidebar and a wide grid' },
+        { value: 'b', label: 'Switching the page from light to dark theme' },
+        { value: 'c', label: 'A component used inside a resizable modal' },
+        { value: 'd', label: 'Hiding navigation on phones' },
+      ],
+      answer: ['a', 'c'],
+      explanation: 'Container queries shine for components that adapt to the space they get. Theming and viewport-driven nav still belong to media queries (or `prefers-color-scheme`).',
+    },
+  ]}
+/>
+
+## What's next
+
+Pair container queries with **`:has()`** (the parent selector) to write CSS that responds to *both* size and content. We cover that in the next module.
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/layout/container-queries"
+  lessonHref="/paths/modern-css/layout/container-queries/"
+  lessonTitle="Container queries"
+  nextHref="/paths/modern-css/"
+  nextTitle="Modern CSS roadmap"
+/>

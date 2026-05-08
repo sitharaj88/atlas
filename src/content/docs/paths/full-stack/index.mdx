@@ -1,0 +1,83 @@
+---
+title: 5 · Full-Stack Web Development
+description: Node, Deno, Bun · Hono, Fastify · REST, GraphQL, tRPC · auth, databases, ORMs, deployment.
+sidebar:
+  order: 0
+---
+
+import ProgressBar from '~/components/ProgressBar.tsx';
+
+> **For:** developers ready to ship complete apps. **Time:** ~36 hours over 11 modules. **Outcome:** you can design, build, secure, and deploy a production-grade web app end-to-end.
+
+<ProgressBar
+  client:idle
+  label="Full-Stack progress"
+  lessonIds={[
+    'full-stack/apis/rest-api-hono',
+  ]}
+/>
+
+## Path map
+
+### Module 1 · Server Runtimes
+- Node.js — the old guard, still going strong
+- Deno — TypeScript-native, secure-by-default
+- Bun — speed and DX you can feel
+
+### Module 2 · HTTP Frameworks
+- Hono — small, fast, edge-ready
+- Fastify — the Node.js workhorse
+- Express — when you'll meet it
+
+### Module 3 · Building APIs
+- REST in 2026 — what's still true, what's old wisdom
+- [Build a REST API with Hono](/paths/full-stack/apis/rest-api-hono/) ← **sample lesson**
+- GraphQL — when it pays off, when it doesn't
+- tRPC — types over the wire, no schema language
+
+### Module 4 · Real-Time
+- WebSockets — bidirectional, when you need it
+- Server-Sent Events — the underused workhorse
+- WebRTC primer — peer-to-peer, in 2 paragraphs
+
+### Module 5 · Authentication
+- Passwords done right (Argon2, never MD5)
+- Sessions vs. JWTs — pick the right one (usually sessions)
+- OAuth 2.0 / OIDC — Sign in with Google, GitHub, etc.
+- Passkeys (WebAuthn) — the post-password future
+
+### Module 6 · Databases
+- Relational vs. document — and when you need both
+- SQLite — yes, in production
+- PostgreSQL — the safe default
+- Redis — caches, queues, pub/sub
+
+### Module 7 · ORMs & Query Builders
+- Drizzle — types straight from your schema
+- Prisma — the popular choice
+- Kysely — query builder for SQL purists
+
+### Module 8 · Storage, Email, Payments
+- File uploads — direct-to-S3 patterns
+- Email — transactional vs. marketing, deliverability basics
+- Payments — Stripe Checkout primer
+
+### Module 9 · Background Work
+- Queues — BullMQ, pgmq, SQS
+- Cron and scheduled jobs — pitfalls
+
+### Module 10 · Observability
+- Structured logging
+- Tracing with OpenTelemetry
+- Error tracking with Sentry
+
+### Module 11 · Shipping
+- Deployment targets compared (Vercel, Fly, Railway, Cloudflare, your own VPS)
+- Zero-downtime deploys
+- Migrations, rollbacks, feature flags
+
+---
+
+## When you finish
+
+You're now dangerous. Round it out with [DevOps for Web](/paths/devops/) (CI/CD, observability), [Testing & Quality](/paths/testing/) (sleep at night), and [Performance, A11y & SEO](/paths/performance-a11y-seo/) (users notice).

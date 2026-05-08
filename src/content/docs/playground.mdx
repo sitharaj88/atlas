@@ -1,0 +1,70 @@
+---
+title: Playground
+description: Scratch space. Pick a template and prototype an idea. Runs entirely in your browser, no setup.
+---
+
+import Playground from '~/components/Playground.tsx';
+import Callout from '~/components/Callout.astro';
+
+A scratch space for trying things. The editor below runs entirely in your browser — no Node, no install. Use it to:
+
+- Test a snippet from a lesson
+- Reproduce a bug for a question
+- Sketch the shape of a thing before reaching for the real project
+
+## Vanilla HTML / CSS / JS
+
+<Playground
+  client:visible
+  template="static"
+  files={{
+    '/index.html': `<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><link rel="stylesheet" href="styles.css"></head>
+<body>
+  <main>
+    <h1>Hello, Atlas 👋</h1>
+    <p>Edit me on the left — you'll see the change instantly on the right.</p>
+    <button id="b">Click me</button>
+  </main>
+  <script src="script.js"></script>
+</body></html>`,
+    '/styles.css': `:root { font-family: system-ui, sans-serif; color: #111; }
+body { margin: 2rem; max-width: 36rem; }
+button {
+  padding: 0.6rem 1rem; border-radius: 999px;
+  border: 1px solid #ddd; background: #F5B14A; cursor: pointer;
+  font-weight: 600;
+}`,
+    '/script.js': `document.getElementById('b').addEventListener('click', () => {
+  alert("It works!");
+});`,
+  }}
+  options={{ editorHeight: 420 }}
+/>
+
+## React
+
+<Playground
+  client:visible
+  template="react-ts"
+  files={{
+    '/App.tsx': `import { useState } from 'react';
+
+export default function App() {
+  const [count, setCount] = useState(0);
+  return (
+    <div style={{ fontFamily: 'system-ui, sans-serif', padding: 24 }}>
+      <h1>React on Atlas</h1>
+      <button onClick={() => setCount(c => c + 1)}>
+        Clicked {count} {count === 1 ? 'time' : 'times'}
+      </button>
+    </div>
+  );
+}`,
+  }}
+  options={{ editorHeight: 380 }}
+/>
+
+<Callout variant="tip" title="Want a full Node environment?">
+For Node-based work (server code, npm packages, tooling), copy your snippet into [StackBlitz](https://stackblitz.com) — it runs Node in the browser via WebContainers.
+</Callout>

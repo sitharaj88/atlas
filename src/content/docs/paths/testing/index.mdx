@@ -1,0 +1,53 @@
+---
+title: 7 · Testing & Quality
+description: Unit, component, and end-to-end tests with Vitest, Testing Library, Playwright, and Storybook.
+sidebar:
+  order: 0
+---
+
+import ProgressBar from '~/components/ProgressBar.tsx';
+
+> **For:** developers tired of being scared to deploy. **Time:** ~12 hours over 5 modules. **Outcome:** you write the right test at the right level — fast, low-flake, high-confidence.
+
+<ProgressBar
+  client:idle
+  label="Testing & Quality progress"
+  lessonIds={[
+    'testing/e2e/first-playwright-test',
+  ]}
+/>
+
+## Path map
+
+### Module 1 · The Testing Mental Model
+- The testing pyramid (and the trophy)
+- What NOT to test — implementation details
+- TDD: when it pays off, when it slows you down
+
+### Module 2 · Unit Tests with Vitest
+- Vitest in 5 minutes
+- Mocks, spies, and fakes — the differences
+- Testing async code
+
+### Module 3 · Component Tests with Testing Library
+- Querying like a user (not a developer)
+- `userEvent` vs. `fireEvent`
+- Mock Service Worker for API stubs
+
+### Module 4 · End-to-End with Playwright
+- [Your first Playwright test](/paths/testing/e2e/first-playwright-test/) ← **sample lesson**
+- Page Object Model — when it helps
+- Network mocking, visual snapshots
+- Running E2E in CI without flake
+
+### Module 5 · Quality Gates
+- Storybook — components in isolation
+- Visual regression testing
+- Type-checking as a test
+- Pull-request CI you actually trust
+
+---
+
+## When you finish
+
+Wire your suite into [DevOps for Web](/paths/devops/) (CI workflows that block bad merges) and combine with [Performance, A11y & SEO](/paths/performance-a11y-seo/) (catch perf and a11y regressions in tests, not in production).

@@ -1,0 +1,22 @@
+---
+title: Cheatsheets
+description: One-page reference cards. Beautifully designed, printer-friendly, free.
+---
+
+Cheatsheets are the things you wish you'd had taped to your monitor when you were learning. Each one fits on a single (printable) page. Bookmark them, print them, hand them to a friend.
+
+import PathCard from '~/components/PathCard.astro';
+
+<div class="atlas-grid atlas-grid--cards">
+  <PathCard number="01" href="/cheatsheets/flexbox/" title="Flexbox"
+    description="Every property, every value, with the visual it produces. Stop guessing at justify-content vs. align-items."
+    difficulty="beginner" accent="#F5B14A" />
+  <PathCard number="02" href="/cheatsheets/git/" title="Git"
+    description="The 30 commands that solve 95% of real-world Git problems. Plus the rescue toolkit when things go wrong."
+    difficulty="beginner" accent="#e25c64" />
+  <PathCard number="03" href="/cheatsheets/http-status-codes/" title="HTTP status codes"
+    description="What each status really means, when to use each, and the ones that look right but aren't."
+    difficulty="beginner" accent="#2bb4a4" />
+</div>
+
+> **Coming soon:** CSS Grid · Regex · WCAG checklist · TypeScript utility types · npm/pnpm scripts · DOM events.

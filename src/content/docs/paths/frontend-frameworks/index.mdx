@@ -1,0 +1,78 @@
+---
+title: 4 · Frontend Frameworks
+description: React, Vue, Svelte, Solid, Angular, Qwik, Astro, Lit, HTMX. When to pick which — and why.
+sidebar:
+  order: 0
+---
+
+import ProgressBar from '~/components/ProgressBar.tsx';
+
+> **For:** developers ready to compose UI from components. **Time:** ~32 hours over 10 modules. **Outcome:** you're fluent in React, conversant in 4 alternatives, and confident choosing for a given problem.
+
+<ProgressBar
+  client:idle
+  label="Frontend Frameworks progress"
+  lessonIds={[
+    'frontend-frameworks/react/server-components',
+  ]}
+/>
+
+## Path map
+
+### Module 1 · The Component Mental Model
+- Why components? The shift from DOM-first to data-first
+- Reactivity: VDOM, fine-grained signals, compilers
+- The big tradeoffs: ergonomics, performance, ecosystem
+
+### Module 2 · React Foundations
+- JSX is just function calls
+- `useState`, `useEffect`, `useReducer` — the trio
+- Lifting state, prop drilling, composition over inheritance
+- Lists, keys, controlled vs. uncontrolled inputs
+
+### Module 3 · React, Deeper
+- `useMemo`, `useCallback` — when they help (and when they don't)
+- `useRef` and imperative escape hatches
+- Suspense, transitions, deferred values
+- [React Server Components, demystified](/paths/frontend-frameworks/react/server-components/) ← **sample lesson**
+
+### Module 4 · Routing, Data, State
+- Router patterns — file-based, code-first
+- Server state vs. client state — TanStack Query
+- Global state — when you don't need Redux
+- Forms — React Hook Form, Conform, native `<form>`
+
+### Module 5 · React Frameworks
+- Next.js — the conventional choice
+- Remix → React Router 7 — web-fundamentals first
+- Astro — islands for content sites
+- TanStack Start — type-safe full-stack
+
+### Module 6 · Vue 3
+- The composition API
+- Reactivity primitives — `ref`, `reactive`, `computed`
+- Single-file components
+
+### Module 7 · Svelte 5
+- Runes — the reactivity primitives
+- Compile-time vs. runtime tradeoffs
+- SvelteKit for full-stack apps
+
+### Module 8 · SolidJS
+- Fine-grained signals, no VDOM
+- Why JSX still feels like React (until it doesn't)
+
+### Module 9 · The HTML-First Camp
+- HTMX — hypermedia as the engine of state
+- Alpine.js — sprinkling JS on server-rendered pages
+- Web Components and Lit
+
+### Module 10 · Choosing
+- A decision tree: content, app, dashboard, team-size, deploy-target
+- Migration patterns — adding (or removing) a framework gradually
+
+---
+
+## When you finish
+
+Pair this with [Full-Stack](/paths/full-stack/) (your components need data and APIs), [Testing & Quality](/paths/testing/) (so refactors don't terrify you), and [Performance, A11y & SEO](/paths/performance-a11y-seo/) (so the apps you ship are actually good).

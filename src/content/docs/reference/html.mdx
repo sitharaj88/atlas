@@ -1,0 +1,89 @@
+---
+title: HTML elements
+description: Curated reference for the HTML elements you'll actually use, with accessibility and gotcha notes.
+sidebar:
+  order: 1
+tags: [html, reference]
+---
+
+> Reference is opinionated. We cover the elements you'll meet **in real apps**, with the notes that aren't in the spec.
+
+## Document & metadata
+
+`<html>` · `<head>` · `<body>` · `<title>` · `<meta>` · `<link>` · `<base>` · `<style>` · `<script>` · `<noscript>`
+
+## Sectioning
+
+- `<header>` — site or article header
+- `<nav>` — major navigation block
+- `<main>` — the main content (one per page)
+- `<article>` — self-contained piece of content
+- `<section>` — thematic grouping (use a heading inside)
+- `<aside>` — tangentially related content
+- `<footer>` — section or page footer
+- `<h1>`–`<h6>` — headings (one `<h1>` per page is the safe default)
+
+## Text content
+
+- `<p>` — paragraph
+- `<ul>`, `<ol>`, `<li>` — lists
+- `<dl>`, `<dt>`, `<dd>` — definition lists
+- `<blockquote>`, `<q>`, `<cite>` — quotations
+- `<pre>`, `<code>`, `<kbd>`, `<samp>`, `<var>` — code/keyboard/sample
+- `<hr>` — thematic break (not a divider — use `border` for visuals)
+
+## Inline
+
+- `<a>` — link (the most important element on the web)
+- `<strong>` (semantically strong) vs. `<b>` (visual bold, no meaning)
+- `<em>` (emphasis) vs. `<i>` (italic with no extra meaning)
+- `<mark>` — highlight
+- `<small>` — fine print
+- `<time datetime="2026-05-08">` — machine-readable dates
+- `<abbr title="...">`, `<dfn>` — abbreviations and definitions
+
+## Embedded
+
+- `<img>` — set `width`, `height`, `alt`. Use `loading="lazy"` below the fold.
+- `<picture>`, `<source>` — responsive and modern formats (AVIF/WebP)
+- `<video>`, `<audio>` — `<source>` children for multiple formats
+- `<iframe>` — sandbox it (`sandbox="..."`) and lazy-load it (`loading="lazy"`)
+- `<svg>` — inline SVG accepts CSS and ARIA
+
+## Forms
+
+- `<form>` — `method`, `action`, `enctype`. Always wrap inputs.
+- `<input>` — many types: `text`, `email`, `password`, `number`, `date`, `color`, `file`, `range`, `hidden`, ...
+- `<label>` — always pair with the input via `for=` or by wrapping
+- `<textarea>`, `<select>`, `<option>`, `<optgroup>`
+- `<button type="submit">` (default) vs. `<button type="button">`
+- `<fieldset>`, `<legend>` — group related inputs (use for radio groups!)
+- `<datalist>` — autocomplete suggestions
+- `<output>` — show a calculated result
+
+## Tables
+
+- `<table>`, `<thead>`, `<tbody>`, `<tfoot>`, `<tr>`, `<th scope="col|row">`, `<td>`, `<caption>`
+- Use tables for **tabular data**, not for layout. (We left that behind in 2008.)
+
+## Interactive
+
+- `<details>`, `<summary>` — disclosure widget, no JS needed
+- `<dialog>` — modal/non-modal, accessible by default; use `showModal()` to open
+- `<menu>` — semantic toolbar (rarely used)
+
+## Web Components
+
+- `<template>` — inert HTML, not rendered until cloned
+- `<slot>` — used inside Shadow DOM custom elements
+
+## Common gotchas
+
+- `<button>` inside `<a>` is **invalid**. Pick one.
+- `<a>` without `href` is not a link — use `<button>` instead.
+- `<div onclick="">` is **not** a button. It has no role, no keyboard, no a11y. Use `<button>`.
+- `<section>` without a heading is rarely the right element — try `<div>`.
+- `target="_blank"` should always pair with `rel="noopener noreferrer"` for security.
+- Self-closing tags (`<br />`, `<img />`) — the slash is optional in HTML5; required in XHTML/JSX.
+
+> **Coming soon:** detailed pages for each element with examples and accessibility notes. [Contribute](/contribute/) one!

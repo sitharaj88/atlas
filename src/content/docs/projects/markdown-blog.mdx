@@ -1,0 +1,244 @@
+---
+title: Build a Markdown blog with Astro
+description: A fast, free, beautiful blog from a folder of Markdown files. Deploy to GitHub Pages with one CI workflow.
+sidebar:
+  order: 1
+difficulty: beginner
+duration: 2 hours
+prerequisites:
+  - Comfortable in a terminal
+  - Node 20+ and pnpm installed
+objectives:
+  - Scaffold an Astro project
+  - Author posts in Markdown with frontmatter
+  - Generate a list page and individual post pages
+  - Add an RSS feed and a sitemap
+  - Deploy to GitHub Pages
+tags: [astro, markdown, blog, project]
+---
+
+import Callout from '~/components/Callout.astro';
+
+> **What you'll build.** A personal blog like the one you're reading right now (minus the bells and whistles). Posts are Markdown files. The site is static. Hosting is free. Time: ~2 hours.
+
+This is **project #1** of the Atlas project gallery. We'll keep it small, but at the end you have a real, deployed thing.
+
+## The shape
+
+```text
+my-blog/
+├── src/
+│   ├── content/
+│   │   └── blog/
+│   │       ├── hello-world.md
+│   │       └── second-post.md
+│   ├── pages/
+│   │   ├── index.astro          # post list
+│   │   ├── blog/
+│   │   │   └── [...slug].astro  # individual post
+│   │   └── rss.xml.ts           # RSS feed
+│   └── styles/global.css
+├── astro.config.mjs
+└── package.json
+```
+
+## Step 1 — Scaffold the project
+
+```bash
+pnpm create astro@latest my-blog -- --template minimal --typescript strict --no-install --no-git
+cd my-blog
+pnpm install
+pnpm add @astrojs/rss @astrojs/sitemap
+```
+
+Open the project. Run `pnpm dev` to confirm the dev server starts at http://localhost:4321.
+
+## Step 2 — Configure content collections
+
+Create `src/content.config.ts`:
+
+```ts
+import { defineCollection, z } from 'astro:content';
+import { glob } from 'astro/loaders';
+
+const blog = defineCollection({
+  loader: glob({ pattern: '**/*.md', base: './src/content/blog' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    publishedAt: z.coerce.date(),
+    tags: z.array(z.string()).default([]),
+    draft: z.boolean().default(false),
+  }),
+});
+
+export const collections = { blog };
+```
+
+Now Astro knows the shape of your posts and will type-check the frontmatter at build time.
+
+## Step 3 — Write your first post
+
+`src/content/blog/hello-world.md`:
+
+```md
+---
+title: Hello, world
+description: My first post on the new blog.
+publishedAt: 2026-05-08
+tags: [meta]
+---
+
+This is my first post. **It's written in Markdown.**
+
+- Lists work
+- `Inline code` works
+
+```js
+console.log('and code blocks too');
+```
+```
+
+Add a second post for variety. Both will be picked up automatically.
+
+## Step 4 — The post list page
+
+`src/pages/index.astro`:
+
+```astro
+---
+import { getCollection } from 'astro:content';
+
+const posts = (await getCollection('blog'))
+  .filter((p) => !p.data.draft)
+  .sort((a, b) => +b.data.publishedAt - +a.data.publishedAt);
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>My blog</title>
+    <link rel="alternate" type="application/rss+xml" href="/rss.xml" />
+  </head>
+  <body>
+    <h1>My blog</h1>
+    <ul>
+      {posts.map((p) => (
+        <li>
+          <a href={`/blog/${p.id}/`}>{p.data.title}</a>
+          <small> · {p.data.publishedAt.toLocaleDateString()}</small>
+          <p>{p.data.description}</p>
+        </li>
+      ))}
+    </ul>
+  </body>
+</html>
+```
+
+## Step 5 — Individual post pages
+
+`src/pages/blog/[...slug].astro`:
+
+```astro
+---
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const posts = await getCollection('blog');
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post },
+  }));
+}
+
+const { post } = Astro.props;
+const { Content } = await render(post);
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{post.data.title}</title>
+    <meta name="description" content={post.data.description} />
+  </head>
+  <body>
+    <article>
+      <h1>{post.data.title}</h1>
+      <p><time>{post.data.publishedAt.toLocaleDateString()}</time></p>
+      <Content />
+    </article>
+    <p><a href="/">← back</a></p>
+  </body>
+</html>
+```
+
+Refresh the browser. Click a post. **You have a working blog.** The whole site is static — every page is generated at build time.
+
+## Step 6 — Add an RSS feed
+
+`src/pages/rss.xml.ts`:
+
+```ts
+import rss from '@astrojs/rss';
+import { getCollection } from 'astro:content';
+import type { APIContext } from 'astro';
+
+export async function GET(context: APIContext) {
+  const posts = (await getCollection('blog')).filter((p) => !p.data.draft);
+  return rss({
+    title: 'My blog',
+    description: 'Things I think about, written down.',
+    site: context.site!,
+    items: posts.map((p) => ({
+      title: p.data.title,
+      description: p.data.description,
+      pubDate: p.data.publishedAt,
+      link: `/blog/${p.id}/`,
+    })),
+  });
+}
+```
+
+In `astro.config.mjs`, set `site: 'https://<you>.github.io/my-blog'` (or your custom domain) and add `import sitemap from '@astrojs/sitemap'` to the integrations array.
+
+## Step 7 — Style it
+
+Add `src/styles/global.css` (or use a real design system later) and import it from each page. Keep it minimal. A blog at this stage should feel like a Word doc with good typography:
+
+```css
+:root {
+  font-family: ui-sans-serif, system-ui, sans-serif;
+  font-size: 18px;
+  line-height: 1.6;
+  color: #1a1a1a;
+}
+
+body { max-width: 38rem; margin: 4rem auto; padding: 0 1.25rem; }
+h1, h2, h3 { line-height: 1.2; }
+a { color: #c47312; }
+
+article pre {
+  padding: 1rem;
+  background: #f6f7fb;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+```
+
+## Step 8 — Deploy
+
+Follow the [Deploy to GitHub Pages](/paths/devops/deploy/github-pages/) lesson — same workflow file works here. Your blog goes live 30 seconds after you push to `main`.
+
+## Where to go from here
+
+- **Add MDX** for richer posts (`pnpm add @astrojs/mdx`).
+- **Add tags** with a `/tags/[tag].astro` route.
+- **Add a search** with `pagefind` (the same tool Atlas uses).
+- **Add OG images** with `astro-og-canvas`.
+- **Add comments** with [Giscus](https://giscus.app).
+
+The base is small on purpose. Each addition above is a 30-minute win, and you'll learn more by adding them one at a time than by starting from a 500-line "blog template."
+
+<Callout variant="success" title="Ship it">
+The most important step is the deploy. Even a 2-page blog that\'s **live** beats a 50-page draft that isn\'t. Push to GitHub Pages today.
+</Callout>

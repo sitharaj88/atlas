@@ -1,0 +1,193 @@
+---
+title: How the web works
+description: A clear mental model — from typing a URL to seeing a page. HTTP, DNS, TCP/IP, browsers, and the rendering pipeline.
+sidebar:
+  order: 1
+pathSlug: foundations
+module: web-platform
+lessonNumber: 1
+difficulty: beginner
+duration: 12 min
+objectives:
+  - Trace what happens between hitting Enter and seeing pixels
+  - Distinguish DNS, TCP, TLS, HTTP — and where each lives
+  - Reason about why pages are slow or fail to load
+tags: [http, dns, browsers, fundamentals]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** A clear, durable mental model of what happens when you type `https://example.com` and hit **Enter** — covering DNS, TCP, TLS, HTTP, and the browser's rendering pipeline.
+
+## The big picture
+
+Loading a webpage is a relay race. About a dozen systems, owned by different organizations, hand a baton back and forth in the second between **Enter** and **paint**. If any one of them stalls, the whole thing feels slow.
+
+Here's the relay, end to end:
+
+1. **You type a URL** — `https://atlas.dev/paths/`
+2. **The browser parses the URL** into scheme (`https`), host (`atlas.dev`), and path (`/paths/`)
+3. **DNS lookup** turns `atlas.dev` into an IP address (`104.21.x.x`)
+4. **TCP handshake** opens a connection to that IP on port 443
+5. **TLS handshake** negotiates encryption (this is the *S* in HTTPS)
+6. **HTTP request** goes out: `GET /paths/ HTTP/2`
+7. **The server responds** with HTTP status, headers, and the HTML body
+8. **The browser parses HTML** — and discovers it needs CSS, JS, images
+9. **More requests** fire (often in parallel) for those resources
+10. **The render pipeline runs**: parse → CSSOM → layout → paint → composite
+11. **JavaScript executes**, possibly mutating the DOM
+12. **You see pixels.** The page is "interactive" once the main thread isn't stuck running JS
+
+Most performance work targets steps 3–11. Most outages live in 3–7.
+
+## What each piece is, in one sentence
+
+**URL.** A standardized string that identifies a resource on the internet. The format is `scheme://host:port/path?query#fragment` — the browser parses this into pieces it can act on.
+
+**DNS (Domain Name System).** A distributed phonebook that turns human-friendly names like `atlas.dev` into IP addresses like `104.21.234.18`. Your operating system asks a *resolver* (often your ISP's), which may ask a *root* server, then a *TLD* (`.dev`) server, then `atlas.dev`'s *authoritative* server. Results are cached aggressively at every layer.
+
+**TCP (Transmission Control Protocol).** The reliable delivery layer of the internet. It chops your data into packets, numbers them, and ensures they arrive intact and in order. Opening a TCP connection takes one round-trip.
+
+**TLS (Transport Layer Security).** The encryption layer. After TCP is open, TLS negotiates a shared secret (asymmetric crypto) and switches to fast symmetric encryption. With TLS 1.3 this takes one extra round-trip; with **0-RTT** resumption, sometimes zero.
+
+**HTTP (HyperText Transfer Protocol).** The application protocol that browsers and servers speak. Modern web traffic is mostly **HTTP/2** (multiplexed over TCP) or **HTTP/3** (over QUIC, which lives on UDP — yes, the unreliable one — but builds reliability in). The shape is unchanged: request method (`GET`, `POST`, …), URL, headers, optional body.
+
+<Callout variant="note" title="HTTP/2 and HTTP/3 don't change the shape of HTTP">
+You still send a method, headers, and a body. The wire format and connection multiplexing change underneath. As an app developer, you mostly notice the speed.
+</Callout>
+
+## What the browser does once it has HTML
+
+The HTML doesn't arrive all at once — it streams in. The browser starts parsing immediately:
+
+```text
+HTML bytes ──► tokens ──► DOM tree
+CSS bytes  ──► tokens ──► CSSOM tree
+                              │
+              DOM + CSSOM ──► Render tree
+                              │
+                              ▼
+                 Layout (positions, sizes)
+                              │
+                              ▼
+                 Paint (pixels into layers)
+                              │
+                              ▼
+                 Composite (layers to screen)
+```
+
+The render pipeline is what you optimize when you chase Core Web Vitals. **Layout shifts** happen when something arrives late and pushes things around. **Slow interactions** happen when the main thread is busy parsing or running JS.
+
+## A request, in real bytes
+
+This is what `GET /paths/` actually looks like on the wire (HTTP/1.1 for readability — HTTP/2 binary-encodes the same info):
+
+```http
+GET /paths/ HTTP/1.1
+Host: atlas.dev
+User-Agent: Mozilla/5.0 ...
+Accept: text/html,application/xhtml+xml,...
+Accept-Encoding: gzip, br
+Cookie: session=abc123
+```
+
+The server responds:
+
+```http
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Content-Encoding: br
+Cache-Control: public, max-age=3600
+Content-Length: 14823
+
+<!doctype html>
+<html lang="en">
+...
+```
+
+You'll see this exact format in browser DevTools → Network → "Headers". Reading them is a superpower.
+
+## See it for yourself
+
+Open your terminal and try:
+
+```bash
+# DNS resolution
+dig atlas.dev +short
+
+# TCP + TLS + HTTP, all in one
+curl -v https://example.com
+```
+
+`curl -v` prints every step we just described — DNS lookup, TCP, TLS handshake, request, response. Look at it once and the abstractions above stop being abstract.
+
+<Callout variant="tip" title="Open DevTools right now">
+On any webpage, open DevTools (Cmd-Opt-I / F12) and click the **Network** tab. Reload. Each row is one HTTP request. Click any one to see headers, timing, response. This is your single best web-platform learning tool.
+</Callout>
+
+## Why this matters
+
+Every later topic in Atlas builds on this picture. **Caching headers** decide whether step 6 even has to happen. **Responsive images** decide what step 9 fetches. **Server Components** are an opinion about what to ship in step 7. **CSP** is a header the browser uses to sandbox steps 9–11. Build the model once; recoup it forever.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/web-platform/how-the-web-works"
+  questions={[
+    {
+      id: 'how-web-1',
+      type: 'single',
+      prompt: 'In what order do these happen on a fresh page load?',
+      options: [
+        { value: 'a', label: 'TLS → DNS → TCP → HTTP' },
+        { value: 'b', label: 'DNS → TCP → TLS → HTTP' },
+        { value: 'c', label: 'HTTP → TCP → DNS → TLS' },
+        { value: 'd', label: 'TCP → DNS → HTTP → TLS' },
+      ],
+      answer: 'b',
+      explanation: 'You need an IP (DNS) before you can open a connection (TCP), then secure it (TLS), then speak the application protocol (HTTP).',
+    },
+    {
+      id: 'how-web-2',
+      type: 'single',
+      prompt: 'What is the role of TCP in a webpage load?',
+      options: [
+        { value: 'a', label: 'Encrypts traffic between browser and server' },
+        { value: 'b', label: 'Resolves domain names to IP addresses' },
+        { value: 'c', label: 'Provides reliable, ordered delivery of bytes' },
+        { value: 'd', label: 'Defines request methods like GET and POST' },
+      ],
+      answer: 'c',
+      explanation: 'TLS does encryption, DNS does name resolution, and HTTP defines methods. TCP\'s job is reliable delivery.',
+    },
+    {
+      id: 'how-web-3',
+      type: 'multi',
+      prompt: 'Which of these can the browser do in parallel during a single page load? (select all that apply)',
+      options: [
+        { value: 'a', label: 'Parse HTML while CSS is still downloading' },
+        { value: 'b', label: 'Fetch images and JS files concurrently' },
+        { value: 'c', label: 'Run two TLS handshakes for the same connection' },
+        { value: 'd', label: 'Render before HTML parsing is complete (streaming)' },
+      ],
+      answer: ['a', 'b', 'd'],
+      explanation: 'Modern browsers stream and parallelize aggressively. Each TCP+TLS connection has one handshake — but the browser opens multiple connections (or multiplexes via HTTP/2).',
+    },
+  ]}
+/>
+
+## What's next
+
+You now have the map. Next up: **DNS, IP, and what `localhost` actually is** — going one layer deeper into the naming system that makes the web feel like names instead of numbers.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/web-platform/how-the-web-works"
+  lessonHref="/paths/foundations/web-platform/how-the-web-works/"
+  lessonTitle="How the web works"
+  nextHref="/paths/foundations/"
+  nextTitle="Module roadmap"
+/>

@@ -1,0 +1,205 @@
+---
+title: 'Atlas — your map to modern web development'
+description: 'A free, open-source learning platform that takes you from "what is HTTP?" to shipping a production full-stack app — with live playgrounds, quizzes, and a curriculum that respects your time.'
+template: splash
+---
+
+import Hero from '~/components/Hero.astro';
+import PathCard from '~/components/PathCard.astro';
+import ResumeBanner from '~/components/ResumeBanner.tsx';
+import Callout from '~/components/Callout.astro';
+
+<Hero
+  eyebrow="Atlas · v0.1 · the map for self-taught developers"
+  title="Your map to <em>modern</em> web development."
+  lede="One opinionated, beautiful, free destination — from how the web works, through HTML/CSS/JS and TypeScript, into React, Svelte, full-stack, performance, accessibility, testing, DevOps, and the modern frontier (edge, AI, real-time)."
+/>
+
+<div style="margin: 2rem 0;">
+  <ResumeBanner client:idle />
+</div>
+
+<div class="atlas-section-heading">
+  <div>
+    <h2>Pick a path. Earn the next.</h2>
+    <p>Each path is a structured journey. Stack them up, or jump straight to the one you need.</p>
+  </div>
+  <a href="/paths/" class="atlas-btn atlas-btn--ghost">All paths →</a>
+</div>
+
+<div class="atlas-grid atlas-grid--cards">
+  <PathCard
+    number={1}
+    href="/paths/foundations/"
+    title="Foundations of the Web"
+    description="HTTP, browsers, HTML5, CSS, modern JavaScript, the DOM, async, modules. Every developer's bedrock."
+    difficulty="beginner"
+    modules={9}
+    hours={28}
+    accent="#2bb4a4"
+  />
+  <PathCard
+    number={2}
+    href="/paths/modern-css/"
+    title="Modern CSS & Design Systems"
+    description="Subgrid, container queries, :has(), cascade layers, view transitions, design tokens, Tailwind, theming."
+    difficulty="intermediate"
+    modules={7}
+    hours={18}
+    accent="#F5B14A"
+  />
+  <PathCard
+    number={3}
+    href="/paths/typescript/"
+    title="TypeScript Mastery"
+    description="From basics to wizardry: generics, conditional and template-literal types, narrowing, type-driven APIs."
+    difficulty="intermediate"
+    modules={6}
+    hours={14}
+    accent="#3178c6"
+  />
+  <PathCard
+    number={4}
+    href="/paths/frontend-frameworks/"
+    title="Frontend Frameworks"
+    description="React, Vue, Svelte, Solid, Angular, Qwik, Astro, Lit, HTMX. When to pick which — and why."
+    difficulty="mixed"
+    modules={10}
+    hours={32}
+    accent="#e25c64"
+  />
+  <PathCard
+    number={5}
+    href="/paths/full-stack/"
+    title="Full-Stack Web Development"
+    description="Node, Deno, Bun · Hono, Fastify · REST, GraphQL, tRPC · auth, databases, ORMs, deploy."
+    difficulty="intermediate"
+    modules={11}
+    hours={36}
+    accent="#6abf6e"
+  />
+  <PathCard
+    number={6}
+    href="/paths/performance-a11y-seo/"
+    title="Performance, A11y & SEO"
+    description="Core Web Vitals, image optimization, code splitting, WCAG 2.2, screen readers, structured data."
+    difficulty="intermediate"
+    modules={6}
+    hours={16}
+    accent="#9b59f5"
+  />
+  <PathCard
+    number={7}
+    href="/paths/testing/"
+    title="Testing & Quality"
+    description="Unit, component, E2E. Vitest, Testing Library, Playwright, Storybook. TDD that actually pays off."
+    difficulty="intermediate"
+    modules={5}
+    hours={12}
+    accent="#0eaae6"
+  />
+  <PathCard
+    number={8}
+    href="/paths/devops/"
+    title="DevOps for Web Developers"
+    description="Git deep-dive, GitHub Actions, Docker, deploy to Pages/Vercel/Cloudflare/Fly, observability."
+    difficulty="intermediate"
+    modules={6}
+    hours={14}
+    accent="#566cf0"
+  />
+  <PathCard
+    number={9}
+    href="/paths/frontier/"
+    title="The Modern Frontier"
+    description="Edge runtimes, RSC streaming, islands, WebAssembly, WebGPU, CRDTs, AI in web apps, security."
+    difficulty="advanced"
+    modules={8}
+    hours={22}
+    accent="#f5b14a"
+  />
+</div>
+
+<div class="atlas-section-heading" style="margin-top: 4rem;">
+  <div>
+    <h2>What makes Atlas different</h2>
+    <p>Not another link dump. A coherent, opinionated curriculum that treats you like an adult.</p>
+  </div>
+</div>
+
+<div class="atlas-grid atlas-grid--cards">
+  <div class="atlas-card">
+    <span class="atlas-card__eyebrow">Curated, not crowdsourced</span>
+    <h3 class="atlas-card__title">One voice, one curriculum</h3>
+    <p class="atlas-card__desc">Every lesson follows the same template — concept, example, live playground, quiz, what's next. No filler. No clickbait.</p>
+  </div>
+  <div class="atlas-card">
+    <span class="atlas-card__eyebrow">Interactive</span>
+    <h3 class="atlas-card__title">Every concept is runnable</h3>
+    <p class="atlas-card__desc">Real Sandpack playgrounds inline — edit, see output instantly. No "watch this 90-minute video and trust me."</p>
+  </div>
+  <div class="atlas-card">
+    <span class="atlas-card__eyebrow">Modern by default</span>
+    <h3 class="atlas-card__title">Built on what's shipping in 2026</h3>
+    <p class="atlas-card__desc">Server Components, container queries, edge runtimes, AI integration. We teach the web you're going to build, not the one from 2018.</p>
+  </div>
+  <div class="atlas-card">
+    <span class="atlas-card__eyebrow">Free forever · open source</span>
+    <h3 class="atlas-card__title">MIT for code, CC BY-SA for content</h3>
+    <p class="atlas-card__desc">Fork it, translate it, run it offline as a PWA. <a href="/contribute/">Contribute lessons</a> back so the next learner has it better.</p>
+  </div>
+  <div class="atlas-card">
+    <span class="atlas-card__eyebrow">Respects your time</span>
+    <h3 class="atlas-card__title">Lessons are 10–15 minutes</h3>
+    <p class="atlas-card__desc">Bite-sized so you actually finish. Progress saves locally. Pick up exactly where you left off.</p>
+  </div>
+  <div class="atlas-card">
+    <span class="atlas-card__eyebrow">Practitioner-grade</span>
+    <h3 class="atlas-card__title">Reference + cheatsheets + projects</h3>
+    <p class="atlas-card__desc">Beyond tutorials — searchable reference, printable cheatsheets, and build-along projects that go on your portfolio.</p>
+  </div>
+</div>
+
+<Callout variant="tip" title="New here?">
+Take the 60-second [start quiz](/start/) and we'll point you to the right path. Already a seasoned dev? Browse the [Reference](/reference/) or grab a [cheatsheet](/cheatsheets/).
+</Callout>
+
+<div class="atlas-section-heading" style="margin-top: 4rem;">
+  <div>
+    <h2>Beyond the paths</h2>
+    <p>Tools to use Atlas as a daily companion, not just a course.</p>
+  </div>
+</div>
+
+<div class="atlas-grid atlas-grid--cards">
+  <a class="atlas-card" href="/reference/">
+    <span class="atlas-card__eyebrow">Reference</span>
+    <h3 class="atlas-card__title">Learner-friendly docs</h3>
+    <p class="atlas-card__desc">HTML elements, CSS properties, JS APIs, Web APIs — explained for humans, not spec authors.</p>
+  </a>
+  <a class="atlas-card" href="/cheatsheets/">
+    <span class="atlas-card__eyebrow">Cheatsheets</span>
+    <h3 class="atlas-card__title">Printable, beautifully designed</h3>
+    <p class="atlas-card__desc">Flexbox, grid, git, regex, HTTP status codes, a11y checklist, TS utility types.</p>
+  </a>
+  <a class="atlas-card" href="/roadmaps/">
+    <span class="atlas-card__eyebrow">Roadmaps</span>
+    <h3 class="atlas-card__title">Visual learning graphs</h3>
+    <p class="atlas-card__desc">See the whole landscape — frontend, backend, full-stack, DevOps. Each node links to a lesson.</p>
+  </a>
+  <a class="atlas-card" href="/projects/">
+    <span class="atlas-card__eyebrow">Projects</span>
+    <h3 class="atlas-card__title">Build-along, portfolio-ready</h3>
+    <p class="atlas-card__desc">Markdown blog → e-commerce store → real-time chat → AI study buddy. Ship them.</p>
+  </a>
+  <a class="atlas-card" href="/glossary/">
+    <span class="atlas-card__eyebrow">Glossary</span>
+    <h3 class="atlas-card__title">Decode the jargon</h3>
+    <p class="atlas-card__desc">Hover any underlined term in a lesson → instant definition. The vocabulary of the web in one place.</p>
+  </a>
+  <a class="atlas-card" href="/playground/">
+    <span class="atlas-card__eyebrow">Playground</span>
+    <h3 class="atlas-card__title">Scratch space for ideas</h3>
+    <p class="atlas-card__desc">Pick a template, prototype an idea. No setup. Runs entirely in your browser.</p>
+  </a>
+</div>

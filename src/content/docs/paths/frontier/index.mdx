@@ -1,0 +1,68 @@
+---
+title: 9 · The Modern Frontier
+description: Edge runtimes, RSC streaming, islands, WebAssembly, WebGPU, CRDTs, AI integration, security.
+sidebar:
+  order: 0
+---
+
+import ProgressBar from '~/components/ProgressBar.tsx';
+
+> **For:** experienced web developers who want to ride (not chase) the edge. **Time:** ~22 hours over 8 modules. **Outcome:** you understand and can ship with the technologies redefining the web in 2026.
+
+<ProgressBar
+  client:idle
+  label="Frontier progress"
+  lessonIds={[
+    'frontier/ai/calling-llms-from-the-browser',
+  ]}
+/>
+
+## Path map
+
+### Module 1 · Server Components & Streaming SSR
+- Why RSC exists — the bundle-size problem
+- Server vs. client components — the rules
+- Streaming and Suspense — UX, not just perf
+
+### Module 2 · Edge Runtimes
+- What "the edge" actually is
+- Cloudflare Workers, Vercel Edge, Deno Deploy
+- The Fetch handler and the small global object
+- Cold-start vs. always-on tradeoffs
+
+### Module 3 · Islands Architecture
+- Astro and Fresh — server-rendered, JS-light
+- Selective hydration
+- Resumability (Qwik) vs. hydration
+
+### Module 4 · WebAssembly
+- The 20-minute mental model
+- Calling Wasm from JS, and vice versa
+- Real use cases (and where it's overkill)
+
+### Module 5 · WebGPU & Graphics
+- Canvas, WebGL, WebGPU — what's different
+- A first WebGPU compute shader
+
+### Module 6 · Real-Time & Collaboration
+- CRDTs in plain English
+- Yjs and Liveblocks
+- Presence, cursors, conflict-free editing
+
+### Module 7 · AI for Web Developers
+- [Calling LLMs from your app — the architecture](/paths/frontier/ai/calling-llms-from-the-browser/) ← **sample lesson**
+- Embeddings and vector search (RAG)
+- The Model Context Protocol (MCP) primer
+- Streaming responses, prompt caching, cost control
+
+### Module 8 · Web Security
+- OWASP Top 10 — for web devs, not pen-testers
+- CSP, CORS, Subresource Integrity
+- Supply-chain (npm) hygiene
+- Auth-related footguns
+
+---
+
+## When you finish
+
+You're at the leading edge. Bring it back home with [Performance, A11y & SEO](/paths/performance-a11y-seo/) (the frontier still has to be fast and accessible) and [DevOps for Web](/paths/devops/) (edge deploys, observability, secrets).

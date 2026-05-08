@@ -1,0 +1,70 @@
+---
+interface Props {
+  number: number | string;
+  href: string;
+  title: string;
+  description: string;
+  difficulty?: 'beginner' | 'intermediate' | 'advanced' | 'mixed';
+  modules?: number;
+  hours?: number;
+  accent?: string; // hex/css color
+}
+const {
+  number,
+  href,
+  title,
+  description,
+  difficulty = 'mixed',
+  modules,
+  hours,
+  accent = 'var(--atlas-amber-500)',
+} = Astro.props;
+---
+
+<a class="atlas-card atlas-path-card" href={href} style={`--accent:${accent}`}>
+  <span class="atlas-path-card__num" aria-hidden="true">{String(number).padStart(2, '0')}</span>
+  <span class="atlas-card__eyebrow">Path · {difficulty}</span>
+  <h3 class="atlas-card__title">{title}</h3>
+  <p class="atlas-card__desc">{description}</p>
+  <div class="atlas-path-card__meta">
+    {modules !== undefined && <span>{modules} modules</span>}
+    {hours !== undefined && <span>~{hours} hrs</span>}
+  </div>
+</a>
+
+<style>
+  .atlas-path-card {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .atlas-path-card::before {
+    content: '';
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 4px;
+    height: 100%;
+    background: var(--accent);
+    border-radius: var(--atlas-radius-lg) 0 0 var(--atlas-radius-lg);
+  }
+
+  .atlas-path-card__num {
+    position: absolute;
+    top: var(--atlas-sp-3);
+    right: var(--atlas-sp-4);
+    font-family: var(--atlas-font-display);
+    font-size: var(--atlas-fs-3xl);
+    color: var(--accent);
+    opacity: 0.18;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .atlas-path-card__meta {
+    margin-top: var(--atlas-sp-4);
+    display: flex;
+    gap: var(--atlas-sp-3);
+    font-size: var(--atlas-fs-xs);
+    color: var(--sl-color-gray-3);
+  }
+</style>

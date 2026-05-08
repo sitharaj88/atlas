@@ -1,0 +1,65 @@
+---
+title: 2 · Modern CSS & Design Systems
+description: Subgrid, container queries, :has(), cascade layers, view transitions, design tokens, Tailwind, theming, and color science.
+sidebar:
+  order: 0
+---
+
+import ProgressBar from '~/components/ProgressBar.tsx';
+
+> **For:** developers comfortable with the basics who want to design with confidence. **Time:** ~18 hours over 7 modules. **Outcome:** you can implement any modern UI, theme it cleanly, and reach for the right tool every time.
+
+<ProgressBar
+  client:idle
+  label="Modern CSS progress"
+  lessonIds={[
+    'modern-css/layout/container-queries',
+  ]}
+/>
+
+## Path map
+
+### Module 1 · The Cascade, Reloaded
+- The CSS cascade in 2026 — origin, layer, specificity, order
+- Cascade layers (`@layer`) — never lose a specificity war again
+- The `:where()` and `:is()` ergonomics
+
+### Module 2 · Layout, Modern
+- Flexbox you actually understand
+- Grid: subgrid, named lines, dense packing
+- Container queries — components that respond to themselves
+- `:has()` — the parent selector we waited a decade for
+- [Container queries](/paths/modern-css/layout/container-queries/) ← **sample lesson**
+
+### Module 3 · Typography & Color
+- Fluid typography with `clamp()`
+- Variable fonts and OpenType features
+- Modern color: `oklch`, `color-mix()`, P3
+- Accessible contrast in practice
+
+### Module 4 · Motion & View Transitions
+- `prefers-reduced-motion` from day one
+- Scroll-driven animations
+- View Transitions API for SPA-like navigation in MPAs
+
+### Module 5 · Design Tokens & Theming
+- Tokens vs. variables vs. utilities
+- Light/dark/high-contrast theming with CSS variables
+- Building a token pipeline (Style Dictionary)
+
+### Module 6 · CSS Architecture
+- Tailwind CSS — the utility-first mental model
+- CSS Modules — scoped styles in component code
+- Vanilla Extract — types for your styles
+- BEM, ITCSS, CUBE — when each shines
+
+### Module 7 · Build a Design System
+- From scratch: tokens → primitives → components
+- Documenting components with Storybook
+- Versioning and consuming a design system across apps
+
+---
+
+## When you finish
+
+You'll be ready for [Frontend Frameworks](/paths/frontend-frameworks/) (where these styles get composed into components) and [Performance, A11y & SEO](/paths/performance-a11y-seo/) (where you make those styles ship efficiently).

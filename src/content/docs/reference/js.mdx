@@ -1,0 +1,138 @@
+---
+title: JavaScript APIs
+description: A guide to the JavaScript standard library — the things on globalThis, Array, Object, Promise, Date, Intl, and more.
+sidebar:
+  order: 3
+tags: [javascript, reference]
+---
+
+## Built-in objects
+
+### Array
+- `Array.from(iterable, mapFn?)`
+- `Array.isArray(x)`
+- `Array.of(...items)`
+
+Methods: `at`, `concat`, `copyWithin`, `entries`, `every`, `fill`, `filter`, `find`, `findIndex`, `findLast`, `findLastIndex`, `flat`, `flatMap`, `forEach`, `group`, `groupBy`, `includes`, `indexOf`, `join`, `keys`, `lastIndexOf`, `map`, `pop`, `push`, `reduce`, `reduceRight`, `reverse`, `shift`, `slice`, `some`, `sort`, `splice`, `toReversed`, `toSorted`, `toSpliced`, `unshift`, `values`, `with`.
+
+The "to-" methods (`toReversed`, `toSorted`, `toSpliced`, `with`) are immutable counterparts. Prefer them when you don't want to mutate.
+
+### Object
+- `Object.assign(target, ...sources)` — spread is usually clearer
+- `Object.create(proto, props?)`, `Object.fromEntries(iter)`
+- `Object.entries`, `Object.keys`, `Object.values`
+- `Object.freeze`, `Object.seal`, `Object.preventExtensions`
+- `Object.getOwnPropertyDescriptor(s)`, `defineProperty`, `defineProperties`
+- `Object.getPrototypeOf`, `setPrototypeOf`
+- `Object.hasOwn(obj, key)` — preferred over `obj.hasOwnProperty`
+- `Object.is(a, b)` — like `===` but `Object.is(NaN, NaN) === true`
+
+### String
+- Methods: `at`, `charAt`, `charCodeAt`, `codePointAt`, `concat`, `endsWith`, `includes`, `indexOf`, `lastIndexOf`, `localeCompare`, `match`, `matchAll`, `normalize`, `padEnd`, `padStart`, `repeat`, `replace`, `replaceAll`, `search`, `slice`, `split`, `startsWith`, `substring`, `toLocaleLowerCase`, `toLocaleUpperCase`, `toLowerCase`, `toUpperCase`, `trim`, `trimEnd`, `trimStart`.
+
+### Number
+- `Number.isFinite(x)`, `Number.isInteger(x)`, `Number.isNaN(x)`, `Number.isSafeInteger(x)`
+- `Number.MAX_SAFE_INTEGER`, `MIN_SAFE_INTEGER`, `EPSILON`
+- `(0.1 + 0.2).toFixed(2)` — beware floating point. For money, use `bigint` cents or a decimal library.
+
+### Math
+- `Math.abs`, `min`, `max`, `floor`, `ceil`, `round`, `trunc`, `sign`
+- `Math.random()` — *not* cryptographically secure. Use `crypto.getRandomValues` for that.
+- `Math.hypot`, `pow`, `sqrt`, `cbrt`, `log`, `exp`
+- `Math.PI`, `Math.E`
+
+### Date & Temporal
+- `Date.now()`, `new Date()`, `new Date(ms)`, `new Date('2026-05-08')`
+- `.getTime()`, `.toISOString()`, `.toLocaleString()`
+- **Temporal** (TC39 Stage 3) — the better date API. Use a polyfill until shipped. Replaces almost everything you'd reach for Moment/date-fns for.
+
+### Intl (Internationalization)
+- `new Intl.DateTimeFormat(locale, options).format(date)` — date/time
+- `new Intl.NumberFormat(locale, options).format(n)` — numbers, currency, percent
+- `new Intl.RelativeTimeFormat` — "in 3 days", "2 hours ago"
+- `new Intl.Collator` — locale-aware sorting
+- `new Intl.PluralRules` — pluralization
+- `new Intl.ListFormat` — "A, B, and C"
+- `new Intl.Segmenter` — locale-aware string splitting (graphemes, words, sentences)
+
+Use `Intl` over libraries — it's free, fast, and locale-correct.
+
+### Promise
+- `new Promise((resolve, reject) => ...)`
+- `Promise.resolve(v)`, `Promise.reject(e)`
+- `Promise.all([...])` — fails if any reject
+- `Promise.allSettled([...])` — never rejects
+- `Promise.race([...])` — first to settle wins
+- `Promise.any([...])` — first to **fulfill** wins; rejects only if all reject
+- `Promise.withResolvers()` — modern: `{ promise, resolve, reject }` ergonomic external control
+
+## Modules
+
+```js
+// ESM
+import { foo } from './bar.js';
+import bar from './bar.js'; // default
+import * as bar from './bar.js';
+import { foo as f } from './bar.js';
+import('./bar.js').then(...); // dynamic
+
+export const foo = 1;
+export default class Bar {}
+export { foo as bar };
+export * from './other.js';
+```
+
+`import.meta.url`, `import.meta.resolve(spec)` — module-relative URLs.
+
+## Iterators & generators
+
+- `Symbol.iterator`, `Symbol.asyncIterator`
+- `for (const x of iterable)` — sync
+- `for await (const x of asyncIterable)` — async
+
+```js
+function* range(n) { for (let i = 0; i < n; i++) yield i; }
+[...range(3)]; // [0, 1, 2]
+```
+
+## Errors
+
+- `Error`, `TypeError`, `RangeError`, `SyntaxError`, `ReferenceError`, `URIError`, `EvalError`
+- `AggregateError` — for `Promise.any` rejections
+- `error.cause` — chain errors: `throw new Error('top', { cause: err })`
+
+## Regex
+
+- `/pattern/flags` — `g`, `i`, `m`, `s`, `u`, `y`, `d`
+- Named groups: `(?<year>\d{4})`
+- Lookbehind: `(?<=...)`, negative `(?<!...)`
+- Sticky `y` for tokenizers
+
+## Globals (browser)
+
+- `window`, `document`, `navigator`, `location`, `history`
+- `console.log`, `.warn`, `.error`, `.table`, `.group`, `.time`, `.trace`
+- `setTimeout`, `setInterval`, `queueMicrotask`, `requestAnimationFrame`, `requestIdleCallback`
+- `structuredClone(v)` — deep clone, including Maps/Sets/Dates
+- `crypto.getRandomValues(arr)`, `crypto.randomUUID()`, `crypto.subtle.*`
+
+## Modern syntax (ES2022+)
+
+```js
+class A {
+  #private = 1;          // private fields
+  static foo = 2;        // class fields
+  get x() {}             // accessors
+}
+
+const obj = { a: 1 };
+'a' in obj;              // true
+obj?.a;                  // optional chaining
+obj?.a ?? 'default';     // nullish coalescing
+'a' in obj ? obj.a : 0;
+
+// At top level of a module
+const data = await fetch('/api').then(r => r.json());
+```
+
+> **Coming soon:** per-API pages with examples and gotchas. [Contribute →](/contribute/)

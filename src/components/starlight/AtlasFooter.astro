@@ -1,0 +1,30 @@
+---
+import Default from '@astrojs/starlight/components/Footer.astro';
+import type { Props } from '@astrojs/starlight/props';
+const props = Astro.props as Props;
+---
+
+<Default {...props}><slot /></Default>
+<div class="atlas-footer-meta">
+  <p>
+    <strong>Atlas</strong> · Your map to modern web development. Free and open-source. Built with
+    Astro, Starlight, and a lot of late nights.
+  </p>
+  <p class="atlas-mute">
+    © {new Date().getFullYear()} · Released under the MIT license. Content under CC BY-SA 4.0.
+  </p>
+</div>
+
+<style>
+  .atlas-footer-meta {
+    margin-top: var(--atlas-sp-10);
+    padding-top: var(--atlas-sp-6);
+    border-top: 1px solid var(--sl-color-hairline-light);
+    font-size: var(--atlas-fs-sm);
+    color: var(--sl-color-gray-3);
+    text-align: center;
+  }
+  .atlas-footer-meta p {
+    margin: var(--atlas-sp-2) 0;
+  }
+</style>

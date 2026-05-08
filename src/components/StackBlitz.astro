@@ -1,0 +1,53 @@
+---
+interface Props {
+  /** Project slug on stackblitz.com (e.g., 'sb-vite-react-ts') */
+  project: string;
+  file?: string;
+  title?: string;
+  height?: number;
+  view?: 'preview' | 'editor' | 'both';
+  hideExplorer?: boolean;
+}
+const {
+  project,
+  file,
+  title = 'StackBlitz playground',
+  height = 480,
+  view = 'both',
+  hideExplorer = false,
+} = Astro.props;
+
+const params = new URLSearchParams({
+  embed: '1',
+  view,
+  ...(file ? { file } : {}),
+  ...(hideExplorer ? { hideExplorer: '1' } : {}),
+  theme: 'dark',
+});
+const src = `https://stackblitz.com/edit/${project}?${params.toString()}`;
+---
+
+<div class="atlas-stackblitz">
+  <iframe
+    title={title}
+    src={src}
+    loading="lazy"
+    style={`height:${height}px`}
+    allow="clipboard-write; camera; encrypted-media; geolocation; microphone; web-share"
+    sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"
+  ></iframe>
+</div>
+
+<style>
+  .atlas-stackblitz {
+    margin: 1.5rem 0;
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: var(--atlas-radius-lg);
+    overflow: hidden;
+  }
+  .atlas-stackblitz iframe {
+    width: 100%;
+    border: 0;
+    display: block;
+  }
+</style>

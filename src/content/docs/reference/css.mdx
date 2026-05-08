@@ -1,0 +1,126 @@
+---
+title: CSS properties & at-rules
+description: A working reference for the CSS you'll actually use — categorized by what you're trying to do.
+sidebar:
+  order: 2
+tags: [css, reference]
+---
+
+## Layout
+
+- `display` — `block`, `inline`, `inline-block`, `flex`, `grid`, `contents`, `none`
+- `position` — `static`, `relative`, `absolute`, `fixed`, `sticky`
+- `top`, `right`, `bottom`, `left`, `inset`
+- `z-index` — only meaningful on positioned elements
+- `float`, `clear` — legacy, mostly avoid for layout
+- `overflow`, `overflow-x`, `overflow-y` — `visible`, `hidden`, `scroll`, `auto`, `clip`
+
+## Flexbox & Grid
+
+- `flex-direction`, `flex-wrap`, `flex-flow`
+- `justify-content`, `align-items`, `align-content`, `place-items`
+- `flex-grow`, `flex-shrink`, `flex-basis`, `flex` (shorthand)
+- `gap`, `row-gap`, `column-gap`
+- `grid-template-columns`, `grid-template-rows`, `grid-template-areas`
+- `grid-column`, `grid-row`, `grid-area`, `grid-auto-flow`
+- `subgrid` — inherit parent's tracks
+
+## Sizing
+
+- `width`, `height`, `min-width`, `max-width`, `min-height`, `max-height`
+- `box-sizing` — set `border-box` globally and forget about it
+- `aspect-ratio` — `16 / 9`, `1 / 1`, etc.
+- `block-size`, `inline-size` — logical (writing-mode-aware) versions
+
+## Spacing
+
+- `margin`, `padding` (and `-top`/`-right`/`-bottom`/`-left`)
+- Logical equivalents: `margin-block`, `margin-inline`, etc.
+- `gap` is preferred over `margin` for flex/grid spacing
+
+## Color & background
+
+- `color`, `background-color`, `background`, `background-image`, `background-size`, `background-position`, `background-repeat`, `background-attachment`
+- `opacity`
+- `accent-color` — themes form controls (checkbox, radio, etc.)
+- Modern color: `oklch()`, `color-mix()`, `lab()`, P3 wide-gamut
+
+## Borders & radius
+
+- `border`, `border-width`, `border-style`, `border-color`
+- `border-radius` (corners) — accepts `1` to `4` values, plus elliptical syntax
+- `outline` — like border but doesn't take space
+- `box-shadow` — multiple shadows, comma-separated; use `inset` for inner
+
+## Typography
+
+- `font-family`, `font-size`, `font-weight`, `font-style`, `font-variant`
+- `font-feature-settings`, `font-variation-settings` (variable fonts)
+- `line-height`, `letter-spacing`, `word-spacing`
+- `text-align`, `text-decoration`, `text-transform`, `text-indent`
+- `text-wrap` — `balance` (headings!), `pretty`
+- `white-space`, `overflow-wrap`, `word-break`, `hyphens`
+- `text-shadow`, `text-overflow`
+
+## Transforms & transitions
+
+- `transform` — `translate()`, `rotate()`, `scale()`, `skew()`, `matrix()`
+- `transform-origin`, `perspective`, `transform-style`
+- `transition`, `transition-property`, `transition-duration`, `transition-timing-function`, `transition-delay`
+- `animation`, `@keyframes`, `animation-name`, `animation-duration`, ...
+- `view-transition-name` — for the View Transitions API
+
+## Misc visual
+
+- `cursor`, `user-select`, `pointer-events`
+- `filter` — `blur()`, `brightness()`, `drop-shadow()`, etc.
+- `backdrop-filter` — for frosted glass effects
+- `mix-blend-mode`, `clip-path`, `mask`
+- `scroll-snap-type`, `scroll-snap-align`, `scroll-padding`
+
+## Containment & responsiveness
+
+- `container-type`, `container-name`, `container` ([learn more →](/paths/modern-css/layout/container-queries/))
+- Container query units: `cqi`, `cqb`, `cqw`, `cqh`, `cqmin`, `cqmax`
+- Viewport units: `vw`, `vh`, `vmin`, `vmax`, `dvh`, `lvh`, `svh` (dynamic/large/small)
+
+## At-rules
+
+- `@import` — pull in another stylesheet
+- `@media` — viewport-based responsive design
+- `@container` — container-based responsive design
+- `@supports` — feature detection (`@supports (display: grid) { ... }`)
+- `@layer` — cascade layers, control specificity disputes
+- `@keyframes` — define animations
+- `@font-face` — load custom fonts
+- `@property` — register custom properties (typed CSS variables)
+- `@scope` — limit selector reach (modern, replaces some BEM use cases)
+
+## Pseudo-classes
+
+- `:hover`, `:focus`, `:focus-visible`, `:focus-within`, `:active`
+- `:disabled`, `:checked`, `:placeholder-shown`, `:user-invalid`
+- `:has()` — the parent selector. Match elements *containing* X
+- `:is()`, `:where()` — group selectors (`:where` has zero specificity)
+- `:not()` — exclude
+- `:nth-child(...)`, `:nth-of-type(...)`, `:first-child`, `:last-child`
+- `:empty`, `:target`, `:lang()`, `:dir()`
+
+## Pseudo-elements
+
+- `::before`, `::after` — generated content (need `content: ""`)
+- `::placeholder`, `::selection`, `::marker` (list bullets)
+- `::backdrop` — modal/dialog backdrop
+- `::view-transition-*` — for View Transitions API
+
+## Custom properties (variables)
+
+```css
+:root { --brand: #F5B14A; }
+.btn { background: var(--brand); }
+.btn:hover { background: var(--brand, orange); } /* fallback */
+```
+
+Cascade through the DOM. Type-aware via `@property`.
+
+> **Coming soon:** per-property pages with live examples. [Contribute one →](/contribute/)

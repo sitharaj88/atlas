@@ -1,0 +1,242 @@
+---
+title: Core Web Vitals & how to fix them
+description: LCP, INP, and CLS — what they actually measure, the common causes, and the fixes that move the numbers.
+sidebar:
+  order: 1
+pathSlug: performance-a11y-seo
+module: web-vitals
+lessonNumber: 2
+difficulty: intermediate
+duration: 18 min
+prerequisites:
+  - You\'ve shipped at least one web app
+objectives:
+  - Define LCP, INP, and CLS in plain English
+  - Diagnose common causes of poor Core Web Vitals
+  - Apply concrete fixes that move each metric
+tags: [performance, lcp, inp, cls, web-vitals]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** What LCP, INP, and CLS actually measure (and don't), what causes regressions, and the small set of fixes that solve 80% of real-world cases.
+
+## The three metrics
+
+Google's Core Web Vitals are a **field-measured** UX proxy. They're collected from real Chrome users (the Chrome User Experience Report — CrUX). Each metric has a "good" threshold:
+
+| Metric | Question it answers | "Good" if at the **75th percentile** |
+|---|---|---|
+| **LCP** — Largest Contentful Paint | When did the main content show up? | ≤ 2.5s |
+| **INP** — Interaction to Next Paint | How responsive is the page to input? | ≤ 200ms |
+| **CLS** — Cumulative Layout Shift | How much does layout jump around? | ≤ 0.1 |
+
+The 75th-percentile part matters. The fastest 50% of your users always feel fine. The 75th percentile (75% of sessions are at least this fast) is the bar Google uses, because it's where the long tail of slow networks and old phones starts to bite.
+
+## LCP — Largest Contentful Paint
+
+**What it measures.** The render time of the largest visible image, video, or text block in the viewport. The browser keeps updating this as more content loads, then **freezes the value at the first user interaction**.
+
+**Common causes:**
+
+- A hero image that's slow to discover, slow to download, or render-blocked by JS
+- Web fonts that block text paint
+- Server takes too long to send the first byte (TTFB)
+- Render-blocking CSS or JS in the head
+
+**Fixes that work:**
+
+```html
+<!-- 1. Preload the LCP image so it starts downloading immediately -->
+<link rel="preload" as="image" href="/hero.avif" fetchpriority="high">
+
+<!-- 2. Mark the LCP image with fetchpriority -->
+<img src="/hero.avif" alt="..." fetchpriority="high" decoding="async">
+
+<!-- 3. Inline critical CSS, defer the rest -->
+<style>/* critical, above-the-fold */</style>
+<link rel="stylesheet" href="/non-critical.css" media="print" onload="this.media='all'">
+
+<!-- 4. font-display: swap (or optional) so text never blocks -->
+<style>
+  @font-face {
+    font-family: 'Inter';
+    src: url('/inter.woff2') format('woff2');
+    font-display: swap;
+  }
+</style>
+```
+
+Don't waste preload on assets the browser would discover anyway. *Do* preload the hero image, the LCP web font, and any CSS the LCP element needs.
+
+## INP — Interaction to Next Paint
+
+**What it measures.** For every click/tap/key press during the visit, the time from the input event to the *next paint that reflects it*. The reported INP is the **slowest** of those interactions (with one allowed outlier per 50). It replaced FID in 2024.
+
+**Common causes:**
+
+- Long tasks on the main thread (heavy JS) that can't be interrupted
+- Big React re-renders triggered by every keystroke
+- Layout thrashing inside event handlers
+
+**Fixes that work:**
+
+```js
+// 1. Defer non-urgent work
+function onInput(e) {
+  setSearchQuery(e.target.value);          // urgent: show typed character
+  startTransition(() => {                  // non-urgent: filter big list
+    setFilteredResults(expensive(e.target.value));
+  });
+}
+
+// 2. Yield back to the browser between long chunks
+async function processItems(items) {
+  for (let i = 0; i < items.length; i++) {
+    process(items[i]);
+    if (i % 100 === 0) await new Promise(r => setTimeout(r, 0));
+  }
+}
+
+// 3. Use scheduler.postTask when available
+scheduler.postTask(work, { priority: 'background' });
+
+// 4. Don't sync-read layout in event handlers (causes thrash)
+// ❌ width = el.offsetWidth; el.style.width = width + 'px';
+//    (forces synchronous layout, then triggers another)
+```
+
+In React: prefer `useTransition`, `useDeferredValue`, and split big lists with virtualization (TanStack Virtual). Avoid making the **whole tree** re-render on every keystroke — most of the time the typed character is the only urgent update.
+
+## CLS — Cumulative Layout Shift
+
+**What it measures.** The largest **session window** of unexpected layout shifts during the page's lifetime. (A "session window" is a burst of shifts within 1s of each other and 5s of the start of the burst.) Higher = more jumpy.
+
+**Common causes:**
+
+- Images and videos without dimensions
+- Late-loading ads, embeds, or banners pushing content down
+- Web fonts swapping in with very different metrics (FOUT)
+- Animations using `top`/`left` instead of `transform`
+
+**Fixes that work:**
+
+```html
+<!-- 1. Always set width and height (or aspect-ratio) on images -->
+<img src="hero.jpg" width="1200" height="675" alt="...">
+
+<!-- 2. Reserve space for embeds, ads, and async content -->
+<div class="ad-slot" style="aspect-ratio: 728 / 90; min-height: 90px;">
+  <!-- ad loads here -->
+</div>
+
+<!-- 3. Match font metrics to reduce swap shift -->
+<style>
+  @font-face {
+    font-family: 'Inter Local';
+    src: url('/inter.woff2');
+    size-adjust: 105%;
+    ascent-override: 90%;
+  }
+</style>
+
+<!-- 4. Use transform for animations (doesn't trigger layout) -->
+<style>
+  .menu { transform: translateX(-100%); transition: transform 200ms; }
+  .menu.open { transform: translateX(0); }
+</style>
+```
+
+`width` and `height` on `<img>` is the single biggest win. Modern browsers compute `aspect-ratio` from those attributes and reserve the slot before the image loads.
+
+## How to measure (the right way)
+
+**In the lab** (your dev machine):
+- Lighthouse in Chrome DevTools — quick check, single run, can be noisy
+- WebPageTest.org — multiple runs, real devices, video
+
+**In the field** (real users):
+- The `web-vitals` library in your app, sent to your analytics
+- Google's CrUX dashboard — public for any URL with enough traffic
+- PageSpeed Insights — combines field (CrUX) + lab (Lighthouse)
+
+```js
+// Field measurement with the web-vitals library
+import { onLCP, onINP, onCLS } from 'web-vitals';
+
+onLCP((m) => sendToAnalytics(m));
+onINP((m) => sendToAnalytics(m));
+onCLS((m) => sendToAnalytics(m));
+```
+
+<Callout variant="warn" title="Lab numbers ≠ field numbers">
+A green Lighthouse score doesn't mean your real users are happy. Always validate against field data once your changes have shipped.
+</Callout>
+
+## A debugging recipe
+
+1. **Open DevTools → Performance → Record** while loading the page.
+2. **Watch the LCP marker** — see what fired late and why. Was it network? Was it parse? Was it a render-blocking script?
+3. **Use the "Layout Shift" track** to see exactly which elements jumped, ranked by score.
+4. **Check the long-tasks track** for INP — anything >50ms is suspect; >200ms is your problem.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/web-vitals/core-web-vitals"
+  questions={[
+    {
+      id: 'cwv-1',
+      type: 'single',
+      prompt: 'What does INP measure?',
+      options: [
+        { value: 'a', label: 'Time to first byte from the server' },
+        { value: 'b', label: 'Time from a user interaction to the next paint reflecting it' },
+        { value: 'c', label: 'Time until the page is fully loaded' },
+        { value: 'd', label: 'Network roundtrip latency' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'cwv-2',
+      type: 'multi',
+      prompt: 'Which of these reliably reduce CLS?',
+      options: [
+        { value: 'a', label: 'Setting width and height on <img> tags' },
+        { value: 'b', label: 'Using transform for animations instead of top/left' },
+        { value: 'c', label: 'Reserving space for ad and embed slots' },
+        { value: 'd', label: 'Inlining all CSS in <head>' },
+      ],
+      answer: ['a', 'b', 'c'],
+      explanation: 'Inlining CSS helps LCP, not CLS. The other three each prevent a class of layout shift.',
+    },
+    {
+      id: 'cwv-3',
+      type: 'single',
+      prompt: 'You see a green Lighthouse score but PageSpeed Insights says your CrUX field LCP is 4s. What\'s the most likely cause?',
+      options: [
+        { value: 'a', label: 'Lighthouse is broken' },
+        { value: 'b', label: 'Lab runs use a fast machine and a single throttle profile; real users are on slower networks and devices' },
+        { value: 'c', label: 'Your server is down' },
+        { value: 'd', label: 'CrUX is unreliable' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+Now that you know what to fix, the **Optimization Toolkit** module covers the techniques in depth — image formats, font loading, code splitting, Service Workers.
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/web-vitals/core-web-vitals"
+  lessonHref="/paths/performance-a11y-seo/web-vitals/core-web-vitals/"
+  lessonTitle="Core Web Vitals & how to fix them"
+  nextHref="/paths/performance-a11y-seo/"
+  nextTitle="Performance, A11y & SEO roadmap"
+/>

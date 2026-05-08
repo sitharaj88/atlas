@@ -1,0 +1,61 @@
+---
+interface Props {
+  term: string;
+  defn: string;
+  href?: string;
+}
+const { term, defn, href } = Astro.props;
+const target = href ?? `/glossary/#${term.toLowerCase().replace(/\s+/g, '-')}`;
+---
+
+<span class="atlas-term">
+  <a href={target} class="atlas-term__link">
+    <slot>{term}</slot>
+  </a>
+  <span class="atlas-term__tip" role="tooltip">
+    <strong>{term}</strong>
+    <span>{defn}</span>
+  </span>
+</span>
+
+<style>
+  .atlas-term {
+    position: relative;
+    display: inline;
+  }
+  .atlas-term__link {
+    text-decoration-style: dotted;
+    text-decoration-color: var(--sl-color-text-accent);
+    text-underline-offset: 3px;
+  }
+  .atlas-term__tip {
+    position: absolute;
+    bottom: calc(100% + 6px);
+    left: 50%;
+    transform: translateX(-50%) translateY(4px);
+    width: max-content;
+    max-width: 22rem;
+    padding: 0.6rem 0.8rem;
+    background: var(--sl-color-bg);
+    color: var(--sl-color-text);
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: var(--atlas-radius-md);
+    box-shadow: var(--atlas-shadow-md);
+    font-size: var(--atlas-fs-sm);
+    line-height: 1.4;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 200ms, transform 200ms;
+    z-index: 10;
+  }
+  .atlas-term__tip strong {
+    display: block;
+    color: var(--sl-color-text-accent);
+    margin-bottom: 0.2rem;
+  }
+  .atlas-term:hover .atlas-term__tip,
+  .atlas-term:focus-within .atlas-term__tip {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+</style>

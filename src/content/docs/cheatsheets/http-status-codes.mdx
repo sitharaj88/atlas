@@ -1,0 +1,120 @@
+---
+title: HTTP status codes cheatsheet
+description: What each status really means, when to use it, and the ones that look right but aren't.
+sidebar:
+  order: 3
+tags: [http, api, cheatsheet]
+---
+
+import Callout from '~/components/Callout.astro';
+
+> **Print this page.** It's designed for it.
+
+## The classes
+
+| Class | Meaning |
+|---|---|
+| **1xx** | Informational. Rare. |
+| **2xx** | Success. |
+| **3xx** | Redirection — client should look elsewhere. |
+| **4xx** | Client error — the request was bad. |
+| **5xx** | Server error — your server is broken. |
+
+## 2xx — Success
+
+| Code | Name | When to use |
+|---|---|---|
+| **200** | OK | Anything that succeeded with a body. The default. |
+| **201** | Created | Successful POST that created a resource. Include `Location` header. |
+| **202** | Accepted | Request accepted, processing async. Return a status URL. |
+| **204** | No Content | Successful, no body to return (e.g., DELETE, PUT). Don't include a body. |
+| **206** | Partial Content | Range request — videos, resumable downloads. |
+
+## 3xx — Redirection
+
+| Code | Name | When to use |
+|---|---|---|
+| **301** | Moved Permanently | Forever-after redirect. Browsers cache aggressively. |
+| **302** | Found | Temporary redirect (preserves method on most clients — but inconsistently). |
+| **303** | See Other | After a POST, send the client to a GET. The "POST/Redirect/GET" pattern. |
+| **304** | Not Modified | Cached version is still good. (Conditional GET.) |
+| **307** | Temporary Redirect | Like 302 but **always preserves method**. Prefer over 302. |
+| **308** | Permanent Redirect | Like 301 but **always preserves method**. Prefer over 301 for non-GET. |
+
+<Callout variant="tip" title="Method preservation rules">
+After a `301` or `302`, many clients change `POST` to `GET`. After a `307` or `308`, the method is preserved. If you\'re redirecting an API call, use 307/308.
+</Callout>
+
+## 4xx — Client errors
+
+| Code | Name | When to use |
+|---|---|---|
+| **400** | Bad Request | Malformed input, JSON parse failed, missing required fields. |
+| **401** | Unauthorized | Authentication is required and was not provided (or invalid). The name lies — it should be "Unauthenticated." Always include a `WWW-Authenticate` header. |
+| **403** | Forbidden | Authenticated, but you can't do this. Don't use 401 here. |
+| **404** | Not Found | The resource doesn't exist. Or, optionally, you don't want to reveal it exists. |
+| **405** | Method Not Allowed | This route exists, but not with this method. Include `Allow:` header. |
+| **406** | Not Acceptable | The client's `Accept` header can't be served. Rare in practice. |
+| **408** | Request Timeout | Client took too long to send the request. |
+| **409** | Conflict | The request conflicts with current state. Common in optimistic locking. |
+| **410** | Gone | Like 404, but you're confirming it's permanently gone. |
+| **413** | Payload Too Large | Body exceeds limits. |
+| **415** | Unsupported Media Type | The body's `Content-Type` isn't one you accept. |
+| **422** | Unprocessable Entity | Syntactically valid (parses) but semantically invalid (failed validation). The "your data didn't pass our rules" error. |
+| **429** | Too Many Requests | Rate limited. Include `Retry-After:` header. |
+
+## 5xx — Server errors
+
+| Code | Name | When to use |
+|---|---|---|
+| **500** | Internal Server Error | Something broke and it's your fault, not the client's. The catch-all. |
+| **501** | Not Implemented | The server recognizes the method but hasn't implemented it. |
+| **502** | Bad Gateway | Upstream service returned a bad response. |
+| **503** | Service Unavailable | You're down (or in maintenance). Include `Retry-After:`. |
+| **504** | Gateway Timeout | Upstream service didn't respond in time. |
+
+## The big confusions
+
+**400 vs. 422.** Use **400** for malformed input — bad JSON, wrong shape, missing required field. Use **422** for *valid* input that *fails business rules* — "passwords must contain a digit." Some teams collapse these to 400 always, which is also fine; just be consistent.
+
+**401 vs. 403.** **401** = "I don't know who you are." **403** = "I know who you are, you can't do this." If a logged-in user hits an admin route, that's 403, not 401.
+
+**404 vs. 410.** Both say "not here." **410** is a stronger statement: "and it's never coming back." Use 410 when you've deleted resources you used to have, so search engines drop them faster.
+
+**302 vs. 303 vs. 307.** **303** is for "POST then redirect to a GET" — the standard form-submission pattern. **307** is for "redirect this same request, same method, somewhere else." **302** is the legacy term that historically means... whichever, depending on the client. Avoid in new code.
+
+**429.** Always include a `Retry-After` header (seconds, or HTTP-date). Clients (especially well-behaved ones) will respect it.
+
+## RFC 7807 Problem Details
+
+When you return a 4xx or 5xx with a JSON body, this is the standardized shape:
+
+```json
+{
+  "type": "https://atlas.dev/errors/validation",
+  "title": "Validation failed",
+  "status": 422,
+  "detail": "Email must be unique.",
+  "instance": "/users",
+  "errors": [
+    { "field": "email", "message": "Already in use" }
+  ]
+}
+```
+
+`Content-Type: application/problem+json`. Adopt it once and stop bikeshedding error formats.
+
+## A decision tree
+
+```text
+Did the request succeed?              → 2xx
+Should the client try a different URL? → 3xx
+Did the client mess up?               → 4xx
+Did your server mess up?              → 5xx
+```
+
+When in doubt: **200** for "here's a body," **201** for "I created something," **204** for "done, nothing to say," **400** for "you sent garbage," **401/403** for auth, **404** for "not here," **422** for "invalid data," **500** for "I broke."
+
+---
+
+The web works because everyone agrees on these numbers. Use them precisely.

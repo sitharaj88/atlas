@@ -1,0 +1,89 @@
+---
+import Compass from './Compass.astro';
+
+interface Props {
+  eyebrow?: string;
+  title: string;
+  lede?: string;
+  primaryHref?: string;
+  primaryLabel?: string;
+  secondaryHref?: string;
+  secondaryLabel?: string;
+}
+
+const {
+  eyebrow = 'Atlas · v0.1',
+  title,
+  lede,
+  primaryHref = '/start/',
+  primaryLabel = 'Start your journey',
+  secondaryHref = '/paths/',
+  secondaryLabel = 'Browse all paths',
+} = Astro.props;
+---
+
+<section class="atlas-hero">
+  <div class="atlas-compass-bg" aria-hidden="true">
+    <Compass spin />
+  </div>
+
+  <div class="atlas-hero__copy">
+    <span class="atlas-hero__eyebrow">
+      <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true">
+        <circle cx="8" cy="8" r="3" fill="currentColor" />
+        <circle cx="8" cy="8" r="6.5" fill="none" stroke="currentColor" stroke-width="1" stroke-dasharray="2 2" />
+      </svg>
+      {eyebrow}
+    </span>
+    <h1 class="atlas-hero__title" set:html={title} />
+    {lede && <p class="atlas-hero__lede">{lede}</p>}
+    <div class="atlas-hero__cta">
+      <a class="atlas-btn" href={primaryHref}>{primaryLabel}
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true">
+          <path d="M3 8h9M8 3l5 5-5 5" fill="none" stroke="currentColor" stroke-width="1.6"
+            stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </a>
+      <a class="atlas-btn atlas-btn--ghost" href={secondaryHref}>{secondaryLabel}</a>
+    </div>
+  </div>
+
+  <div class="atlas-hero__art" aria-hidden="true">
+    <Compass spin class="atlas-hero__compass" />
+  </div>
+</section>
+
+<style>
+  .atlas-hero {
+    position: relative;
+  }
+
+  .atlas-hero__copy {
+    position: relative;
+    z-index: 1;
+  }
+
+  .atlas-hero__art {
+    color: var(--atlas-amber-500);
+    width: 100%;
+    max-width: 26rem;
+    justify-self: center;
+    filter: drop-shadow(0 12px 32px rgba(245, 177, 74, 0.25));
+  }
+
+  :root[data-theme='dark'] .atlas-hero__art {
+    color: var(--atlas-amber-400);
+  }
+
+  .atlas-hero__compass {
+    width: 100%;
+    height: auto;
+  }
+
+  /* Hide the duplicate background compass on the right when art shows */
+  @media (min-width: 60rem) {
+    .atlas-compass-bg {
+      display: none;
+    }
+  }
+</style>

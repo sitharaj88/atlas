@@ -1,0 +1,289 @@
+/* Atlas — Global styles
+ * Layered on top of Starlight defaults.
+ */
+
+@layer base, components, utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    font-feature-settings: 'cv11', 'ss01', 'ss02';
+    text-rendering: optimizeLegibility;
+  }
+
+  ::selection {
+    background: var(--atlas-amber-200);
+    color: var(--atlas-navy-900);
+  }
+
+  :root[data-theme='dark'] ::selection {
+    background: var(--atlas-amber-500);
+    color: var(--atlas-navy-950);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--atlas-amber-400);
+    outline-offset: 3px;
+    border-radius: 3px;
+  }
+
+  /* Smooth heading rhythm */
+  h1,
+  h2,
+  h3 {
+    letter-spacing: -0.018em;
+  }
+
+  /* Inline code subtle pill */
+  :not(pre) > code {
+    padding: 0.1em 0.36em;
+    border-radius: var(--atlas-radius-sm);
+    border: 1px solid var(--sl-color-hairline-light);
+    font-size: 0.92em;
+  }
+}
+
+@layer components {
+  /* Reusable card */
+  .atlas-card {
+    display: block;
+    padding: var(--atlas-sp-6);
+    border: 1px solid var(--sl-color-hairline);
+    border-radius: var(--atlas-radius-lg);
+    background: var(--sl-color-bg);
+    box-shadow: var(--atlas-shadow-sm);
+    transition:
+      transform var(--atlas-dur-base) var(--atlas-ease),
+      box-shadow var(--atlas-dur-base) var(--atlas-ease),
+      border-color var(--atlas-dur-base) var(--atlas-ease);
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .atlas-card:hover,
+  .atlas-card:focus-visible {
+    transform: translateY(-2px);
+    box-shadow: var(--atlas-shadow-md);
+    border-color: var(--atlas-amber-400);
+  }
+
+  .atlas-card__eyebrow {
+    font-size: var(--atlas-fs-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--sl-color-text-accent);
+    font-weight: 600;
+  }
+
+  .atlas-card__title {
+    margin: var(--atlas-sp-2) 0 var(--atlas-sp-2);
+    font-size: var(--atlas-fs-lg);
+    font-weight: 600;
+    line-height: 1.25;
+  }
+
+  .atlas-card__desc {
+    color: var(--sl-color-gray-3);
+    font-size: var(--atlas-fs-sm);
+    line-height: 1.5;
+    margin: 0;
+  }
+
+  /* Pill / chip */
+  .atlas-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    padding: 0.25em 0.7em;
+    border-radius: var(--atlas-radius-pill);
+    font-size: var(--atlas-fs-xs);
+    font-weight: 600;
+    background: var(--sl-color-accent-low);
+    color: var(--sl-color-text-accent);
+    border: 1px solid var(--sl-color-hairline-light);
+  }
+
+  /* Hero */
+  .atlas-hero {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--atlas-sp-10);
+    padding: var(--atlas-sp-12) 0 var(--atlas-sp-16);
+    overflow: hidden;
+  }
+
+  @media (min-width: 60rem) {
+    .atlas-hero {
+      grid-template-columns: 1.15fr 0.85fr;
+      align-items: center;
+    }
+  }
+
+  .atlas-hero__eyebrow {
+    display: inline-flex;
+    gap: 0.5em;
+    align-items: center;
+    color: var(--sl-color-text-accent);
+    font-size: var(--atlas-fs-sm);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  .atlas-hero__title {
+    margin: var(--atlas-sp-4) 0 var(--atlas-sp-4);
+    font-family: var(--atlas-font-display);
+    font-weight: 600;
+    font-size: clamp(2.4rem, 5vw + 1rem, 4.2rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+
+  .atlas-hero__title em {
+    font-style: italic;
+    color: var(--sl-color-text-accent);
+  }
+
+  .atlas-hero__lede {
+    font-size: clamp(1.05rem, 0.5vw + 1rem, 1.25rem);
+    line-height: 1.55;
+    color: var(--sl-color-gray-3);
+    max-width: 38rem;
+  }
+
+  .atlas-hero__cta {
+    margin-top: var(--atlas-sp-6);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--atlas-sp-3);
+  }
+
+  .atlas-btn {
+    --bg: var(--atlas-amber-500);
+    --fg: var(--atlas-navy-950);
+    --border: transparent;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.7em 1.2em;
+    border-radius: var(--atlas-radius-pill);
+    background: var(--bg);
+    color: var(--fg);
+    border: 1px solid var(--border);
+    font-weight: 600;
+    text-decoration: none;
+    transition:
+      transform var(--atlas-dur-fast) var(--atlas-ease),
+      background var(--atlas-dur-fast) var(--atlas-ease);
+  }
+
+  .atlas-btn:hover {
+    transform: translateY(-1px);
+    background: var(--atlas-amber-400);
+  }
+
+  .atlas-btn--ghost {
+    --bg: transparent;
+    --fg: var(--sl-color-text);
+    --border: var(--sl-color-hairline-shade);
+  }
+
+  .atlas-btn--ghost:hover {
+    --bg: var(--sl-color-gray-1);
+    --border: var(--atlas-amber-400);
+  }
+
+  /* Section heading */
+  .atlas-section-heading {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: var(--atlas-sp-4);
+    margin-bottom: var(--atlas-sp-6);
+    flex-wrap: wrap;
+  }
+
+  .atlas-section-heading h2 {
+    font-family: var(--atlas-font-display);
+    font-size: clamp(1.6rem, 2vw + 1rem, 2.2rem);
+    margin: 0;
+    line-height: 1.15;
+  }
+
+  .atlas-section-heading p {
+    color: var(--sl-color-gray-3);
+    margin: 0;
+    max-width: 30rem;
+  }
+
+  /* Grid utilities */
+  .atlas-grid {
+    display: grid;
+    gap: var(--atlas-sp-5);
+  }
+
+  .atlas-grid--cards {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
+  }
+
+  /* Compass background */
+  .atlas-compass-bg {
+    position: absolute;
+    inset: -8% -10% auto auto;
+    width: clamp(18rem, 40vw, 36rem);
+    height: clamp(18rem, 40vw, 36rem);
+    pointer-events: none;
+    opacity: 0.18;
+    z-index: 0;
+  }
+
+  :root[data-theme='dark'] .atlas-compass-bg {
+    opacity: 0.22;
+  }
+
+  /* Print-friendly cheatsheets */
+  @media print {
+    .atlas-no-print,
+    nav,
+    .sidebar,
+    header,
+    footer {
+      display: none !important;
+    }
+
+    main {
+      padding: 0 !important;
+    }
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer utilities {
+  .atlas-stack > * + * {
+    margin-block-start: var(--atlas-sp-4);
+  }
+
+  .atlas-cluster {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--atlas-sp-3);
+  }
+
+  .atlas-mute {
+    color: var(--sl-color-gray-3);
+  }
+}

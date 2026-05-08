@@ -1,0 +1,86 @@
+---
+title: Frontend Roadmap
+description: A visual graph of the frontend developer's path in 2026 — from the basics through the modern stack.
+sidebar:
+  order: 1
+tags: [roadmap, frontend]
+---
+
+import Roadmap from '~/components/Roadmap.tsx';
+
+Each node is a topic. Click one to jump to the related lesson (or its placeholder until that lesson lands). Lessons you've completed turn green.
+
+<Roadmap
+  client:visible
+  height={720}
+  nodes={[
+    { id: 'web', label: 'How the web works', description: 'HTTP · DNS · browsers',
+      href: '/paths/foundations/web-platform/how-the-web-works/',
+      lessonId: 'foundations/web-platform/how-the-web-works',
+      position: { x: 0, y: 0 }, group: 'milestone' },
+
+    { id: 'html', label: 'HTML5', description: 'Semantics · forms · media',
+      href: '/paths/foundations/', position: { x: -260, y: 110 }, group: 'core' },
+    { id: 'css',  label: 'CSS Fundamentals', description: 'Cascade · box model · layout',
+      href: '/paths/foundations/', position: { x: 0, y: 110 }, group: 'core' },
+    { id: 'js',   label: 'JavaScript', description: 'Modern JS through ES2026',
+      href: '/paths/foundations/', position: { x: 260, y: 110 }, group: 'core' },
+
+    { id: 'a11y', label: 'Accessibility primer', description: 'Semantic HTML · ARIA · keyboard',
+      href: '/paths/foundations/', position: { x: -380, y: 230 }, group: 'core' },
+    { id: 'modcss', label: 'Modern CSS', description: 'Container queries · :has() · layers',
+      href: '/paths/modern-css/layout/container-queries/',
+      lessonId: 'modern-css/layout/container-queries',
+      position: { x: -100, y: 230 }, group: 'core' },
+    { id: 'design', label: 'Design Systems', description: 'Tokens · theming · Tailwind',
+      href: '/paths/modern-css/', position: { x: 180, y: 230 }, group: 'core' },
+    { id: 'dom',  label: 'DOM & Web APIs', description: 'fetch · storage · events',
+      href: '/paths/foundations/', position: { x: 380, y: 230 }, group: 'core' },
+
+    { id: 'ts', label: 'TypeScript', description: 'Generics · narrowing · type-driven APIs',
+      href: '/paths/typescript/generics/generics/',
+      lessonId: 'typescript/generics/generics',
+      position: { x: 130, y: 360 }, group: 'milestone' },
+
+    { id: 'react', label: 'React', description: 'Hooks · Suspense · Server Components',
+      href: '/paths/frontend-frameworks/react/server-components/',
+      lessonId: 'frontend-frameworks/react/server-components',
+      position: { x: -200, y: 480 }, group: 'core' },
+    { id: 'vue', label: 'Vue / Svelte / Solid', description: 'Alternatives & comparison',
+      href: '/paths/frontend-frameworks/', position: { x: 60, y: 480 }, group: 'optional' },
+    { id: 'meta', label: 'Meta-frameworks', description: 'Next · Astro · TanStack Start',
+      href: '/paths/frontend-frameworks/', position: { x: 320, y: 480 }, group: 'core' },
+
+    { id: 'state', label: 'State & Data', description: 'TanStack Query · Zustand · forms',
+      href: '/paths/frontend-frameworks/', position: { x: -100, y: 600 }, group: 'core' },
+    { id: 'test', label: 'Testing', description: 'Vitest · Testing Library · Playwright',
+      href: '/paths/testing/e2e/first-playwright-test/',
+      lessonId: 'testing/e2e/first-playwright-test',
+      position: { x: 220, y: 600 }, group: 'core' },
+
+    { id: 'perf', label: 'Performance & A11y', description: 'Web Vitals · WCAG · SEO',
+      href: '/paths/performance-a11y-seo/web-vitals/core-web-vitals/',
+      lessonId: 'performance-a11y-seo/web-vitals/core-web-vitals',
+      position: { x: 60, y: 720 }, group: 'milestone' },
+  ]}
+  edges={[
+    { source: 'web', target: 'html' },
+    { source: 'web', target: 'css' },
+    { source: 'web', target: 'js' },
+    { source: 'html', target: 'a11y' },
+    { source: 'css', target: 'modcss' },
+    { source: 'css', target: 'design' },
+    { source: 'js', target: 'dom' },
+    { source: 'modcss', target: 'ts' },
+    { source: 'js', target: 'ts' },
+    { source: 'ts', target: 'react' },
+    { source: 'ts', target: 'vue', dashed: true },
+    { source: 'react', target: 'meta' },
+    { source: 'react', target: 'state' },
+    { source: 'meta', target: 'test' },
+    { source: 'state', target: 'perf' },
+    { source: 'test', target: 'perf' },
+  ]}
+/>
+
+The dashed edges are *optional* — alternatives or sidequests. The amber **milestone** nodes mark the big stepping-stones: a foundational mental model (How the web works), a leverage multiplier (TypeScript), and an outcome (Performance & A11y). If you nail those three, everything else is filling in detail.

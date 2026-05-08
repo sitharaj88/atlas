@@ -1,0 +1,62 @@
+---
+title: 6 · Performance, A11y & SEO
+description: Core Web Vitals, image optimization, code splitting, WCAG 2.2, screen readers, structured data.
+sidebar:
+  order: 0
+---
+
+import ProgressBar from '~/components/ProgressBar.tsx';
+
+> **For:** devs who can ship, but want what they ship to be fast, accessible, and findable. **Time:** ~16 hours over 6 modules. **Outcome:** you measure, diagnose, and fix the things that move users (and search engines).
+
+<ProgressBar
+  client:idle
+  label="Performance, A11y & SEO progress"
+  lessonIds={[
+    'performance-a11y-seo/web-vitals/core-web-vitals',
+  ]}
+/>
+
+## Path map
+
+### Module 1 · Performance Fundamentals
+- The browser rendering pipeline (revisited, with hooks)
+- Critical rendering path
+- Network waterfall — read like a doctor reads X-rays
+
+### Module 2 · Core Web Vitals
+- LCP — Largest Contentful Paint
+- INP — Interaction to Next Paint (the new one)
+- CLS — Cumulative Layout Shift
+- [Core Web Vitals & how to fix them](/paths/performance-a11y-seo/web-vitals/core-web-vitals/) ← **sample lesson**
+
+### Module 3 · Optimization Toolkit
+- Image optimization — AVIF, responsive images, `loading="lazy"`
+- Font loading without FOUT/FOIT
+- Code splitting and prefetching
+- Service Workers and HTTP caching
+
+### Module 4 · Accessibility
+- Semantic HTML is 80% of a11y
+- ARIA — the rules of use
+- Keyboard navigation and focus management
+- Screen reader testing — VoiceOver, NVDA, TalkBack
+- Color contrast and motion
+
+### Module 5 · SEO Without the Snake Oil
+- Crawling, indexing, rendering — what Google actually does
+- `<title>`, meta description, headings hierarchy
+- Structured data (JSON-LD)
+- Sitemaps, robots.txt, canonical URLs
+- Open Graph and social cards
+
+### Module 6 · Audit & Iterate
+- Lighthouse, WebPageTest, PageSpeed Insights
+- Real User Monitoring (RUM)
+- Setting and enforcing performance budgets in CI
+
+---
+
+## When you finish
+
+You'll measure before you guess. Pair this with [DevOps for Web](/paths/devops/) (perf budgets in CI) and [Testing & Quality](/paths/testing/) (catch regressions before users do).

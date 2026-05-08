@@ -1,0 +1,270 @@
+---
+title: React Server Components, demystified
+description: Why RSC exists, how the server/client boundary really works, and the rules that actually matter in practice.
+sidebar:
+  order: 1
+pathSlug: frontend-frameworks
+module: react
+lessonNumber: 1
+difficulty: advanced
+duration: 16 min
+prerequisites:
+  - You've built React apps with hooks and components
+  - You understand why bundle size matters
+objectives:
+  - Explain why React Server Components exist
+  - Identify the server/client boundary in a component tree
+  - Apply the four core rules of "use client" / "use server"
+tags: [react, rsc, frameworks, performance]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Why React invented Server Components, what they actually buy you (it's not "SSR but better"), and the practical rules for where to draw the server/client line.
+
+## The problem RSC actually solves
+
+Classic React renders entirely on the client. To render a list of 100 articles, you ship:
+
+1. The data (often as JSON in a `<script>`)
+2. The component code that turns the data into UI
+3. Every library that component imports — Markdown parser, syntax highlighter, date library, ...
+
+That's how a "blog" ends up with 400KB of JavaScript. Server-Side Rendering (SSR) helps the *first paint*, but you still hydrate every component, so the bytes still ship.
+
+**React Server Components (RSC)** add a third option: components that run on the server, render to a serialized format, and *never ship to the client at all*.
+
+```text
+Classic CSR  : ship code + data → render in browser
+SSR          : render once on server → ship code + data → hydrate
+RSC          : render on server, ship rendered output → no code on the client
+                                                  ↘ except for "client components"
+```
+
+The mental model is **two languages on one tree**: server components are the static, data-rich ones; client components are the interactive ones. Your job is to draw the line.
+
+## A motivating example
+
+```tsx
+// app/posts/page.tsx — a Server Component (the default in RSC frameworks)
+import { db } from '~/db';
+import { Markdown } from '~/components/Markdown';   // also a server component
+import { LikeButton } from '~/components/LikeButton'; // a CLIENT component
+
+export default async function PostsPage() {
+  const posts = await db.post.findMany();
+  return (
+    <main>
+      {posts.map(p => (
+        <article key={p.id}>
+          <h2>{p.title}</h2>
+          <Markdown source={p.body} />     {/* renders on server, no JS shipped */}
+          <LikeButton postId={p.id} />     {/* this part hydrates on the client */}
+        </article>
+      ))}
+    </main>
+  );
+}
+```
+
+What ships to the client?
+
+- ✅ The serialized rendered output (HTML-ish, plus a small RSC payload that lets React reconcile)
+- ✅ The `LikeButton` component code (it has interactivity)
+- ❌ The Markdown library (huge, runs once on the server)
+- ❌ The database client (obviously)
+- ❌ Your DB query logic, secrets, anything in the closure
+
+Bundle size goes down. First paint is real HTML. The interactive parts are precisely the parts that need to be interactive.
+
+## The four rules that actually matter
+
+### Rule 1 — Server is the default
+
+In an RSC framework (Next.js App Router, TanStack Start, Waku), every component is a **server component** unless you opt out. Server components can:
+
+- Be `async` and `await` data
+- Import server-only modules (`fs`, `node:crypto`, your DB client)
+- Read secrets and request headers
+
+They **cannot**:
+
+- Use `useState`, `useEffect`, or any other hook
+- Use browser APIs (`window`, `localStorage`)
+- Have event handlers (`onClick`, `onChange`)
+
+### Rule 2 — `"use client"` opts a component (and its descendants by import) into the client
+
+```tsx
+'use client';
+import { useState } from 'react';
+
+export function LikeButton({ postId }: { postId: string }) {
+  const [liked, setLiked] = useState(false);
+  return <button onClick={() => setLiked(!liked)}>{liked ? '♥' : '♡'}</button>;
+}
+```
+
+The directive is at the **top of the file**. It marks this file (and anything that imports it from a server component) as the **client boundary**. Past this line, you're in regular React-on-the-browser territory.
+
+<Callout variant="warn" title={`"use client" doesn't mean "runs only on the client"`}>
+Client components still SSR on the server (just like classic React). They simply *also* hydrate on the client. The `"use client"` directive marks where the **code starts shipping** to the browser.
+</Callout>
+
+### Rule 3 — Client components can't import server components, but server components can render client ones (and pass props)
+
+```tsx
+// ✅ Server component renders client component — fine
+function Page() {
+  return <LikeButton postId="42" />;
+}
+
+// ❌ Client component imports server component — error
+'use client';
+import { Markdown } from './Markdown'; // if Markdown is a server component, this fails
+```
+
+The trick when you need a server component *inside* a client component: **pass it as `children` or a prop** from a server parent.
+
+```tsx
+// Server parent
+<ClientShell>
+  <ServerOnlyChart data={await getData()} />
+</ClientShell>
+
+// Client shell
+'use client';
+export function ClientShell({ children }: { children: React.ReactNode }) {
+  return <div className="...">{children}</div>;
+}
+```
+
+The server renders `ServerOnlyChart`, then hands the result *as a prop* to `ClientShell`. The client never sees `ServerOnlyChart`'s code.
+
+### Rule 4 — `"use server"` is a different thing entirely (Server Actions)
+
+`"use server"` does **not** mean "this is a server component." It marks a function as a **Server Action** — a function the *client* can call, which executes on the server.
+
+```tsx
+// app/actions.ts
+'use server';
+import { db } from '~/db';
+
+export async function likePost(formData: FormData) {
+  await db.like.create({ data: { postId: formData.get('postId') as string } });
+}
+
+// app/post.tsx
+import { likePost } from './actions';
+export function LikeForm({ id }: { id: string }) {
+  return (
+    <form action={likePost}>
+      <input type="hidden" name="postId" value={id} />
+      <button>Like</button>
+    </form>
+  );
+}
+```
+
+Same mental model as `<form action="/api/like">` — but typed, colocated with components, no manual fetch. RPC for the React era.
+
+## When to use what
+
+| Goal | Use |
+|---|---|
+| Fetch data and render it | Server component |
+| Interactivity (state, effects, events) | Client component |
+| Mutate data from a button or form | Server Action |
+| Stream slow data without blocking | Server component + `<Suspense>` |
+| Use a heavy server-only library (markdown, image processing) | Server component |
+| Use a browser-only library (charts using DOM measurements) | Client component |
+
+## A common shape that works
+
+```tsx
+// Server: fetch and pass down
+export default async function Dashboard() {
+  const stats = await fetchStats();
+  return (
+    <DashboardShell>             {/* client: layout + nav state */}
+      <StatsCard stats={stats} /> {/* server: pure presentation, no JS */}
+      <LiveChart />               {/* client: needs WebSocket */}
+    </DashboardShell>
+  );
+}
+```
+
+Every leaf is in the camp where it's most efficient. Heavy data + heavy libraries on the server; tiny interactivity slivers on the client.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/react/server-components"
+  questions={[
+    {
+      id: 'rsc-1',
+      type: 'single',
+      prompt: 'What is the main thing Server Components save that SSR alone doesn\'t?',
+      options: [
+        { value: 'a', label: 'Time-to-first-byte' },
+        { value: 'b', label: 'JavaScript bundle size — server component code never ships' },
+        { value: 'c', label: 'Database round-trips' },
+        { value: 'd', label: 'CSS file size' },
+      ],
+      answer: 'b',
+      explanation: 'SSR helps first paint but still ships every component\'s code. RSC keeps server-only code on the server.',
+    },
+    {
+      id: 'rsc-2',
+      type: 'single',
+      prompt: 'You add `"use client"` to the top of `LikeButton.tsx`. What does this do?',
+      options: [
+        { value: 'a', label: 'Forces the component to render only in the browser' },
+        { value: 'b', label: 'Marks this file as the start of a client boundary — its code ships to the browser' },
+        { value: 'c', label: 'Disables SSR for this component' },
+        { value: 'd', label: 'Turns the component into a Server Action' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'rsc-3',
+      type: 'multi',
+      prompt: 'Which of these are valid in a Server Component?',
+      options: [
+        { value: 'a', label: '`async function` and top-level `await`' },
+        { value: 'b', label: '`useState` and `useEffect`' },
+        { value: 'c', label: 'Importing your database client' },
+        { value: 'd', label: 'Attaching `onClick` directly to a button' },
+      ],
+      answer: ['a', 'c'],
+    },
+    {
+      id: 'rsc-4',
+      type: 'single',
+      prompt: '`"use server"` on a function (not a file with `"use client"`) means…',
+      options: [
+        { value: 'a', label: 'This function is a server component' },
+        { value: 'b', label: 'This function is a Server Action — callable from the client, runs on the server' },
+        { value: 'c', label: 'This function only runs on the build server' },
+        { value: 'd', label: 'Same as `"use client"`, just inverted' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+Add **`<Suspense>` and streaming** to the mix and you can render the parts of a page that are ready immediately, while slow data lazy-loads in. That's the next lesson.
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/react/server-components"
+  lessonHref="/paths/frontend-frameworks/react/server-components/"
+  lessonTitle="React Server Components, demystified"
+  nextHref="/paths/frontend-frameworks/"
+  nextTitle="Frontend Frameworks roadmap"
+/>

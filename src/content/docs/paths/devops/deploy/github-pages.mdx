@@ -1,0 +1,229 @@
+---
+title: Deploy to GitHub Pages with Actions
+description: Free, fast, version-controlled hosting for any static site. Set up a CI workflow that ships on every push to main.
+sidebar:
+  order: 1
+pathSlug: devops
+module: deploy
+lessonNumber: 2
+difficulty: beginner
+duration: 12 min
+prerequisites:
+  - You have a GitHub account and a repository
+  - Your site builds to a static `dist/` (or `build/` / `out/`) folder
+objectives:
+  - Configure GitHub Pages to deploy from GitHub Actions
+  - Write a workflow that builds and uploads your site
+  - Wire up a custom domain (when you have one)
+tags: [github, pages, actions, deploy, ci-cd]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** How to deploy any static site to GitHub Pages using a GitHub Actions workflow — free, automatic on every push, with custom-domain support.
+
+## What GitHub Pages is good for (and not)
+
+GitHub Pages serves **static files** from a CDN, free, with HTTPS, custom domains, and a generous bandwidth allowance. It's perfect for:
+
+- Documentation sites and blogs
+- Marketing pages and portfolios
+- Client-rendered SPAs
+- Static-output apps from Astro, Next.js (export), Vite, Eleventy, etc.
+
+It's **not** for:
+
+- Server-rendered pages (no Node, no PHP)
+- Dynamic APIs (no backend)
+- Sites needing protected routes or per-user content
+
+If you need any of those, look at Cloudflare Pages, Vercel, Netlify, or Fly.io. For everything else, Pages is hard to beat.
+
+## The two deployment modes
+
+GitHub Pages has supported two deployment models historically:
+
+1. **Branch deployment** — Pages serves the `main` (or `gh-pages`) branch directly. You push HTML, Pages serves it. Simple but limits how you can structure the repo.
+2. **GitHub Actions deployment** (the modern choice). A workflow builds your site, uploads the result as an artifact, and Pages serves that artifact. The repo is just source — no need to commit `dist/`.
+
+We'll use the Actions model. It's faster, cleaner, and works for any framework.
+
+## One-time repo setup
+
+1. Go to your repo on github.com.
+2. **Settings → Pages**.
+3. Under **Build and deployment → Source**, choose **GitHub Actions**.
+
+That's it. The repo is now ready to receive deployments from a workflow. You don't need a `gh-pages` branch.
+
+## The workflow
+
+Save this as `.github/workflows/deploy.yml`:
+
+```yaml
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:        # lets you trigger manually from the Actions tab
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write           # required by deploy-pages
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+        env:
+          # If your repo is `<user>/atlas`, your site lives at /atlas.
+          # If you use a custom domain (CNAME), keep BASE empty.
+          BASE: /atlas
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist          # or build, out — whatever your framework uses
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+```
+
+The split into `build` and `deploy` jobs is a deliberate pattern: `deploy-pages` runs in a special **environment** that GitHub treats differently for security. Keep them separate.
+
+<Callout variant="warn" title="The base path bites everyone once">
+A repo at `github.com/<user>/atlas` deploys to `<user>.github.io/atlas/` — that `/atlas/` prefix matters. Most frameworks need a `base` config option to generate links correctly. With Astro it\'s the `base` field; with Next it\'s `basePath`; with Vite it\'s `base`. Mismatched base path = broken links and missing CSS.
+</Callout>
+
+## Custom domain (optional, free)
+
+When you have a domain you want to use:
+
+1. **Create a `public/CNAME`** file (no extension) in your repo containing just the hostname:
+   ```text
+   atlas.dev
+   ```
+   (`public/` so it gets copied into `dist/` at build time. Some frameworks use `static/` instead.)
+
+2. **Point the DNS at GitHub Pages**:
+   - For an *apex* domain (`atlas.dev`), four `A` records:
+     ```text
+     185.199.108.153
+     185.199.109.153
+     185.199.110.153
+     185.199.111.153
+     ```
+   - For a *subdomain* (`learn.atlas.dev`), one `CNAME` record pointing to `<user>.github.io`.
+
+3. **In repo Settings → Pages → Custom domain**, paste the same hostname. Wait for DNS to propagate, then check **Enforce HTTPS**.
+
+4. **Remove the `BASE: /atlas` env var** in your workflow — with a custom domain, the site lives at `/`, not `/atlas/`.
+
+## What happens on every push
+
+```text
+1. You push a commit to main
+2. GitHub Actions: build job runs
+   ├── checkout
+   ├── install dependencies (cached if lockfile unchanged)
+   ├── pnpm build
+   └── upload `dist/` as a Pages artifact
+3. GitHub Actions: deploy job runs
+   └── tells GitHub Pages to serve the new artifact
+4. ~30 seconds later, the new version is live globally on the CDN
+```
+
+The first deploy after enabling Pages can take a couple of minutes (DNS, certificate issuance). After that, you're typically live within 30–60 seconds of merging.
+
+## Debugging
+
+- **Workflow doesn\'t run.** Check the Actions tab for errors. Usually it\'s a YAML indent issue or a missing `permissions` block.
+- **CSS / JS 404s.** Almost always the base path. Check your built HTML — do asset URLs start with `/atlas/` or `/`?
+- **HTTPS fails to issue on a new domain.** Wait. GitHub uses Let\'s Encrypt; it can take 15–60 minutes after DNS points correctly.
+- **Old version sticks around.** Add a `?v=...` query string when testing, or hard-reload. The CDN respects the `Cache-Control` headers you (or your framework) set.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="devops/deploy/github-pages"
+  questions={[
+    {
+      id: 'gh-1',
+      type: 'single',
+      prompt: 'Why use GitHub Actions deployment instead of branch-based?',
+      options: [
+        { value: 'a', label: 'It\'s the only way to use a custom domain' },
+        { value: 'b', label: 'You don\'t commit build output, can use any framework, and have a clear CI pipeline' },
+        { value: 'c', label: 'It\'s the only mode that supports HTTPS' },
+        { value: 'd', label: 'Branch deployment was deprecated' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'gh-2',
+      type: 'single',
+      prompt: 'Your repo is `<user>/atlas`. Without a custom domain, where will your site live?',
+      options: [
+        { value: 'a', label: 'https://<user>.github.io/' },
+        { value: 'b', label: 'https://<user>.github.io/atlas/' },
+        { value: 'c', label: 'https://atlas.github.io/' },
+        { value: 'd', label: 'https://github.com/<user>/atlas/site/' },
+      ],
+      answer: 'b',
+      explanation: 'Project pages live under `<user>.github.io/<repo>/`. That\'s why the base path config matters.',
+    },
+    {
+      id: 'gh-3',
+      type: 'single',
+      prompt: 'Where does the `CNAME` file live in a custom-domain setup?',
+      options: [
+        { value: 'a', label: 'In `.github/`' },
+        { value: 'b', label: 'In your `public/` (or `static/`) folder, so it\'s copied into the built output' },
+        { value: 'c', label: 'In the workflow YAML' },
+        { value: 'd', label: 'In your DNS provider only' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+A site that auto-deploys is good. A site that auto-deploys, **runs tests on every PR**, and **rolls back on failure** is great. Next: *GitHub Actions: matrix builds, caching, artifacts*.
+
+<LessonComplete
+  client:idle
+  lessonId="devops/deploy/github-pages"
+  lessonHref="/paths/devops/deploy/github-pages/"
+  lessonTitle="Deploy to GitHub Pages with Actions"
+  nextHref="/paths/devops/"
+  nextTitle="DevOps for Web roadmap"
+/>

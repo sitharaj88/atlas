@@ -1,0 +1,7 @@
+---
+import Default from '@astrojs/starlight/components/ThemeSelect.astro';
+import type { Props } from '@astrojs/starlight/props';
+const props = Astro.props as Props;
+---
+
+<Default {...props}><slot /></Default>

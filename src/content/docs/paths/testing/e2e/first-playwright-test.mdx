@@ -1,0 +1,217 @@
+---
+title: Your first Playwright test
+description: Install, write, and run an end-to-end test that drives a real browser. The fastest path to "I trust my deploys."
+sidebar:
+  order: 1
+pathSlug: testing
+module: e2e
+lessonNumber: 1
+difficulty: intermediate
+duration: 14 min
+prerequisites:
+  - Comfortable running terminal commands
+  - You have a small web app (or you can use a public URL)
+objectives:
+  - Install Playwright and the browser binaries
+  - Write a test that visits a page and asserts visible content
+  - Use the codegen recorder to write tests by clicking through your app
+tags: [playwright, testing, e2e]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** How to write your first end-to-end test with Playwright — the testing tool that drives real browsers (Chromium, Firefox, WebKit) the same way a user would.
+
+## Why E2E (and why Playwright)
+
+Unit tests and component tests catch bugs in isolated units. **End-to-end** tests catch bugs in the *seams* — the place where your code, the network, the browser, and the user actually meet. They're the tests that ask "if a real user did this, would it work?"
+
+Playwright is the modern leader because:
+
+- It drives Chromium, Firefox, and WebKit from one API.
+- It auto-waits for elements to be ready — no `sleep(500)` flake.
+- The tooling — codegen, trace viewer, debugger — is genuinely good.
+- It speaks the modern web (Shadow DOM, iframes, web workers) without ceremony.
+
+## Install
+
+In any Node project (or `pnpm init` a new one):
+
+```bash
+pnpm dlx create-playwright@latest
+```
+
+The wizard installs `@playwright/test`, downloads the browser binaries (~250MB), and scaffolds a `playwright.config.ts` plus an example test. Press Enter to accept defaults.
+
+Run the example:
+
+```bash
+pnpm exec playwright test
+```
+
+You should see three browsers open and close in milliseconds, with a passing test. Welcome to E2E.
+
+## Anatomy of a test
+
+```ts
+// tests/example.spec.ts
+import { test, expect } from '@playwright/test';
+
+test('homepage has Atlas in the title', async ({ page }) => {
+  await page.goto('https://atlas.dev/');
+
+  await expect(page).toHaveTitle(/Atlas/);
+});
+
+test('clicking "Start your journey" goes to /start', async ({ page }) => {
+  await page.goto('https://atlas.dev/');
+
+  await page.getByRole('link', { name: 'Start your journey' }).click();
+
+  await expect(page).toHaveURL(/\/start\/?$/);
+  await expect(page.getByRole('heading', { name: /pick your starting point/i })).toBeVisible();
+});
+```
+
+A few patterns to internalize:
+
+**`page` is the test fixture.** It's a fresh, isolated browser context per test. No state leaks between tests.
+
+**`getByRole` is the right way to find elements.** It mirrors how assistive tech sees the page. Tests written this way also test your accessibility — if the screen reader can't find it, neither can your test.
+
+**`expect(page).toHaveX()` auto-waits.** Playwright keeps polling until the assertion passes or the timeout (5 seconds by default) trips. You almost never need explicit `waitFor`.
+
+## Codegen — write tests by clicking
+
+The fastest way to start writing tests is to record yourself using the app:
+
+```bash
+pnpm exec playwright codegen https://atlas.dev/
+```
+
+A browser opens alongside an inspector window. Click around the app — Playwright writes the test for you, picking the most resilient selector for each interaction. Copy what you like into a real test file and tighten the assertions.
+
+<Callout variant="tip" title='Prefer "role" and "label" selectors'>
+Codegen will sometimes use CSS selectors. When you can, swap them for `getByRole`, `getByLabel`, or `getByText` — they survive refactors and reflect real user intent. Reserve `data-testid` for cases where there really isn't a semantic anchor.
+</Callout>
+
+## Network mocking
+
+Don't hit production APIs in tests. Mock the boundary:
+
+```ts
+test('shows fallback when API fails', async ({ page }) => {
+  await page.route('**/api/posts', (route) =>
+    route.fulfill({ status: 500, body: '{"error":"oops"}' })
+  );
+
+  await page.goto('https://atlas.dev/blog/');
+
+  await expect(page.getByText(/couldn\'t load posts/i)).toBeVisible();
+});
+```
+
+`page.route` intercepts requests matching a glob. You decide whether to fulfill, abort, or modify them. Perfect for testing loading, error, and empty states.
+
+## The trace viewer (the killer feature)
+
+When a test fails in CI, Playwright records a **trace** — a timeline with every action, network request, console log, screenshot, and DOM snapshot.
+
+Open it locally:
+
+```bash
+pnpm exec playwright show-trace trace.zip
+```
+
+You can scrub through the test like a video, hover any action to see the page state at that moment, and click through the network panel — all in a normal-looking DevTools UI. Most "flaky" tests aren't flaky once you've seen the trace.
+
+## Running in CI
+
+The default `playwright.config.ts` already does the right thing:
+
+```ts
+// playwright.config.ts
+import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './tests',
+  retries: process.env.CI ? 2 : 0,
+  reporter: process.env.CI ? 'github' : 'list',
+  use: {
+    baseURL: 'http://localhost:3000',
+    trace: 'on-first-retry',
+  },
+  projects: [
+    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
+    { name: 'firefox',  use: { ...devices['Desktop Firefox'] } },
+    { name: 'webkit',   use: { ...devices['Desktop Safari'] } },
+  ],
+  webServer: {
+    command: 'pnpm dev',
+    url: 'http://localhost:3000',
+    reuseExistingServer: !process.env.CI,
+  },
+});
+```
+
+`webServer` boots your dev server before tests, so CI doesn't need a separate step. `trace: 'on-first-retry'` keeps trace files small in green runs but gives you the full picture when something fails.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="testing/e2e/first-playwright-test"
+  questions={[
+    {
+      id: 'pw-1',
+      type: 'single',
+      prompt: 'What does the `page` fixture in a Playwright test give you?',
+      options: [
+        { value: 'a', label: 'A reused tab in a single browser session' },
+        { value: 'b', label: 'A fresh, isolated browser context per test' },
+        { value: 'c', label: 'A headless DOM (no real browser)' },
+        { value: 'd', label: 'A reference to the global `window` object' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'pw-2',
+      type: 'single',
+      prompt: 'Why prefer `getByRole(\'link\', { name: \'Start\' })` over `page.locator(\'#start-link\')`?',
+      options: [
+        { value: 'a', label: 'It runs faster' },
+        { value: 'b', label: 'It mirrors assistive-tech access — surviving refactors and validating a11y' },
+        { value: 'c', label: 'CSS selectors don\'t work in Playwright' },
+        { value: 'd', label: 'It\'s the only way to click a link' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'pw-3',
+      type: 'single',
+      prompt: 'What is the trace viewer?',
+      options: [
+        { value: 'a', label: 'A network protocol analyzer' },
+        { value: 'b', label: 'A scrubbable timeline of every test action with DOM snapshots and network logs' },
+        { value: 'c', label: 'A tool for measuring test runtime' },
+        { value: 'd', label: 'A sandbox for running tests in isolation' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+You can now write tests. The next lesson — *Page Object Model — when it helps* — covers how to keep your test suite from rotting as your app grows.
+
+<LessonComplete
+  client:idle
+  lessonId="testing/e2e/first-playwright-test"
+  lessonHref="/paths/testing/e2e/first-playwright-test/"
+  lessonTitle="Your first Playwright test"
+  nextHref="/paths/testing/"
+  nextTitle="Testing & Quality roadmap"
+/>

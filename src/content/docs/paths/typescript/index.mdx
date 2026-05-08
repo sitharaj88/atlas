@@ -1,0 +1,62 @@
+---
+title: 3 · TypeScript Mastery
+description: From basics to type wizardry — generics, conditional and template-literal types, narrowing, declaration merging, type-driven API design.
+sidebar:
+  order: 0
+---
+
+import ProgressBar from '~/components/ProgressBar.tsx';
+
+> **For:** JS developers ready to add types. **Time:** ~14 hours over 6 modules. **Outcome:** you can model any domain in types, design ergonomic APIs, and read advanced library types without panic.
+
+<ProgressBar
+  client:idle
+  label="TypeScript progress"
+  lessonIds={[
+    'typescript/generics/generics',
+  ]}
+/>
+
+## Path map
+
+### Module 1 · The TypeScript Mental Model
+- TypeScript is JavaScript with types — and a build step
+- The structural type system in plain English
+- `tsconfig.json` — the flags that actually matter
+- `any`, `unknown`, `never` — when each is right
+
+### Module 2 · The Building Blocks
+- Primitives, literals, unions, intersections
+- Object types vs. interfaces vs. types — the real differences
+- Tuples and readonly
+- Functions and overloads
+
+### Module 3 · Generics
+- Generics from first principles
+- [Generics in TypeScript](/paths/typescript/generics/generics/) ← **sample lesson**
+- Constraints with `extends`
+- Default type parameters
+
+### Module 4 · Type-Level Programming
+- Conditional types and `infer`
+- Mapped types
+- Template literal types — string manipulation in types
+- Recursive types (with the right guardrails)
+
+### Module 5 · Narrowing & Type Guards
+- The narrowing flowchart
+- User-defined type guards (`x is T`)
+- Discriminated unions — the workhorse pattern
+- `assertion` functions and `asserts x is T`
+
+### Module 6 · Practical TypeScript
+- Designing type-safe APIs (request/response, event buses)
+- Working with third-party types (`@types`, declaration merging)
+- TS in monorepos — project references, path aliases
+- Migration playbook: from JS, gradually
+
+---
+
+## When you finish
+
+You'll have the leverage to take on [Frontend Frameworks](/paths/frontend-frameworks/) without fighting the types, and [Full-Stack](/paths/full-stack/) where TS pays off most (typed APIs, ORMs, and end-to-end type safety).

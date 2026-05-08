@@ -1,0 +1,244 @@
+---
+title: Generics in TypeScript
+description: Type parameters, constraints, and the mental model that turns "generics are scary" into "generics are tools."
+sidebar:
+  order: 1
+pathSlug: typescript
+module: generics
+lessonNumber: 1
+difficulty: intermediate
+duration: 14 min
+prerequisites:
+  - Comfortable with TypeScript basics (primitives, unions, interfaces)
+  - You've used `Array<T>` or `Promise<T>` without thinking about what `<T>` means
+objectives:
+  - Read and write generic functions and types
+  - Use `extends` to constrain a type parameter
+  - Recognize when a generic is over-engineered
+tags: [typescript, generics, types]
+---
+
+import Callout from '~/components/Callout.astro';
+import Playground from '~/components/Playground.tsx';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** A simple mental model for generics, when to reach for them, and the patterns that show up everywhere — from `Array<T>` to React props.
+
+## The motivating problem
+
+Suppose you want a function that returns the first element of an array. Easy:
+
+```ts
+function first(arr: number[]): number {
+  return arr[0];
+}
+```
+
+Now you also need it for strings:
+
+```ts
+function firstString(arr: string[]): string {
+  return arr[0];
+}
+```
+
+And `Date[]`, and `User[]`, and... You're writing the same function over and over. The shape (`(arr) => arr[0]`) is the same; only the *type* changes.
+
+## Generics, the elevator pitch
+
+A **generic** lets a function or type take a *type* as a parameter, the same way it takes values:
+
+```ts
+function first<T>(arr: T[]): T {
+  return arr[0];
+}
+
+first<number>([1, 2, 3]);   // returns number
+first<string>(['a', 'b']);  // returns string
+first([new Date()]);        // T is inferred as Date — no annotation needed
+```
+
+`T` is a type parameter. It's a placeholder. The caller (or, more often, type inference) fills it in.
+
+<Callout variant="tip" title='The "T" is just convention'>
+Use any name. `<T>`, `<Item>`, `<UserType>`, `<TKey, TValue>` — all valid. Single uppercase letters (`T`, `U`, `K`, `V`) are short. Descriptive names are clearer in complex signatures.
+</Callout>
+
+## The mental model
+
+A generic function is a **family** of functions, indexed by type. `first<T>` isn't one function — it's the recipe for a function for every `T` you might want. TypeScript stamps out the right one at the call site.
+
+```ts
+// What you write:
+function first<T>(arr: T[]): T { /* ... */ }
+
+// What TS effectively gives you on each call:
+first<number> :=  (arr: number[]) => number
+first<string> :=  (arr: string[]) => string
+first<Date>   :=  (arr: Date[])   => Date
+```
+
+This is how `Array<T>`, `Promise<T>`, `Map<K, V>`, and `React.useState<T>` all work.
+
+## Try it
+
+<Playground
+  client:visible
+  template="vanilla-ts"
+  files={{
+    '/index.ts': `// Hover the variables to see TypeScript's inferred types.
+
+function first<T>(arr: T[]): T | undefined {
+  return arr[0];
+}
+
+const a = first([1, 2, 3]);            // T is number       → number | undefined
+const b = first(['a', 'b']);           // T is string       → string | undefined
+const c = first([{ id: 1 }, { id: 2 }]); // T is { id: number } → { id: number } | undefined
+
+console.log(a, b, c);
+
+// You can also write generic types:
+type Pair<L, R> = { left: L; right: R };
+
+const point: Pair<number, number> = { left: 3, right: 4 };
+const named: Pair<string, Date>   = { left: 'launch', right: new Date() };
+
+console.log(point, named);
+`,
+  }}
+  options={{ editorHeight: 360 }}
+/>
+
+## Constraints — `T extends ...`
+
+Sometimes you need to *limit* what `T` can be. Say you want to log an object's `id`. You can't write `obj.id` if `T` is anything — what if it's `number`?
+
+```ts
+// ❌ Error: Property 'id' does not exist on type 'T'.
+function logId<T>(obj: T) {
+  console.log(obj.id);
+}
+```
+
+Constrain `T` to types that have an `id`:
+
+```ts
+function logId<T extends { id: string | number }>(obj: T) {
+  console.log(obj.id); // ✓ TS knows obj has .id
+  return obj;          // ✓ and the *full* T is preserved on the return
+}
+
+const u = logId({ id: '42', name: 'Ada' });
+// u has type { id: string; name: string } — name is preserved!
+```
+
+This is the common idiom: **constrain to the minimum shape you need; preserve everything else.**
+
+## Two real patterns to recognize
+
+**1. The "lookup" pattern** — index into an object by key, with the right return type.
+
+```ts
+function get<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key];
+}
+
+const user = { id: 1, name: 'Ada', email: 'ada@example.com' };
+const name = get(user, 'name'); // string
+const id   = get(user, 'id');   // number
+const oops = get(user, 'foo');  // ❌ Argument of type '"foo"' is not assignable
+```
+
+`keyof T` is a union of T's keys. `T[K]` is the type of the value at that key. `Pick`, `Omit`, and `Record` in the standard library are built on this pattern.
+
+**2. The "container with a payload" pattern** — react-style props, API responses.
+
+```ts
+type ApiResponse<T> =
+  | { ok: true; data: T }
+  | { ok: false; error: string };
+
+async function getUser(id: string): Promise<ApiResponse<{ name: string }>> {
+  // ...
+}
+
+const res = await getUser('42');
+if (res.ok) {
+  res.data.name; // ✓
+} else {
+  res.error; // ✓
+}
+```
+
+## When NOT to use generics
+
+Generics are a hammer. Not everything is a nail.
+
+- **If you only call the function with one type, don't make it generic.** "Future flexibility" is a smell.
+- **If `T` only appears once in the signature, you probably don't need it.** A single-occurrence type parameter is often a fancy way to write `unknown`.
+- **If a union would do, use a union.** `function pad(s: string | number)` is clearer than `function pad<T extends string | number>(s: T)` if the function doesn't preserve `T`.
+
+<Callout variant="warn" title="Heuristic">
+A type parameter earns its place when it appears in the input *and* the output, and the relationship between them matters.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/generics/generics"
+  questions={[
+    {
+      id: 'gen-1',
+      type: 'single',
+      prompt: 'What does `<T>` represent in `function first<T>(arr: T[]): T`?',
+      options: [
+        { value: 'a', label: 'A specific type, like number' },
+        { value: 'b', label: 'A type parameter — a placeholder filled in by the caller or by inference' },
+        { value: 'c', label: 'A runtime value' },
+        { value: 'd', label: 'A union of all primitive types' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'gen-2',
+      type: 'single',
+      prompt: 'You write `function get<T, K extends keyof T>(obj: T, key: K): T[K]`. The `K extends keyof T` part means…',
+      options: [
+        { value: 'a', label: 'K must be a class that extends T' },
+        { value: 'b', label: 'K must be one of the keys of T' },
+        { value: 'c', label: 'K and T are the same type' },
+        { value: 'd', label: 'K is a runtime value of T' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'gen-3',
+      type: 'single',
+      prompt: 'Which of these is a smell that you may NOT need a generic?',
+      options: [
+        { value: 'a', label: 'The type parameter appears in both the input and the return type' },
+        { value: 'b', label: 'The type parameter appears only once in the signature' },
+        { value: 'c', label: 'The function operates on collections of unknown element type' },
+        { value: 'd', label: 'Callers want the return type to depend on what they passed in' },
+      ],
+      answer: 'b',
+      explanation: 'A single-occurrence type parameter usually does no work — `unknown` or a union would be just as clear.',
+    },
+  ]}
+/>
+
+## What's next
+
+Generics get truly powerful when they meet **constraints + conditional types**. We unlock the next level in *Type-Level Programming*.
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/generics/generics"
+  lessonHref="/paths/typescript/generics/generics/"
+  lessonTitle="Generics in TypeScript"
+  nextHref="/paths/typescript/"
+  nextTitle="TypeScript roadmap"
+/>

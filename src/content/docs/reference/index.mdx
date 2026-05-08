@@ -1,0 +1,25 @@
+---
+title: Reference
+description: Learner-friendly docs for HTML elements, CSS properties, JavaScript APIs, and Web Platform APIs.
+---
+
+import PathCard from '~/components/PathCard.astro';
+
+The Atlas reference is **MDN, but written for learners**. Same coverage, different voice. Less spec-language, more "here's what you'd actually use this for."
+
+<div class="atlas-grid atlas-grid--cards">
+  <PathCard number="HTML" href="/reference/html/" title="HTML elements"
+    description="Every element with examples, accessibility notes, and the gotchas the spec doesn't warn you about."
+    accent="#e25c64" />
+  <PathCard number="CSS" href="/reference/css/" title="CSS properties & at-rules"
+    description="Every property, every value, with a working visual."
+    accent="#F5B14A" />
+  <PathCard number="JS" href="/reference/js/" title="JavaScript APIs"
+    description="Standard library — Array, Promise, Date, Intl. Plus the modern bits you missed."
+    accent="#3178c6" />
+  <PathCard number="WEB" href="/reference/web-apis/" title="Web Platform APIs"
+    description="Fetch, Storage, IndexedDB, Geolocation, Web Share, WebSocket. The browser's hidden superpowers."
+    accent="#2bb4a4" />
+</div>
+
+> **Status: under construction.** The reference is the largest single chunk of Atlas content. We're filling it in module by module — starting with the elements and properties most-used in the lessons. Watch this space (or [contribute](/contribute/)).

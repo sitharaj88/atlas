@@ -1,0 +1,130 @@
+---
+title: Contribute to Atlas
+description: How to add or improve a lesson, fix a typo, or build a new component. Atlas is open source.
+---
+
+import Callout from '~/components/Callout.astro';
+
+> Atlas is **MIT for code, CC BY-SA 4.0 for content**, and we want your help. The first contribution everyone makes is the hardest. Pick a typo, send a one-line PR, get the rust off — then come back for something bigger.
+
+## Quickest possible contribution
+
+Every lesson has an **Edit on GitHub** link in the right sidebar. Click it, fix what you spotted, hit **Propose changes**. GitHub guides you through forking, branching, and opening a PR. Total time: 60 seconds.
+
+## Setting up locally
+
+```bash
+git clone https://github.com/sitharaj/atlas.git
+cd atlas
+pnpm install
+pnpm dev
+# open http://localhost:4321
+```
+
+Lessons live under `src/content/docs/`. Hot reload picks up your edits immediately.
+
+## The lesson template
+
+Every lesson follows the same shape so the site reads consistently. Use this as a starting point:
+
+````mdx
+---
+title: Your lesson title
+description: One-sentence summary used for the sidebar, search snippets, and OG image.
+sidebar:
+  order: 1
+pathSlug: foundations              # the path slug
+module: web-platform               # the module within the path
+lessonNumber: 1
+difficulty: beginner               # beginner | intermediate | advanced
+duration: 12 min
+prerequisites:
+  - Comfortable with HTML
+objectives:
+  - Concrete thing 1
+  - Concrete thing 2
+tags: [http, fundamentals]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** A one-paragraph promise.
+
+## Section heading
+
+Body in clear, plain English. Treat the reader as smart but new.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="path/module/slug"
+  questions={[ /* ... */ ]}
+/>
+
+## What's next
+
+A natural pointer to the next lesson.
+
+<LessonComplete
+  client:idle
+  lessonId="path/module/slug"
+  lessonHref="/paths/.../slug/"
+  lessonTitle="Your lesson title"
+  nextHref="/paths/.../"
+  nextTitle="Module roadmap"
+/>
+````
+
+## Components you can use in MDX
+
+- **`<Callout variant="note|tip|warn|danger|success" title="...">`** — for asides.
+- **`<Playground client:visible template="static|react|vue|svelte" files={...} />`** — embedded live code editor (Sandpack).
+- **`<StackBlitz project="..." file="src/index.ts" />`** — for examples that need Node or full-stack.
+- **`<Quiz client:idle lessonId="..." questions={...} />`** — quizzes with persistence.
+- **`<LessonComplete client:idle ...>`** — the "mark complete" widget at the end of a lesson.
+- **`<GlossaryTerm term="..." defn="...">word</GlossaryTerm>`** — hover-tooltip definitions.
+- **`<ProgressBar client:idle lessonIds={[...]} />`** — path progress.
+- **`<Roadmap client:visible nodes={...} edges={...} />`** — visual roadmaps.
+
+## Voice & style
+
+- **Plain English first.** "It runs on the server" not "It is server-side rendered, which is to say…"
+- **Treat the reader like an adult.** Don't pad with "easy!" or "amazing!" Cut filler.
+- **Show, then explain, then show.** Open with a code snippet. Explain it. Show variations.
+- **Lessons are 10–15 minutes.** If yours is 30, split it.
+- **Quiz with care.** Each question should test the *concept*, not memorization.
+- **Cite generously, link sparingly.** Don't paste 30 outbound links — they bit-rot. Link to MDN/specs only when there's no Atlas equivalent yet.
+
+## What makes a good lesson PR
+
+1. Follows the template above.
+2. New file path matches the URL: `src/content/docs/paths/<path>/<module>/<lesson>.mdx` → `/paths/<path>/<module>/<lesson>/`.
+3. Quiz questions have stable `id`s (the `lessonId/qN` convention is fine).
+4. `pnpm build` passes locally — no broken links, no schema errors.
+5. The lesson is self-contained — doesn't depend on lessons that don't exist yet.
+
+## Larger changes
+
+Open an issue *first* for:
+
+- New paths or restructuring of existing paths
+- New components (Quiz, Playground, etc. variants)
+- Visual/branding changes
+- Anything touching `astro.config.mjs` or build pipeline
+
+A 5-minute discussion saves a 5-hour rewrite.
+
+## Translations
+
+Atlas's framework is i18n-ready (it's Starlight) but English-only at v1. If you want to start a translation, open an issue — happy to support it.
+
+## Code of conduct
+
+Be kind. Assume the other person is doing their best. Disagree with ideas, not people. Atlas follows the [Contributor Covenant](https://www.contributor-covenant.org/version/2/1/code_of_conduct/).
+
+<Callout variant="success" title="Thank you">
+Every typo fix, every clearer paragraph, every new lesson — they all add up. Future-you will be grateful to past-you for the PRs you sent.
+</Callout>

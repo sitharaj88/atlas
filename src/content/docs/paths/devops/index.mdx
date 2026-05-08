@@ -1,0 +1,60 @@
+---
+title: 8 · DevOps for Web Developers
+description: Git deep-dive, GitHub Actions, Docker, deployment to Pages/Vercel/Cloudflare/Fly, observability.
+sidebar:
+  order: 0
+---
+
+import ProgressBar from '~/components/ProgressBar.tsx';
+
+> **For:** developers who want to own the path from code to production. **Time:** ~14 hours over 6 modules. **Outcome:** you can set up CI/CD, deploy confidently, and operate what you ship.
+
+<ProgressBar
+  client:idle
+  label="DevOps progress"
+  lessonIds={[
+    'devops/deploy/github-pages',
+  ]}
+/>
+
+## Path map
+
+### Module 1 · Git, Properly
+- The mental model: commits, refs, the index
+- Branching strategies — trunk-based, GitFlow, when each fits
+- Rebase vs. merge — religion meets reality
+- `reflog`, `cherry-pick`, `bisect` — the rescue toolkit
+
+### Module 2 · GitHub Actions
+- Workflows, jobs, steps, runners
+- Matrix builds, caching, artifacts
+- Reusable workflows and composite actions
+- Secrets management — and where they leak
+
+### Module 3 · Container Basics
+- Docker without the mystique
+- Multi-stage builds for tiny images
+- `docker compose` for local dev
+
+### Module 4 · Deployment Targets
+- GitHub Pages for static sites
+- [Deploy to GitHub Pages with Actions](/paths/devops/deploy/github-pages/) ← **sample lesson**
+- Vercel, Netlify, Cloudflare Pages — the static + edge stack
+- Fly.io, Railway, Render — running real servers
+- Your own VPS — when (and how)
+
+### Module 5 · Observability
+- Logs, metrics, traces — the three pillars
+- OpenTelemetry, the vendor-neutral standard
+- Sentry, Honeycomb, Grafana — picking tools
+
+### Module 6 · Operating Production
+- Feature flags
+- Canary and blue/green deploys
+- Incident response — the human part
+
+---
+
+## When you finish
+
+Combine with [Testing & Quality](/paths/testing/) (so CI catches issues), [Performance, A11y & SEO](/paths/performance-a11y-seo/) (perf budgets that fail the build), and [The Modern Frontier](/paths/frontier/) (edge runtimes, real-time, AI).

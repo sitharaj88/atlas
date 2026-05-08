@@ -1,0 +1,280 @@
+---
+title: Glossary
+description: A–Z definitions for the vocabulary of the modern web. Concise, learner-friendly.
+---
+
+> The web has more jargon than a medical journal. Here's the plain-English vocabulary you'll meet across Atlas. Press **/** to search.
+
+## A
+
+### Accessibility (a11y)
+The practice of building websites usable by everyone, including people with disabilities. The standard is **WCAG** — see *WCAG*. ([learn more →](/paths/performance-a11y-seo/))
+
+### API
+**Application Programming Interface** — a contract that lets one program use another. On the web, usually means an HTTP API serving JSON.
+
+### ARIA
+**Accessible Rich Internet Applications** — attributes (`aria-label`, `aria-live`, etc.) that fill the gaps between native HTML semantics and what assistive tech needs.
+
+### Astro
+A static-site framework that ships zero JavaScript by default and adds interactivity in *islands*. Atlas itself is built on Astro.
+
+### Async / await
+JavaScript syntax for working with Promises. `await` pauses inside an `async` function until a Promise resolves.
+
+## B
+
+### Bundle / bundler
+The single (or split) JavaScript file your build tool produces from many source files. Bundlers (Vite, Webpack, esbuild, Rspack, Turbopack) optimize for production.
+
+### Browser
+The user agent that loads, parses, and renders the web. The big four: Chromium, Firefox, WebKit, and (still) Internet Explorer's ghost.
+
+## C
+
+### Cache
+A temporary store of previously-fetched data. The browser, the CDN, your service worker, and your server all have caches. Cache invalidation is famously hard.
+
+### Cascade (CSS)
+The algorithm that decides which CSS rule wins when multiple rules apply. Origin → layer → specificity → order, in that priority.
+
+### CDN
+**Content Delivery Network.** A geographically distributed cache for static assets. Cloudflare, Fastly, and Bunny are popular.
+
+### CLS — Cumulative Layout Shift
+One of three Core Web Vitals. Measures unexpected jumping around during page load. ([learn more →](/paths/performance-a11y-seo/web-vitals/core-web-vitals/))
+
+### Component
+A reusable, self-contained piece of UI. Frameworks like React, Vue, and Svelte build apps by composing components.
+
+### Container query
+CSS that responds to a *container's* size, not the viewport's. ([learn more →](/paths/modern-css/layout/container-queries/))
+
+### CRDT
+**Conflict-free Replicated Data Type.** A data structure that lets multiple users edit the same thing concurrently without coordination. Powers tools like Liveblocks and Yjs.
+
+### CSP — Content Security Policy
+An HTTP header that tells browsers what scripts/styles/images they're allowed to load. Your defense against XSS.
+
+### CSS
+**Cascading Style Sheets** — the language for visual presentation on the web.
+
+## D
+
+### DOM — Document Object Model
+The tree structure the browser builds from your HTML. JavaScript reads and writes the DOM to make pages interactive.
+
+### DNS — Domain Name System
+The phonebook of the internet. Turns `atlas.dev` into an IP address.
+
+### Drizzle
+A modern TypeScript ORM that gives you type-safe SQL with minimal magic. ([Full-Stack path →](/paths/full-stack/))
+
+## E
+
+### Edge runtime
+A JavaScript runtime that runs at CDN edge nodes — geographically close to users — instead of in one central data center. Cloudflare Workers, Vercel Edge, Deno Deploy.
+
+### ECMAScript
+The standard that defines JavaScript. "ES2026" means the 2026 edition. ESM = ECMAScript Modules.
+
+## F
+
+### Fetch
+The standard browser API for making HTTP requests. Replaced `XMLHttpRequest`.
+
+### First Contentful Paint (FCP)
+When the browser first renders any visible content. An older metric; LCP is more meaningful today.
+
+### Flexbox
+A CSS layout method for one-dimensional layouts (rows or columns). ([cheatsheet →](/cheatsheets/flexbox/))
+
+## G
+
+### Generic
+A type parameter — `<T>` — that lets a function or type work over many types. ([learn more →](/paths/typescript/generics/generics/))
+
+### GitHub Actions
+GitHub's CI/CD system. Runs workflows on push, PR, schedule, etc.
+
+### GitHub Pages
+GitHub's free static site hosting. Serves directly from a repo. ([learn more →](/paths/devops/deploy/github-pages/))
+
+### GraphQL
+A query language for APIs. Clients ask for exactly the fields they need.
+
+### Grid (CSS)
+A two-dimensional CSS layout system. Pairs with Flexbox; reach for Grid when you have rows AND columns.
+
+## H
+
+### Hono
+A small, fast web framework that runs on every JS runtime — Node, Bun, Deno, Cloudflare Workers. ([learn more →](/paths/full-stack/apis/rest-api-hono/))
+
+### HTML
+**HyperText Markup Language** — the structure of a web page.
+
+### HTTP
+**HyperText Transfer Protocol** — the request/response protocol the web speaks. HTTPS = HTTP + TLS.
+
+### Hydration
+The process where a browser takes server-rendered HTML and attaches event handlers and state, making it interactive.
+
+## I
+
+### IndexedDB
+The browser's built-in NoSQL database. Use for substantial structured data; localStorage for small key-value.
+
+### INP — Interaction to Next Paint
+One of three Core Web Vitals. Measures how responsive your page feels to clicks, taps, and key presses. Replaced FID. ([learn more →](/paths/performance-a11y-seo/web-vitals/core-web-vitals/))
+
+### Islands architecture
+Render most of a page as static HTML on the server; hydrate only the small interactive "islands" on the client. Astro and Fresh popularized the pattern.
+
+## J
+
+### JSX
+Syntax that lets you write HTML-like markup inside JavaScript. Used by React, Solid, Preact.
+
+### JWT
+**JSON Web Token.** A signed JSON blob used for stateless authentication. Often misused; sessions are usually simpler.
+
+## L
+
+### LCP — Largest Contentful Paint
+One of three Core Web Vitals. When the largest visible element finished rendering. ([learn more →](/paths/performance-a11y-seo/web-vitals/core-web-vitals/))
+
+### Lighthouse
+Google's open-source page-quality auditor. Built into Chrome DevTools.
+
+### localStorage
+The browser's simple key/value store. String-only, synchronous, ~5MB limit. For anything bigger or structured, use IndexedDB.
+
+## M
+
+### MCP — Model Context Protocol
+A standard for connecting LLMs to tools and data sources. Like LSP, but for AI.
+
+### MDX
+Markdown that lets you import and use components inline. Powers most modern documentation sites.
+
+### Media query
+CSS that responds to viewport (or device) characteristics. Pre-Container-Query way to do responsive design.
+
+### Middleware
+Code that runs between the request arriving and the route handler executing — logging, auth, CORS.
+
+## O
+
+### OAuth / OIDC
+The protocols behind "Sign in with Google/GitHub/etc." OAuth handles authorization; OIDC adds an identity layer on top.
+
+### OG — Open Graph
+The metadata tags (`og:title`, `og:image`) that determine how a link looks when pasted into Slack, iMessage, Twitter.
+
+### ORM
+**Object-Relational Mapper.** Translates between database rows and your code's objects. Drizzle, Prisma, Kysely.
+
+### OWASP
+The Open Web Application Security Project. Their "Top 10" is the canonical list of web app vulnerabilities.
+
+## P
+
+### Pagefind
+A static-site search index, built at compile time, fully client-side at runtime. What Atlas uses for `/`-search.
+
+### Playwright
+A modern end-to-end testing framework that drives real browsers (Chromium, Firefox, WebKit). ([learn more →](/paths/testing/e2e/first-playwright-test/))
+
+### PWA — Progressive Web App
+A website with a manifest and service worker that can be installed and run offline. Atlas itself is a PWA.
+
+### Promise
+A JavaScript object representing a future value (or error). The foundation of `async`/`await`.
+
+## R
+
+### RSC — React Server Components
+React components that run on the server and don't ship to the client. ([learn more →](/paths/frontend-frameworks/react/server-components/))
+
+### Render
+The process of turning your code/data into pixels (in a browser) or HTML (on a server).
+
+### REST
+A style of API design that uses HTTP methods on resource-oriented URLs. The default for most public APIs.
+
+## S
+
+### Sandpack
+An embeddable code editor + bundler from CodeSandbox. Powers the live playgrounds in Atlas lessons.
+
+### Server Action
+A function marked `"use server"` that the client can call as if it were local — runs on the server. React's modern RPC.
+
+### Service Worker
+A script the browser runs in the background — intercepts network requests, caches assets, enables offline.
+
+### Shiki
+A syntax highlighter that uses VS Code's grammars and themes. Produces HTML at build time — zero JavaScript on the client.
+
+### SPA — Single-Page Application
+A site that loads once, then updates the URL and content client-side. The trade-off: rich interactivity vs. slower first paint.
+
+### SSE — Server-Sent Events
+HTTP-based one-way streaming from server to client. Simpler than WebSockets when you don't need bidirectional traffic.
+
+### SSR — Server-Side Rendering
+Generating HTML on the server for each request. Pairs with hydration on the client.
+
+### Starlight
+The Astro-based documentation framework that powers Atlas's content shell.
+
+### Suspense
+React's primitive for declaring "this part might not be ready yet" — and showing a fallback while it loads.
+
+## T
+
+### Tailwind CSS
+A utility-first CSS framework. You compose styles from class names like `flex p-4 text-lg`.
+
+### TLS
+**Transport Layer Security.** The encryption layer that turns HTTP into HTTPS.
+
+### tRPC
+End-to-end type safety for client-server calls without a schema language. The types travel with your code.
+
+### TypeScript
+A superset of JavaScript that adds static types. Compiles to JS. ([path →](/paths/typescript/))
+
+## V
+
+### Vite
+A modern dev server and build tool. Fast HMR, native ESM, used by most frameworks.
+
+### Vitest
+A test runner from the Vite ecosystem. Jest-compatible API, faster, and ESM-native.
+
+## W
+
+### WCAG
+**Web Content Accessibility Guidelines.** The international standard for web a11y. Levels A, AA (most legal regs cite this), AAA.
+
+### WebAssembly (Wasm)
+A binary format that runs in the browser at near-native speed. Used for heavy compute (image processing, games, simulators).
+
+### WebGPU
+The modern, low-level graphics API for the browser. Replaces WebGL for new code.
+
+### WebSocket
+A bidirectional, persistent connection between browser and server. For chat, collab, real-time dashboards.
+
+### Worker
+A thread that runs JavaScript without blocking the main thread. Web Workers run in the page; Service Workers intercept network.
+
+## Z
+
+### Zod
+A TypeScript-first schema validation library. Validate at runtime, get types for free.
+
+### Zustand
+A tiny, ergonomic React state management library. What Atlas uses for progress tracking.

@@ -1,0 +1,154 @@
+/* Atlas — Design tokens
+ * Maps cartography-inspired colors and a modern type scale onto Starlight's CSS variables.
+ *
+ * IMPORTANT: Starlight's gray scale is inverted between dark and light modes.
+ *   Dark  mode: gray-1 = lightest (text), gray-7 = darkest (panel bg).
+ *   Light mode: gray-1 = darkest  (text), gray-7 = lightest (panel bg).
+ * Many Starlight components reference these directly, so we mirror the convention.
+ */
+
+:root {
+  /* Brand */
+  --atlas-navy-50:  #f1f5fa;
+  --atlas-navy-100: #d9e2ee;
+  --atlas-navy-200: #b3c5dd;
+  --atlas-navy-300: #7e9abf;
+  --atlas-navy-400: #4d6f9b;
+  --atlas-navy-500: #2c4d7c;
+  --atlas-navy-600: #1c3963;
+  --atlas-navy-700: #142b4c;
+  --atlas-navy-800: #0e2039;
+  --atlas-navy-900: #0b1b2b;
+  --atlas-navy-950: #060f1a;
+
+  --atlas-amber-50:  #fff8ec;
+  --atlas-amber-100: #fdecc7;
+  --atlas-amber-200: #fbd685;
+  --atlas-amber-300: #f9c34f;
+  --atlas-amber-400: #f5b14a;
+  --atlas-amber-500: #e8951f;
+  --atlas-amber-600: #c47312;
+  --atlas-amber-700: #9b5611;
+  --atlas-amber-800: #7c4413;
+  --atlas-amber-900: #663812;
+
+  --atlas-teal-500:  #2bb4a4;
+  --atlas-rose-500:  #e25c64;
+  --atlas-leaf-500:  #6abf6e;
+
+  /* Type scale (modular, ratio 1.2) */
+  --atlas-font-sans:
+    'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
+    sans-serif;
+  --atlas-font-mono:
+    ui-monospace, 'JetBrains Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
+  --atlas-font-display: 'Fraunces', 'Playfair Display', ui-serif, Georgia, serif;
+
+  --atlas-fs-xs: 0.78rem;
+  --atlas-fs-sm: 0.875rem;
+  --atlas-fs-base: 1rem;
+  --atlas-fs-md: 1.125rem;
+  --atlas-fs-lg: 1.25rem;
+  --atlas-fs-xl: 1.5rem;
+  --atlas-fs-2xl: 1.875rem;
+  --atlas-fs-3xl: 2.25rem;
+  --atlas-fs-4xl: 3rem;
+  --atlas-fs-5xl: 3.75rem;
+
+  /* Spacing (base 4px) */
+  --atlas-sp-1: 0.25rem;
+  --atlas-sp-2: 0.5rem;
+  --atlas-sp-3: 0.75rem;
+  --atlas-sp-4: 1rem;
+  --atlas-sp-5: 1.25rem;
+  --atlas-sp-6: 1.5rem;
+  --atlas-sp-8: 2rem;
+  --atlas-sp-10: 2.5rem;
+  --atlas-sp-12: 3rem;
+  --atlas-sp-16: 4rem;
+  --atlas-sp-20: 5rem;
+
+  /* Radii */
+  --atlas-radius-sm: 4px;
+  --atlas-radius-md: 8px;
+  --atlas-radius-lg: 14px;
+  --atlas-radius-xl: 22px;
+  --atlas-radius-pill: 999px;
+
+  /* Shadows (light) */
+  --atlas-shadow-sm: 0 1px 2px rgba(11, 27, 43, 0.06);
+  --atlas-shadow-md: 0 4px 14px rgba(11, 27, 43, 0.08);
+  --atlas-shadow-lg: 0 12px 32px rgba(11, 27, 43, 0.12);
+
+  /* Motion */
+  --atlas-ease: cubic-bezier(0.2, 0.65, 0.2, 1);
+  --atlas-dur-fast: 120ms;
+  --atlas-dur-base: 240ms;
+  --atlas-dur-slow: 480ms;
+}
+
+/* ---------- Dark theme (default Starlight order: gray-1 light → gray-7 dark) ---------- */
+:root,
+:root[data-theme='dark'] {
+  --sl-color-white: #ffffff;
+  --sl-color-gray-1: #ecf0f7; /* page text on dark bg */
+  --sl-color-gray-2: #c5cde0;
+  --sl-color-gray-3: #8e9bbb; /* muted text on dark bg */
+  --sl-color-gray-4: #5a6889;
+  --sl-color-gray-5: #38436a;
+  --sl-color-gray-6: #1c2643; /* panel borders / sidebar bg */
+  --sl-color-gray-7: var(--atlas-navy-950);
+  --sl-color-black: #04080f; /* page bg in dark */
+
+  --sl-color-accent-low: #2a1c0a;
+  --sl-color-accent: var(--atlas-amber-400);
+  --sl-color-accent-high: var(--atlas-amber-200);
+
+  --sl-color-text: var(--sl-color-gray-2);
+  --sl-color-text-accent: var(--atlas-amber-300);
+  --sl-color-bg: var(--atlas-navy-900);
+  --sl-color-bg-nav: var(--atlas-navy-950);
+  --sl-color-bg-sidebar: var(--atlas-navy-950);
+  --sl-color-bg-inline-code: rgba(245, 177, 74, 0.12);
+  --sl-color-hairline-light: rgba(255, 255, 255, 0.06);
+  --sl-color-hairline: rgba(255, 255, 255, 0.1);
+  --sl-color-hairline-shade: rgba(255, 255, 255, 0.18);
+
+  --sl-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --sl-shadow-md: 0 6px 18px rgba(0, 0, 0, 0.45);
+  --sl-shadow-lg: 0 14px 36px rgba(0, 0, 0, 0.5);
+
+  --sl-font-system: var(--atlas-font-sans);
+  --sl-font-system-mono: var(--atlas-font-mono);
+}
+
+/* ---------- Light theme (INVERTED: gray-1 dark → gray-7 light) ---------- */
+:root[data-theme='light'] {
+  --sl-color-white: #060f1a; /* "white" is the highest-emphasis color → near-black on light */
+  --sl-color-gray-1: #142b4c; /* headings & strong text */
+  --sl-color-gray-2: #1c3963; /* body text */
+  --sl-color-gray-3: #3d4f74; /* muted text — must remain readable on light */
+  --sl-color-gray-4: #6b7a99; /* secondary muted */
+  --sl-color-gray-5: #c1c9da; /* dividers, light borders */
+  --sl-color-gray-6: #e7eaf2; /* panel bg */
+  --sl-color-gray-7: #f4f6fb; /* sidebar bg */
+  --sl-color-black: #ffffff; /* "black" is page bg on light = white */
+
+  --sl-color-accent-low: #fff5e1;
+  --sl-color-accent: var(--atlas-amber-500);
+  --sl-color-accent-high: #7c4413;
+
+  --sl-color-text: var(--sl-color-gray-2);
+  --sl-color-text-accent: #7c4413; /* WCAG-AA on white */
+  --sl-color-bg: #ffffff;
+  --sl-color-bg-nav: #ffffff;
+  --sl-color-bg-sidebar: #f4f6fb;
+  --sl-color-bg-inline-code: var(--atlas-navy-50);
+  --sl-color-hairline-light: rgba(11, 27, 43, 0.06);
+  --sl-color-hairline: rgba(11, 27, 43, 0.1);
+  --sl-color-hairline-shade: rgba(11, 27, 43, 0.18);
+
+  --sl-shadow-sm: var(--atlas-shadow-sm);
+  --sl-shadow-md: var(--atlas-shadow-md);
+  --sl-shadow-lg: var(--atlas-shadow-lg);
+}

@@ -1,0 +1,109 @@
+---
+title: Flexbox cheatsheet
+description: Every flex property and value, in one place, with the visual it produces.
+sidebar:
+  order: 1
+tags: [css, flexbox, cheatsheet]
+---
+
+import Callout from '~/components/Callout.astro';
+
+> **Print this page.** It's designed for it. (Cmd-P / Ctrl-P)
+
+## Container properties
+
+These go on the **flex container** (`display: flex`).
+
+| Property | Values | What it does |
+|---|---|---|
+| `display` | `flex` · `inline-flex` | Turns the element into a flex container. |
+| `flex-direction` | `row` · `row-reverse` · `column` · `column-reverse` | Axis along which children flow. |
+| `flex-wrap` | `nowrap` · `wrap` · `wrap-reverse` | Whether children wrap to new lines. |
+| `flex-flow` | shorthand | `flex-direction flex-wrap` in one. |
+| `justify-content` | `flex-start` · `center` · `flex-end` · `space-between` · `space-around` · `space-evenly` | Alignment along the **main** axis. |
+| `align-items` | `stretch` · `flex-start` · `center` · `flex-end` · `baseline` | Alignment along the **cross** axis. |
+| `align-content` | (same as justify-content + `stretch`) | Alignment of **wrapped lines** along the cross axis. Ignored when there's only one line. |
+| `gap` | `<length>` | Space between children. (`row-gap`, `column-gap` separately if needed.) |
+
+## Item properties
+
+These go on the **flex children**.
+
+| Property | Values | What it does |
+|---|---|---|
+| `flex-grow` | `<number>` (default `0`) | How much extra space this item takes. |
+| `flex-shrink` | `<number>` (default `1`) | How much this item shrinks when there's not enough space. |
+| `flex-basis` | `<length>` · `auto` | The starting size before grow/shrink. |
+| `flex` | shorthand | `flex-grow flex-shrink flex-basis`, e.g. `flex: 1` (= `1 1 0`). |
+| `align-self` | `auto` · (align-items values) | Override `align-items` for one child. |
+| `order` | `<integer>` (default `0`) | Visual order; lower first. (Doesn't reorder for screen readers — be careful.) |
+
+## The two axes
+
+```text
+flex-direction: row        →  main is →  | cross is ↓
+flex-direction: column     →  main is ↓  | cross is →
+flex-direction: row-reverse → main is ←  | cross is ↓
+```
+
+`justify-content` is on the **main** axis. `align-items` is on the **cross** axis. Mix them up at your peril; once you have this picture, you stop guessing.
+
+## Common recipes
+
+**Center a single child both axes:**
+```css
+.parent { display: flex; justify-content: center; align-items: center; }
+```
+
+**Spread items across, with equal gaps:**
+```css
+.parent { display: flex; justify-content: space-between; }
+```
+
+**Sidebar + flexible main column:**
+```css
+.parent { display: flex; gap: 1rem; }
+.sidebar { flex: 0 0 16rem; }   /* fixed 16rem */
+.main    { flex: 1; }            /* takes the rest */
+```
+
+**Equal-width columns:**
+```css
+.parent { display: flex; gap: 1rem; }
+.col    { flex: 1; }            /* every column gets equal share */
+```
+
+**Wrap into rows, items grow to fill last line:**
+```css
+.parent { display: flex; flex-wrap: wrap; gap: 1rem; }
+.item   { flex: 1 1 12rem; }   /* min 12rem, can grow */
+```
+
+**Push one item to the end:**
+```css
+.parent { display: flex; }
+.spacer { margin-left: auto; }   /* the magic */
+```
+
+## Things that bite
+
+<Callout variant="warn" title="Common pitfalls">
+
+- `align-items: stretch` (the default) makes all children the same height. If you don\'t want that, set `align-items: flex-start`.
+- `flex: 1` is `1 1 0`, **not** `1 1 auto`. The `0` basis is what makes equal-width columns equal. Use `flex: auto` (= `1 1 auto`) when you want items sized by content first.
+- `min-width: 0` rescues flex children whose content overflows (long text, intrinsically wide images). The default `min-width: auto` won\'t shrink below content size.
+- `justify-self` does **not** work on flex children. (It works in Grid. In flex, use `auto` margins.)
+- `order` and `flex-direction: *-reverse` change visual order, not DOM order. Tab-stops and screen-reader order follow the DOM. Be careful.
+
+</Callout>
+
+## Mental shortcuts
+
+- **"justify"** has letters in common with **"main"** (kind of) → `justify-content` is the **main** axis.
+- **"align"** is shorter, like the **cross** axis is shorter → `align-items` is the **cross** axis.
+- **`flex: 1`** is the answer 80% of the time you want "fill remaining space."
+- **`gap`** is almost always what you want — not margins.
+
+---
+
+Save it. Print it. Send it to that one teammate who keeps writing `align-items: space-between`.

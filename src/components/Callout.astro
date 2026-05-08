@@ -1,0 +1,50 @@
+---
+interface Props {
+  variant?: 'note' | 'tip' | 'warn' | 'danger' | 'success';
+  title?: string;
+}
+const { variant = 'note', title } = Astro.props;
+const icons: Record<string, string> = {
+  note: 'ⓘ',
+  tip: '★',
+  warn: '!',
+  danger: '⚠',
+  success: '✓',
+};
+---
+
+<aside class={`atlas-callout atlas-callout--${variant}`} role="note">
+  <div class="atlas-callout__icon" aria-hidden="true">{icons[variant]}</div>
+  <div class="atlas-callout__body">
+    {title && <p class="atlas-callout__title">{title}</p>}
+    <slot />
+  </div>
+</aside>
+
+<style>
+  .atlas-callout {
+    --c: var(--atlas-navy-500);
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.9rem;
+    padding: 1rem 1.1rem;
+    margin: 1.4rem 0;
+    border-left: 3px solid var(--c);
+    background: color-mix(in srgb, var(--c) 8%, var(--sl-color-bg));
+    border-radius: var(--atlas-radius-md);
+  }
+  .atlas-callout__icon {
+    width: 1.6rem; height: 1.6rem; border-radius: 999px;
+    display: grid; place-items: center;
+    background: var(--c); color: white; font-weight: 700; font-size: 0.85rem;
+    flex-shrink: 0;
+  }
+  .atlas-callout__title {
+    margin: 0 0 0.3rem; font-weight: 700; color: var(--c);
+  }
+  .atlas-callout__body :global(p:last-child) { margin-bottom: 0; }
+  .atlas-callout--tip      { --c: var(--atlas-amber-500); }
+  .atlas-callout--warn     { --c: #c47312; }
+  .atlas-callout--danger   { --c: var(--atlas-rose-500); }
+  .atlas-callout--success  { --c: var(--atlas-leaf-500); }
+</style>

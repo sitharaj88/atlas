@@ -1,0 +1,271 @@
+---
+title: Calling LLMs from your app — the architecture
+description: How to integrate a Large Language Model into a web app — where the keys live, how to stream responses, and the patterns that scale.
+sidebar:
+  order: 1
+pathSlug: frontier
+module: ai
+lessonNumber: 1
+difficulty: advanced
+duration: 18 min
+prerequisites:
+  - You've shipped a full-stack web app
+  - Comfortable with `fetch` and async/await
+objectives:
+  - Place the LLM call on the right side of the network
+  - Stream tokens to the browser so the UI doesn't sit silent
+  - Apply prompt caching and rate limits to keep cost predictable
+tags: [ai, llm, frontier, architecture]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** A correct mental model for *where* an LLM call lives in a web app, *how* tokens get to the browser, and the small set of patterns that turn a "demo" into a real feature.
+
+## The first decision: where does the call happen?
+
+You have three options, and only two of them are actually safe.
+
+### ❌ From the browser, with your API key in JS
+
+```js
+// DON'T DO THIS
+const res = await fetch('https://api.anthropic.com/v1/messages', {
+  headers: { 'x-api-key': 'sk-ant-...' }, // ← burned in JS bundle
+  ...
+});
+```
+
+Your key is now visible to anyone who opens DevTools. Within hours of going live, somebody else is making requests with it — at your expense. **Never put a provider API key in browser-shipped code.**
+
+### ✅ From your server, browser → server → LLM
+
+```text
+Browser ──fetch──► Your server ──HTTP──► LLM API
+   ▲                    │
+   └──── stream ────────┘
+```
+
+Your server holds the key. Browser sends the user's prompt to your server; your server sends it to the LLM; you stream the response back. This is the default architecture for 95% of LLM features.
+
+### ✅ From an edge function (still a server, deployed at the CDN edge)
+
+```text
+Browser ──► Edge function (Cloudflare Worker / Vercel Edge) ──► LLM API
+```
+
+Same architecture, but the "server" is a tiny stateless function close to the user. Lower latency, often cheaper. Same security properties — the key is in environment variables on the platform, not in client code.
+
+<Callout variant="tip" title="The browser-only exception">
+Some on-device or first-party APIs *do* run in the browser — Chrome's built-in Translate/Summarize APIs, WebLLM, Transformers.js. Those don't need keys because they don't call a remote API. They're a different category. For OpenAI, Anthropic, Google, etc., always go through your server.
+</Callout>
+
+## A minimal Hono + Anthropic example
+
+```ts
+// src/server.ts
+import { Hono } from 'hono';
+import { streamText } from 'hono/streaming';
+import Anthropic from '@anthropic-ai/sdk';
+
+const app = new Hono();
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+app.post('/api/chat', async (c) => {
+  const { messages } = await c.req.json();
+
+  return streamText(c, async (stream) => {
+    const llmStream = client.messages.stream({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1024,
+      messages,
+    });
+
+    for await (const event of llmStream) {
+      if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+        await stream.write(event.delta.text);
+      }
+    }
+  });
+});
+```
+
+The flow:
+
+1. Browser POSTs the conversation so far.
+2. Server starts a streaming LLM request.
+3. As tokens come in, server writes them straight onto the response stream.
+4. Browser reads the stream and renders tokens as they arrive.
+
+The user sees the answer typing out — the same UX as ChatGPT — instead of staring at a spinner for 8 seconds.
+
+## Reading the stream in the browser
+
+Server-Sent-Events-style chunked text is dead simple to read in the browser:
+
+```ts
+const res = await fetch('/api/chat', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ messages }),
+});
+
+if (!res.body) throw new Error('No body');
+
+const reader = res.body.pipeThrough(new TextDecoderStream()).getReader();
+let answer = '';
+
+while (true) {
+  const { value, done } = await reader.read();
+  if (done) break;
+  answer += value;
+  setAnswer(answer); // React state — UI updates in real time
+}
+```
+
+`pipeThrough(new TextDecoderStream())` decodes the bytes for you. `setAnswer` triggers a re-render on every chunk. That's the entire client side.
+
+<Callout variant="warn" title="Don't re-render too often">
+For very fast streams (Claude Haiku can hit 100+ tokens/sec), you may want to throttle setAnswer to every animation frame using `requestAnimationFrame`. Otherwise, your component re-renders 100 times a second and INP suffers.
+</Callout>
+
+## Three patterns that scale
+
+### 1. **Prompt caching** — pay once for the long part
+
+Big context (a system prompt, a doc the user is asking about) is expensive to re-process on every turn. Most providers offer **prompt caching**: mark the static prefix as cacheable, and subsequent calls within ~5 minutes pay a fraction of the cost.
+
+```ts
+const res = await client.messages.create({
+  model: 'claude-sonnet-4-6',
+  system: [
+    {
+      type: 'text',
+      text: longSystemPrompt,
+      cache_control: { type: 'ephemeral' }, // ← cache it
+    },
+  ],
+  messages,
+});
+```
+
+For a chatbot answering questions about a 50-page manual, prompt caching can drop cost by 80–90% and latency by 30–50%. **It's the single biggest knob for cost.**
+
+### 2. **Rate limit per user** — protect cost and quality
+
+A free LLM endpoint on the public internet is a money pit waiting for a script kiddie. Rate-limit by IP, by session, or (best) by authenticated user. Cloudflare Workers' KV, Upstash Redis, or a tiny SQLite + sliding-window counter all work.
+
+```ts
+const allowed = await rateLimit({
+  key: `chat:${userId}`,
+  limit: 30,
+  window: '1h',
+});
+if (!allowed) return c.text('Slow down', 429);
+```
+
+### 3. **RAG when the model needs facts you have**
+
+If the user asks a question your model can't answer from training data — anything proprietary, recent, or specific to the user — **retrieve** the relevant docs first, then include them in the prompt:
+
+```text
+1. User asks "What's our refund policy for orders >$500?"
+2. Embed the question → query your vector DB → get top-3 docs.
+3. Prepend those docs to the system prompt.
+4. Call the LLM. Now it has facts to ground in.
+```
+
+This is **Retrieval-Augmented Generation (RAG)**. It's how most "chat with my documents" features work. The vector DB can be Postgres+pgvector, SQLite+sqlite-vec, Pinecone, or a flat JSON file with `cosine` if you have a few hundred chunks.
+
+## The eight-line cost model
+
+Cost = **(input tokens × input price) + (output tokens × output price)**
+
+For Claude Sonnet 4.6 in 2026, that's roughly $3 per million input tokens and $15 per million output tokens. To estimate per-request cost:
+
+- One token ≈ 0.75 English words. A 500-word system prompt ≈ 670 tokens.
+- A 200-word answer ≈ 270 tokens.
+- One turn of a chatbot with a 1,000-token system prompt and a 270-token answer:
+  - Input: 1,000 + previous-turns. Output: 270.
+  - At $3/M in, $15/M out: **(1,000 × $0.000003) + (270 × $0.000015) ≈ $0.007** per turn.
+- With prompt caching, the system prompt drops ~90%. Now ~$0.005.
+
+Run a back-of-envelope estimate before you ship. A single decision (cached vs. not, Haiku vs. Sonnet, RAG window size) often dominates the bill.
+
+<Callout variant="tip" title="Pick the smallest model that solves the problem">
+Use Claude Haiku 4.5 (fast, cheap) for classification, summarization, light Q&A. Use Sonnet 4.6 for general work. Reserve Opus 4.7 for hard reasoning. Most apps over-provision the model and overpay 5–10×.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/ai/calling-llms-from-the-browser"
+  questions={[
+    {
+      id: 'llm-1',
+      type: 'single',
+      prompt: 'Where should your LLM provider API key live?',
+      options: [
+        { value: 'a', label: 'In the JavaScript bundle, encrypted with a custom obfuscator' },
+        { value: 'b', label: 'On your server (or edge function) as an environment variable — never sent to the browser' },
+        { value: 'c', label: 'In a hidden HTML element that JS reads on page load' },
+        { value: 'd', label: 'In localStorage so it persists across sessions' },
+      ],
+      answer: 'b',
+      explanation: 'Anything shipped to the browser is public. Always proxy LLM calls through a server.',
+    },
+    {
+      id: 'llm-2',
+      type: 'single',
+      prompt: 'What does "prompt caching" do?',
+      options: [
+        { value: 'a', label: 'Caches the user\'s prompt locally so they can resend it' },
+        { value: 'b', label: 'Caches the model\'s response so identical requests are free' },
+        { value: 'c', label: 'Marks part of the prompt (usually the system prompt) as cacheable so subsequent calls within a window pay less to re-process it' },
+        { value: 'd', label: 'Pre-loads model weights into RAM' },
+      ],
+      answer: 'c',
+      explanation: 'You mark a stable prefix (system prompt, long context) as cacheable. The provider stores its processed form briefly and bills you a fraction on cache hits.',
+    },
+    {
+      id: 'llm-3',
+      type: 'single',
+      prompt: 'Why stream tokens from server to browser instead of waiting for the full response?',
+      options: [
+        { value: 'a', label: 'Streaming is required by HTTP/2' },
+        { value: 'b', label: 'It changes how the LLM generates text' },
+        { value: 'c', label: 'UX — the user starts reading immediately instead of staring at a spinner' },
+        { value: 'd', label: 'Streaming bypasses provider rate limits' },
+      ],
+      answer: 'c',
+    },
+    {
+      id: 'llm-4',
+      type: 'single',
+      prompt: 'When does Retrieval-Augmented Generation (RAG) make sense?',
+      options: [
+        { value: 'a', label: 'Always — every LLM app should use RAG' },
+        { value: 'b', label: 'When the user is asking about facts the model wasn\'t trained on (proprietary, recent, or user-specific)' },
+        { value: 'c', label: 'Only for image generation' },
+        { value: 'd', label: 'Only when the model is too slow' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+Now you know the architecture. The next lesson — *Embeddings and vector search* — goes deeper on the R in RAG: how to chunk, embed, store, and retrieve documents the model can ground its answers in.
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/ai/calling-llms-from-the-browser"
+  lessonHref="/paths/frontier/ai/calling-llms-from-the-browser/"
+  lessonTitle="Calling LLMs from your app — the architecture"
+  nextHref="/paths/frontier/"
+  nextTitle="The Modern Frontier roadmap"
+/>

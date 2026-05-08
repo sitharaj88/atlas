@@ -1,0 +1,57 @@
+---
+title: How Atlas works
+description: A 60-second tour — paths, lessons, playgrounds, progress, and the keyboard shortcuts.
+---
+
+import Callout from '~/components/Callout.astro';
+
+Atlas is a **library + curriculum**. You can read it like a book (linear, cover to cover), or use it as a reference (jump straight to a topic). Here's the lay of the land.
+
+## The map
+
+- **9 Paths** — opinionated learning journeys (Foundations, Modern CSS, TypeScript, Frontend Frameworks, Full-Stack, Performance/A11y/SEO, Testing, DevOps, The Modern Frontier).
+- **Modules** group related lessons inside a path.
+- **Lessons** are the atom — 10–15 minutes each, with a consistent shape:
+  1. **What you'll learn** — concrete objectives.
+  2. **Concept** — clear explanation, plain language.
+  3. **Examples** — code you can read.
+  4. **Playground** — code you can edit and run, live in the page.
+  5. **Quiz** — 2–4 questions, instant feedback.
+  6. **What's next** — the natural next lesson.
+
+## The other surfaces
+
+| Surface | What it's for |
+|---|---|
+| [Reference](/reference/) | Look up an HTML element, CSS property, or JS API. Learner-friendly — not the spec. |
+| [Cheatsheets](/cheatsheets/) | One-page printable summaries: flexbox, grid, git, regex, HTTP status, more. |
+| [Roadmaps](/roadmaps/) | Visual graphs of the whole landscape. Click any node to jump to that lesson. |
+| [Projects](/projects/) | Build-along tutorials. Real apps you can put on your portfolio. |
+| [Glossary](/glossary/) | A–Z definitions. Hover any underlined term in a lesson — instant tooltip. |
+| [Playground](/playground/) | Scratch space. Pick a template, prototype an idea. |
+
+## Progress tracking
+
+Mark any lesson complete and Atlas remembers it. Your progress and quiz history are saved to **`localStorage`** — no account, no server, no email. Clear your browser data and you start fresh; that's the trade-off.
+
+<Callout variant="tip" title="Resume where you left off">
+The home page shows a **Resume** button as soon as you've visited any lesson. Path pages show your percent-complete.
+</Callout>
+
+## Offline & install
+
+Atlas is a Progressive Web App. Install it from your browser's address bar (or the share menu on iOS) and you can read lessons offline — even on a flight.
+
+## Keyboard shortcuts
+
+| Key | Action |
+|---|---|
+| `/` | Focus search |
+| `j` / `k` | Next / previous lesson (in a path) |
+| `g` then `h` | Jump to home |
+| `g` then `p` | Jump to paths |
+| `?` | Show this help |
+
+## Open source
+
+Atlas is MIT for code, **CC BY-SA 4.0** for content. Spotted a typo? See a better way to explain something? Every lesson has an **Edit on GitHub** link. PRs welcome — read the [contribution guide](/contribute/).

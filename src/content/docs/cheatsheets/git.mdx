@@ -1,0 +1,193 @@
+---
+title: Git cheatsheet
+description: The 30 commands that solve 95% of real Git problems — plus the rescue toolkit when things go wrong.
+sidebar:
+  order: 2
+tags: [git, cheatsheet, devops]
+---
+
+import Callout from '~/components/Callout.astro';
+
+> **Print this page.** It's designed for it.
+
+## Daily flow
+
+```bash
+git status                            # what's changed?
+git diff                              # what exactly changed (unstaged)?
+git diff --staged                     # what's staged for the next commit?
+
+git add <path>                        # stage a file (or `git add -p` for hunks)
+git commit -m "fix: typo"             # commit staged changes
+git commit -am "fix: typo"            # add+commit tracked files (skips new files)
+
+git push                              # push current branch
+git pull --rebase                     # update local with remote (linear history)
+```
+
+## Branching
+
+```bash
+git switch -c feature/login           # create + switch to a new branch
+git switch main                       # switch back
+git branch                            # list local branches
+git branch -d feature/login           # delete merged branch (safe)
+git branch -D feature/login           # force-delete (unsafe — your work is gone)
+```
+
+`switch` is the modern command (since Git 2.23). `git checkout` still works but does too many things.
+
+## Inspecting history
+
+```bash
+git log --oneline --graph --all       # readable graph of all branches
+git log -p <file>                     # show diffs for a file over time
+git log --since="2 weeks ago"         # filter by date
+git show <sha>                        # show one commit's diff
+git blame <file>                      # who last touched each line
+```
+
+## Undoing things
+
+```bash
+# Undo last commit, keep changes staged
+git reset --soft HEAD~1
+
+# Undo last commit, keep changes UN-staged in working tree
+git reset HEAD~1                      # (default --mixed)
+
+# DELETE last commit and discard changes (DESTRUCTIVE)
+git reset --hard HEAD~1
+
+# Undo unstaged changes to one file
+git restore <file>
+
+# Unstage a file (keep the changes)
+git restore --staged <file>
+
+# Revert a commit by making a new "undo" commit (safe for shared branches)
+git revert <sha>
+```
+
+<Callout variant="warn" title="The hard rule">
+**Never `--force`-push to a shared branch (especially `main`).** Use `--force-with-lease` if you must, on your own feature branch only. Force-push on `main` rewrites history that other people\'s clones depend on. It is the Git equivalent of pulling out the rug.
+</Callout>
+
+## Rebasing
+
+```bash
+git switch feature/x
+git fetch origin
+git rebase origin/main                # replay your commits on top of latest main
+# (resolve conflicts, `git add`, then `git rebase --continue`)
+
+git rebase -i HEAD~5                  # interactive: squash, reorder, reword last 5
+```
+
+Rebase **before** you push (clean local history). Avoid rebasing **after** you push to a branch others might pull.
+
+## Stashing
+
+```bash
+git stash push -m "wip on login"      # set aside local changes
+git stash list
+git stash pop                         # restore most recent stash
+git stash apply stash@{2}             # restore a specific stash, keep it in list
+git stash drop stash@{0}
+```
+
+## The rescue toolkit
+
+```bash
+git reflog                            # every move HEAD has made — your time machine
+git reset --hard HEAD@{2}             # jump back to a previous HEAD position
+
+git bisect start                      # binary-search for the commit that broke X
+git bisect bad
+git bisect good <known-good-sha>
+# (Git checks out commits — mark each `good` or `bad` until found)
+git bisect reset
+
+git cherry-pick <sha>                 # copy one commit onto current branch
+git cherry-pick A^..B                 # copy a range (exclusive A, inclusive B)
+```
+
+`reflog` is the single most-underused Git command. **You can recover almost anything** if you committed it at any point — even if you "deleted" it.
+
+## Remotes
+
+```bash
+git remote -v                         # what remotes do I have?
+git remote add upstream <url>         # add another remote
+git fetch --all
+git fetch --prune                     # delete tracking refs for branches that are gone
+git push -u origin <branch>           # push and set upstream
+```
+
+## Conflict resolution
+
+When `git rebase` or `git merge` halts on conflicts:
+
+```bash
+# 1. See what's conflicting
+git status
+
+# 2. Open each file. You'll see <<<< ==== >>>> markers.
+#    Edit it to look the way you want. Remove the markers.
+
+# 3. Mark resolved
+git add <file>
+
+# 4. Continue
+git rebase --continue                 # (or `git merge --continue`)
+
+# Or: bail out
+git rebase --abort                    # back to where you started
+```
+
+VS Code, JetBrains, and `mergetool` make this much easier. Use them.
+
+## .gitignore essentials
+
+```text
+# build output
+dist/
+build/
+.next/
+.astro/
+
+# dependencies
+node_modules/
+
+# env (NEVER commit secrets)
+.env
+.env.local
+.env.production
+
+# editor / OS
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+```
+
+## Aliases worth setting
+
+```bash
+git config --global alias.s 'status'
+git config --global alias.l "log --oneline --graph --all -20"
+git config --global alias.lp 'log -p'
+git config --global alias.co 'switch'
+git config --global alias.b 'branch'
+git config --global alias.unstage 'restore --staged'
+git config --global pull.rebase true                   # always rebase on pull
+git config --global rebase.autostash true              # auto-stash on rebase
+```
+
+## The mental model in one paragraph
+
+A Git repository is a **graph of commits**. Each commit is a snapshot of the working tree, plus a parent pointer (or two, for merges). **Branches** are just movable labels pointing at a commit — `main` is a label. **HEAD** is *which* label (or commit) you currently have checked out. Most commands either move HEAD, move a label, or add new commits. Once you see the graph, the commands stop being magic.
+
+---
+
+When in doubt, `git status` first. It usually tells you what it wants you to do.
