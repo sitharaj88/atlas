@@ -248,8 +248,10 @@ Run `pnpm check` and `pnpm lint` before pushing.
 fragmented resources every time a teammate asked *"where should I learn X?"*
 Atlas is the destination I wish I could've handed them.
 
+[![Website](https://img.shields.io/badge/Website-sitharaj.in-0B1B2B?style=flat-square&logo=googlechrome&logoColor=white)](https://sitharaj.in)
 [![GitHub](https://img.shields.io/badge/GitHub-sitharaj88-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/sitharaj88)
 [![LinkedIn](https://img.shields.io/badge/LinkedIn-sitharaj08-0A66C2?style=flat-square&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/sitharaj08)
+[![Email](https://img.shields.io/badge/Email-sitharaj.info%40gmail.com-EA4335?style=flat-square&logo=gmail&logoColor=white)](mailto:sitharaj.info@gmail.com)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy_me_a_coffee-sitharaj88-FFDD00?style=flat-square&logo=buymeacoffee&logoColor=black)](https://www.buymeacoffee.com/sitharaj88)
 
 </td>
