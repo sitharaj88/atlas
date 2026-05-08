@@ -6,12 +6,15 @@ const base = (import.meta.env.BASE_URL ?? '/').replace(/\/$/, '');
 ---
 
 <Default {...props}><slot /></Default>
+
+<!-- Modern web fonts: Inter Variable + Fraunces variable + JetBrains Mono -->
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link
   rel="stylesheet"
-  href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap"
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Fraunces:opsz,wght,SOFT@9..144,300..700,0..100&family=JetBrains+Mono:wght@400;500;700&display=swap"
 />
+
 <script is:inline define:vars={{ base }}>
   document.documentElement.dataset.atlasBase = base;
 </script>

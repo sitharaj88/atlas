@@ -1,270 +1,718 @@
 /* Atlas — Global styles
- * Layered on top of Starlight defaults.
+ * Modern 2026 design language layered on top of Starlight defaults.
  */
 
-@layer base, components, utilities;
+@layer base, starlight, components, utilities;
 
 @layer base {
   html {
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
   }
 
   body {
-    font-feature-settings: 'cv11', 'ss01', 'ss02';
+    font-family: var(--atlas-font-sans);
+    font-size: var(--atlas-fs-base);
+    line-height: var(--atlas-leading-base);
+    font-feature-settings: 'cv11', 'ss01', 'ss03';
     text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background: var(--sl-color-bg);
+    background-image:
+      radial-gradient(at 100% 0%, oklch(70% 0.18 65 / 0.05) 0px, transparent 45%),
+      radial-gradient(at 0% 100%, oklch(60% 0.16 280 / 0.04) 0px, transparent 45%);
+    background-attachment: fixed;
   }
 
   ::selection {
-    background: var(--atlas-amber-200);
-    color: var(--atlas-navy-900);
-  }
-
-  :root[data-theme='dark'] ::selection {
-    background: var(--atlas-amber-500);
-    color: var(--atlas-navy-950);
+    background: oklch(72% 0.18 65 / 0.32);
+    color: var(--sl-color-white);
   }
 
   :focus-visible {
     outline: 2px solid var(--atlas-amber-400);
     outline-offset: 3px;
-    border-radius: 3px;
+    border-radius: 4px;
   }
 
-  /* Smooth heading rhythm */
-  h1,
-  h2,
-  h3 {
-    letter-spacing: -0.018em;
+  /* Headings — display font, optical alignment */
+  h1, h2, h3 {
+    font-family: var(--atlas-font-display);
+    font-weight: 600;
+    letter-spacing: var(--atlas-tracking-tight);
+    line-height: var(--atlas-leading-tight);
+    text-wrap: balance;
+  }
+  h1 {
+    font-size: var(--atlas-fs-3xl);
+    font-feature-settings: 'opsz' 144, 'ss01';
+  }
+  h2 { font-size: var(--atlas-fs-2xl); }
+  h3 { font-size: var(--atlas-fs-xl); font-weight: 600; }
+  h4, h5, h6 {
+    font-family: var(--atlas-font-sans);
+    font-weight: 600;
+    letter-spacing: var(--atlas-tracking-snug);
   }
 
-  /* Inline code subtle pill */
+  /* Paragraph rhythm */
+  p { text-wrap: pretty; }
+
+  /* Inline code — pill */
   :not(pre) > code {
-    padding: 0.1em 0.36em;
+    padding: 0.12em 0.4em;
+    margin-inline: 0.05em;
     border-radius: var(--atlas-radius-sm);
     border: 1px solid var(--sl-color-hairline-light);
+    background: var(--sl-color-bg-inline-code);
     font-size: 0.92em;
+    font-feature-settings: 'liga' 0;
+  }
+
+  /* Beautiful blockquotes */
+  blockquote {
+    border-inline-start: 3px solid var(--atlas-amber-500);
+    background: oklch(72% 0.18 65 / 0.05);
+    padding: var(--atlas-sp-4) var(--atlas-sp-5);
+    border-radius: var(--atlas-radius-md);
+    margin: var(--atlas-sp-6) 0;
+  }
+
+  /* Subtle dividers */
+  hr {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--sl-color-hairline), transparent);
+    margin-block: var(--atlas-sp-12);
+  }
+
+  /* Better link underlines in body content */
+  a {
+    text-underline-offset: 0.2em;
+    text-decoration-thickness: 1px;
+  }
+
+  /* Beautiful scrollbar (webkit) */
+  ::-webkit-scrollbar { width: 12px; height: 12px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: var(--sl-color-hairline-shade);
+    border-radius: 999px;
+    border: 3px solid var(--sl-color-bg);
+  }
+  ::-webkit-scrollbar-thumb:hover { background: var(--sl-color-gray-3); }
+}
+
+/* ---------- STARLIGHT TWEAKS ---------- */
+@layer starlight {
+
+  /* ============================================================
+     HEADER — sticky, blurred, soft border
+     ============================================================ */
+  header.header {
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    background: var(--sl-color-bg-nav) !important;
+    border-bottom: 1px solid var(--sl-color-hairline-light) !important;
+  }
+
+  /* Site title with gradient + display font */
+  .site-title {
+    font-family: var(--atlas-font-display) !important;
+    font-weight: 600;
+    font-size: 1.4rem !important;
+    letter-spacing: var(--atlas-tracking-tight);
+  }
+  .site-title > span {
+    background: var(--grad-text-amber);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  /* Header search button — modern pill */
+  site-search button[data-open-modal] {
+    border-radius: var(--atlas-radius-pill) !important;
+    background: var(--sl-color-bg-inline-code) !important;
+    border: 1px solid var(--sl-color-hairline) !important;
+    padding: 0.5rem 0.85rem !important;
+    transition:
+      border-color var(--atlas-dur-fast) var(--atlas-ease),
+      background var(--atlas-dur-fast) var(--atlas-ease);
+  }
+  site-search button[data-open-modal]:hover {
+    border-color: var(--atlas-amber-400) !important;
+    background: oklch(72% 0.18 65 / 0.08) !important;
+  }
+  site-search kbd {
+    font-family: var(--atlas-font-mono) !important;
+    font-size: 0.7rem !important;
+  }
+
+  /* Theme select dropdown */
+  starlight-theme-select label {
+    border-radius: var(--atlas-radius-pill) !important;
+  }
+
+  /* ============================================================
+     SIDEBAR — container, scroll, layout
+     ============================================================ */
+  nav.sidebar {
+    background: linear-gradient(180deg,
+      var(--sl-color-bg-sidebar) 0%,
+      oklch(from var(--sl-color-bg-sidebar) calc(l - 0.02) c h / 1) 100%);
+    border-right: 1px solid var(--sl-color-hairline-light);
+  }
+
+  .sidebar-content {
+    padding: var(--atlas-sp-4) var(--atlas-sp-3) var(--atlas-sp-12) !important;
+  }
+
+  /* Custom scrollbar inside sidebar */
+  .sidebar-pane::-webkit-scrollbar { width: 8px; }
+  .sidebar-pane::-webkit-scrollbar-thumb {
+    background: var(--sl-color-hairline-shade);
+    border-radius: 999px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+  }
+  .sidebar-pane::-webkit-scrollbar-thumb:hover {
+    background: var(--sl-color-gray-4);
+    background-clip: padding-box;
+  }
+
+  /* Top-level lists: clean reset */
+  nav.sidebar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  nav.sidebar > ul > li + li {
+    margin-top: var(--atlas-sp-1);
+  }
+
+  /* ============================================================
+     SIDEBAR — group headers (<details><summary>)
+     ============================================================ */
+  nav.sidebar details > summary {
+    cursor: pointer;
+    list-style: none;
+    -webkit-appearance: none;
+    appearance: none;
+
+    display: flex !important;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.55rem 0.75rem !important;
+    margin-block: 0.15rem;
+    border-radius: var(--atlas-radius-md);
+
+    font-family: var(--atlas-font-sans);
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.085em;
+    color: var(--sl-color-gray-3);
+
+    transition:
+      color var(--atlas-dur-fast) var(--atlas-ease),
+      background var(--atlas-dur-fast) var(--atlas-ease);
+  }
+  nav.sidebar details > summary:hover {
+    color: var(--sl-color-text-accent);
+    background: oklch(72% 0.18 65 / 0.05);
+  }
+  nav.sidebar details[open] > summary {
+    color: var(--sl-color-text-accent);
+  }
+  nav.sidebar details > summary::-webkit-details-marker { display: none; }
+  nav.sidebar details > summary > div {
+    display: contents;
+  }
+  nav.sidebar details > summary > div > span {
+    font-size: inherit !important;
+    text-transform: inherit;
+    letter-spacing: inherit;
+    color: inherit !important;
+  }
+  nav.sidebar details > summary svg.caret,
+  nav.sidebar details > summary svg:last-child {
+    width: 14px !important;
+    height: 14px !important;
+    transition: transform var(--atlas-dur-base) var(--atlas-ease-out);
+    opacity: 0.6;
+  }
+  nav.sidebar details[open] > summary svg.caret,
+  nav.sidebar details[open] > summary svg:last-child {
+    transform: rotate(90deg);
+    opacity: 1;
+  }
+
+  /* Indent children, with subtle vertical guide */
+  nav.sidebar details > ul {
+    margin-block-start: 0.15rem;
+    margin-inline-start: 0.6rem;
+    padding-inline-start: 0.6rem;
+    border-inline-start: 1px solid var(--sl-color-hairline-light);
+  }
+
+  /* Smooth open/close animation (browsers that support content-visibility) */
+  nav.sidebar details:not([open]) > ul {
+    display: none;
+  }
+
+  /* ============================================================
+     SIDEBAR — links
+     ============================================================ */
+  nav.sidebar a {
+    position: relative;
+    display: block;
+    padding: 0.45rem 0.75rem;
+    margin-block: 0.1rem;
+    font-family: var(--atlas-font-sans);
+    font-size: 0.875rem;
+    font-weight: 450;
+    line-height: 1.4;
+    color: var(--sl-color-gray-2);
+    text-decoration: none;
+    border-radius: var(--atlas-radius-md);
+    transition:
+      color var(--atlas-dur-fast) var(--atlas-ease),
+      background var(--atlas-dur-fast) var(--atlas-ease),
+      transform var(--atlas-dur-fast) var(--atlas-ease);
+  }
+  nav.sidebar a:hover {
+    color: var(--sl-color-white);
+    background: oklch(from var(--sl-color-gray-1) l c h / 0.06);
+    transform: translateX(2px);
+  }
+  :root[data-theme='light'] nav.sidebar a:hover {
+    background: oklch(20% 0.04 250 / 0.05);
+  }
+
+  /* "large" — top-level direct links (Glossary, Playground, etc.) */
+  nav.sidebar a.large {
+    font-size: 0.78rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.085em;
+    color: var(--sl-color-gray-3);
+    padding: 0.55rem 0.75rem !important;
+  }
+  nav.sidebar a.large:hover {
+    color: var(--sl-color-text-accent);
+  }
+
+  /* ============================================================
+     SIDEBAR — active page indicator
+     ============================================================ */
+  nav.sidebar a[aria-current="page"] {
+    color: var(--sl-color-text-accent) !important;
+    background: linear-gradient(90deg,
+      oklch(72% 0.18 65 / 0.18) 0%,
+      oklch(72% 0.18 65 / 0.04) 100%) !important;
+    font-weight: 600;
+    transform: none;
+  }
+  nav.sidebar a[aria-current="page"]::before {
+    content: '';
+    position: absolute;
+    inset-inline-start: -0.6rem;
+    inset-block: 25%;
+    width: 3px;
+    border-radius: 999px;
+    background: var(--grad-amber);
+    box-shadow: 0 0 12px oklch(72% 0.18 65 / 0.55);
+  }
+  nav.sidebar a.large[aria-current="page"]::before {
+    inset-inline-start: -0.4rem;
+  }
+
+  /* ============================================================
+     MOBILE — drawer
+     ============================================================ */
+  @media (max-width: 50em) {
+    /* Backdrop overlay when menu is open */
+    body[data-mobile-menu-expanded]::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: 1;
+      background: oklch(0% 0 0 / 0.5);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      animation: atlas-fade-in var(--atlas-dur-base) var(--atlas-ease-out);
+    }
+    @keyframes atlas-fade-in {
+      from { opacity: 0; }
+      to   { opacity: 1; }
+    }
+
+    /* Drawer animation override */
+    body[data-mobile-menu-expanded] .sidebar-pane {
+      animation: atlas-slide-in var(--atlas-dur-base) var(--atlas-ease-out);
+      box-shadow: 8px 0 40px oklch(0% 0 0 / 0.3);
+    }
+    @keyframes atlas-slide-in {
+      from { transform: translateX(-12px); opacity: 0.7; }
+      to   { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Bigger hit area for mobile menu button */
+    starlight-menu-button button {
+      width: 2.5rem !important;
+      height: 2.5rem !important;
+      border-radius: var(--atlas-radius-md);
+      transition: background var(--atlas-dur-fast) var(--atlas-ease);
+    }
+    starlight-menu-button button:hover,
+    starlight-menu-button button[aria-expanded="true"] {
+      background: var(--sl-color-bg-inline-code) !important;
+    }
+  }
+
+  /* ============================================================
+     TABLE OF CONTENTS (right rail on desktop)
+     ============================================================ */
+  starlight-toc nav h2 {
+    font-family: var(--atlas-font-sans) !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.085em;
+    color: var(--sl-color-gray-3) !important;
+    margin-bottom: 0.6rem !important;
+    padding-inline-start: 0.85rem;
+  }
+  starlight-toc nav ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  starlight-toc nav a {
+    display: block;
+    padding: 0.35rem 0.85rem;
+    margin-block: 0.05rem;
+    font-size: 0.83rem;
+    line-height: 1.4;
+    color: var(--sl-color-gray-3);
+    text-decoration: none;
+    border-inline-start: 2px solid transparent;
+    transition:
+      color var(--atlas-dur-fast) var(--atlas-ease),
+      border-color var(--atlas-dur-fast) var(--atlas-ease);
+  }
+  starlight-toc nav a:hover {
+    color: var(--sl-color-white);
+    border-inline-start-color: var(--sl-color-hairline-shade);
+  }
+  starlight-toc nav a[aria-current="true"] {
+    color: var(--sl-color-text-accent);
+    border-inline-start-color: var(--atlas-amber-400);
+    font-weight: 500;
+  }
+
+  /* Pagination links at the bottom of articles */
+  .pagination-links a {
+    border-radius: var(--atlas-radius-lg) !important;
+    border: 1px solid var(--sl-color-hairline) !important;
+    transition:
+      border-color var(--atlas-dur-fast) var(--atlas-ease),
+      transform var(--atlas-dur-fast) var(--atlas-ease);
+  }
+  .pagination-links a:hover {
+    border-color: var(--atlas-amber-400) !important;
+    transform: translateY(-2px);
+  }
+
+  /* Code block frames — modern radius */
+  .expressive-code .frame {
+    border-radius: var(--atlas-radius-lg) !important;
+    overflow: hidden;
+  }
+
+  /* Skip link */
+  a.skip-link {
+    border-radius: var(--atlas-radius-md);
   }
 }
 
+/* ---------- COMPONENTS ---------- */
 @layer components {
-  /* Reusable card */
+
+  /* ---- Card ---- */
   .atlas-card {
+    --card-accent: var(--atlas-amber-500);
+    position: relative;
     display: block;
     padding: var(--atlas-sp-6);
-    border: 1px solid var(--sl-color-hairline);
-    border-radius: var(--atlas-radius-lg);
-    background: var(--sl-color-bg);
-    box-shadow: var(--atlas-shadow-sm);
-    transition:
-      transform var(--atlas-dur-base) var(--atlas-ease),
-      box-shadow var(--atlas-dur-base) var(--atlas-ease),
-      border-color var(--atlas-dur-base) var(--atlas-ease);
-    text-decoration: none;
+    border: 1px solid var(--atlas-card-border);
+    border-radius: var(--atlas-radius-xl);
+    background: var(--atlas-card-bg);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    box-shadow: var(--atlas-shadow-soft);
     color: inherit;
+    text-decoration: none;
+    transition:
+      transform var(--atlas-dur-base) var(--atlas-ease-out),
+      box-shadow var(--atlas-dur-base) var(--atlas-ease-out),
+      border-color var(--atlas-dur-base) var(--atlas-ease-out);
+    overflow: hidden;
+    isolation: isolate;
   }
-
+  .atlas-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: linear-gradient(140deg, var(--card-accent) 0%, transparent 60%);
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    opacity: 0;
+    transition: opacity var(--atlas-dur-base) var(--atlas-ease-out);
+    pointer-events: none;
+  }
   .atlas-card:hover,
   .atlas-card:focus-visible {
-    transform: translateY(-2px);
-    box-shadow: var(--atlas-shadow-md);
-    border-color: var(--atlas-amber-400);
+    transform: translateY(-3px);
+    box-shadow: var(--atlas-shadow-glow);
+    border-color: oklch(from var(--card-accent) l c h / 0.5);
   }
+  .atlas-card:hover::before,
+  .atlas-card:focus-visible::before { opacity: 1; }
 
   .atlas-card__eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35em;
     font-size: var(--atlas-fs-xs);
-    text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: var(--sl-color-text-accent);
     font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--sl-color-text-accent);
+    margin-bottom: var(--atlas-sp-2);
   }
-
   .atlas-card__title {
-    margin: var(--atlas-sp-2) 0 var(--atlas-sp-2);
+    font-family: var(--atlas-font-sans);
     font-size: var(--atlas-fs-lg);
     font-weight: 600;
-    line-height: 1.25;
+    letter-spacing: var(--atlas-tracking-snug);
+    line-height: var(--atlas-leading-snug);
+    margin: 0 0 var(--atlas-sp-3);
+    color: var(--sl-color-white);
   }
-
   .atlas-card__desc {
     color: var(--sl-color-gray-3);
     font-size: var(--atlas-fs-sm);
-    line-height: 1.5;
+    line-height: var(--atlas-leading-base);
     margin: 0;
   }
 
-  /* Pill / chip */
+  /* ---- Pill / chip ---- */
   .atlas-pill {
     display: inline-flex;
     align-items: center;
     gap: 0.4em;
-    padding: 0.25em 0.7em;
+    padding: 0.32em 0.85em;
     border-radius: var(--atlas-radius-pill);
     font-size: var(--atlas-fs-xs);
     font-weight: 600;
-    background: var(--sl-color-accent-low);
+    background: oklch(72% 0.18 65 / 0.12);
     color: var(--sl-color-text-accent);
-    border: 1px solid var(--sl-color-hairline-light);
+    border: 1px solid oklch(72% 0.18 65 / 0.25);
+    letter-spacing: 0.02em;
   }
 
-  /* Hero */
+  /* ---- Buttons ---- */
+  .atlas-btn {
+    --btn-bg: var(--grad-amber);
+    --btn-fg: oklch(15% 0.04 250);
+    --btn-shadow: 0 8px 24px -10px oklch(72% 0.18 65 / 0.6);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    padding: 0.85em 1.4em;
+    border-radius: var(--atlas-radius-pill);
+    background: var(--btn-bg);
+    color: var(--btn-fg);
+    border: 0;
+    font-weight: 600;
+    font-size: var(--atlas-fs-sm);
+    letter-spacing: var(--atlas-tracking-snug);
+    text-decoration: none;
+    cursor: pointer;
+    box-shadow: var(--btn-shadow);
+    transition:
+      transform var(--atlas-dur-fast) var(--atlas-ease-out),
+      box-shadow var(--atlas-dur-fast) var(--atlas-ease-out),
+      filter var(--atlas-dur-fast) var(--atlas-ease-out);
+  }
+  .atlas-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.05) saturate(1.05);
+    --btn-shadow: 0 14px 32px -10px oklch(72% 0.18 65 / 0.7);
+  }
+  .atlas-btn:active { transform: translateY(0); }
+
+  .atlas-btn--ghost {
+    --btn-bg: transparent;
+    --btn-fg: var(--sl-color-white);
+    --btn-shadow: 0 0 0 1px var(--sl-color-hairline-shade);
+  }
+  .atlas-btn--ghost:hover {
+    --btn-bg: oklch(72% 0.18 65 / 0.08);
+    --btn-shadow: 0 0 0 1px oklch(72% 0.18 65 / 0.5);
+    filter: none;
+  }
+
+  /* ---- Hero ---- */
   .atlas-hero {
     position: relative;
     display: grid;
     grid-template-columns: minmax(0, 1fr);
-    gap: var(--atlas-sp-10);
-    padding: var(--atlas-sp-12) 0 var(--atlas-sp-16);
+    gap: var(--atlas-sp-12);
+    padding-block: clamp(2rem, 5vw, 5rem) clamp(3rem, 7vw, 7rem);
     overflow: hidden;
+    isolation: isolate;
+  }
+  .atlas-hero::before {
+    content: '';
+    position: absolute;
+    inset: -10%;
+    z-index: -1;
+    background-image: var(--grad-mesh);
+    filter: blur(60px) saturate(120%);
+    opacity: 0.85;
+    animation: atlas-mesh-drift 18s ease-in-out infinite alternate;
+  }
+  @keyframes atlas-mesh-drift {
+    0%   { transform: translate3d(0,0,0) scale(1); }
+    100% { transform: translate3d(2%, -2%, 0) scale(1.05); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .atlas-hero::before { animation: none; }
   }
 
   @media (min-width: 60rem) {
     .atlas-hero {
       grid-template-columns: 1.15fr 0.85fr;
       align-items: center;
+      gap: var(--atlas-sp-16);
     }
   }
 
   .atlas-hero__eyebrow {
     display: inline-flex;
-    gap: 0.5em;
     align-items: center;
+    gap: 0.5em;
+    padding: 0.4em 0.95em;
+    border-radius: var(--atlas-radius-pill);
+    background: oklch(72% 0.18 65 / 0.12);
+    border: 1px solid oklch(72% 0.18 65 / 0.25);
     color: var(--sl-color-text-accent);
-    font-size: var(--atlas-fs-sm);
+    font-size: var(--atlas-fs-xs);
+    font-weight: 600;
     letter-spacing: 0.08em;
     text-transform: uppercase;
-    font-weight: 600;
   }
 
   .atlas-hero__title {
-    margin: var(--atlas-sp-4) 0 var(--atlas-sp-4);
+    margin: var(--atlas-sp-5) 0 var(--atlas-sp-5);
     font-family: var(--atlas-font-display);
-    font-weight: 600;
-    font-size: clamp(2.4rem, 5vw + 1rem, 4.2rem);
-    line-height: 1.05;
-    letter-spacing: -0.02em;
+    font-weight: 500;
+    font-size: var(--atlas-fs-5xl);
+    line-height: 1.02;
+    letter-spacing: -0.025em;
+    color: var(--sl-color-white);
+    font-feature-settings: 'opsz' 144, 'ss01';
+    text-wrap: balance;
   }
-
   .atlas-hero__title em {
     font-style: italic;
-    color: var(--sl-color-text-accent);
+    background: var(--grad-text-amber);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
   }
 
   .atlas-hero__lede {
-    font-size: clamp(1.05rem, 0.5vw + 1rem, 1.25rem);
-    line-height: 1.55;
-    color: var(--sl-color-gray-3);
+    margin-top: var(--atlas-sp-5);
+    font-size: var(--atlas-fs-md);
+    line-height: var(--atlas-leading-base);
+    color: var(--sl-color-gray-2);
     max-width: 38rem;
+    text-wrap: pretty;
   }
 
   .atlas-hero__cta {
-    margin-top: var(--atlas-sp-6);
+    margin-top: var(--atlas-sp-8);
     display: flex;
     flex-wrap: wrap;
     gap: var(--atlas-sp-3);
   }
 
-  .atlas-btn {
-    --bg: var(--atlas-amber-500);
-    --fg: var(--atlas-navy-950);
-    --border: transparent;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5em;
-    padding: 0.7em 1.2em;
-    border-radius: var(--atlas-radius-pill);
-    background: var(--bg);
-    color: var(--fg);
-    border: 1px solid var(--border);
-    font-weight: 600;
-    text-decoration: none;
-    transition:
-      transform var(--atlas-dur-fast) var(--atlas-ease),
-      background var(--atlas-dur-fast) var(--atlas-ease);
-  }
-
-  .atlas-btn:hover {
-    transform: translateY(-1px);
-    background: var(--atlas-amber-400);
-  }
-
-  .atlas-btn--ghost {
-    --bg: transparent;
-    --fg: var(--sl-color-text);
-    --border: var(--sl-color-hairline-shade);
-  }
-
-  .atlas-btn--ghost:hover {
-    --bg: var(--sl-color-gray-1);
-    --border: var(--atlas-amber-400);
-  }
-
-  /* Section heading */
+  /* ---- Section heading ---- */
   .atlas-section-heading {
     display: flex;
-    align-items: baseline;
+    align-items: flex-end;
     justify-content: space-between;
-    gap: var(--atlas-sp-4);
-    margin-bottom: var(--atlas-sp-6);
+    gap: var(--atlas-sp-6);
+    margin: var(--atlas-section-y) 0 var(--atlas-sp-8);
     flex-wrap: wrap;
   }
-
   .atlas-section-heading h2 {
-    font-family: var(--atlas-font-display);
-    font-size: clamp(1.6rem, 2vw + 1rem, 2.2rem);
     margin: 0;
-    line-height: 1.15;
+    font-size: var(--atlas-fs-2xl);
   }
-
   .atlas-section-heading p {
     color: var(--sl-color-gray-3);
+    font-size: var(--atlas-fs-md);
     margin: 0;
-    max-width: 30rem;
+    max-width: 32rem;
   }
 
-  /* Grid utilities */
+  /* ---- Grid utilities ---- */
   .atlas-grid {
     display: grid;
     gap: var(--atlas-sp-5);
   }
-
   .atlas-grid--cards {
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 18rem), 1fr));
   }
 
-  /* Compass background */
+  /* ---- Compass background tint (legacy fallback) ---- */
   .atlas-compass-bg {
     position: absolute;
     inset: -8% -10% auto auto;
     width: clamp(18rem, 40vw, 36rem);
-    height: clamp(18rem, 40vw, 36rem);
+    aspect-ratio: 1;
     pointer-events: none;
-    opacity: 0.18;
-    z-index: 0;
+    opacity: 0.25;
+    z-index: -1;
+    color: var(--atlas-amber-500);
   }
 
-  :root[data-theme='dark'] .atlas-compass-bg {
-    opacity: 0.22;
-  }
-
-  /* Print-friendly cheatsheets */
+  /* ---- Print-friendly cheatsheets ---- */
   @media print {
-    .atlas-no-print,
-    nav,
-    .sidebar,
-    header,
-    footer {
-      display: none !important;
-    }
-
-    main {
-      padding: 0 !important;
-    }
+    .atlas-no-print, nav, header, footer, .sidebar,
+    .atlas-hero, .atlas-card,
+    .atlas-comments, .atlas-shortcuts,
+    starlight-toc { display: none !important; }
+    main { padding: 0 !important; }
+    body { background: white; color: black; }
+    a { color: black; text-decoration: underline; }
   }
 
-  /* Reduced motion */
+  /* ---- Reduced motion ---- */
   @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
+    *, *::before, *::after {
       animation-duration: 0.01ms !important;
       animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
@@ -272,10 +720,9 @@
   }
 }
 
+/* ---------- UTILITIES ---------- */
 @layer utilities {
-  .atlas-stack > * + * {
-    margin-block-start: var(--atlas-sp-4);
-  }
+  .atlas-stack > * + * { margin-block-start: var(--atlas-sp-4); }
 
   .atlas-cluster {
     display: flex;
@@ -283,7 +730,32 @@
     gap: var(--atlas-sp-3);
   }
 
-  .atlas-mute {
-    color: var(--sl-color-gray-3);
+  .atlas-mute { color: var(--sl-color-gray-3); }
+
+  .atlas-text-gradient {
+    background: var(--grad-text-amber);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .atlas-glass {
+    background: var(--atlas-glass-bg);
+    border: 1px solid var(--atlas-glass-border);
+    backdrop-filter: blur(12px) saturate(140%);
+    -webkit-backdrop-filter: blur(12px) saturate(140%);
+  }
+
+  .atlas-noise {
+    position: relative;
+  }
+  .atlas-noise::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E");
+    opacity: 0.05;
+    pointer-events: none;
+    mix-blend-mode: overlay;
   }
 }

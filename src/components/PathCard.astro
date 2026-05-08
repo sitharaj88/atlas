@@ -9,7 +9,7 @@ interface Props {
   difficulty?: 'beginner' | 'intermediate' | 'advanced' | 'mixed';
   modules?: number;
   hours?: number;
-  accent?: string; // hex/css color
+  accent?: string; // any valid CSS color
 }
 const {
   number,
@@ -19,54 +19,143 @@ const {
   difficulty = 'mixed',
   modules,
   hours,
-  accent = 'var(--atlas-amber-500)',
+  accent = 'oklch(72% 0.18 65)',
 } = Astro.props;
 ---
 
-<a class="atlas-card atlas-path-card" href={withBase(href)} style={`--accent:${accent}`}>
-  <span class="atlas-path-card__num" aria-hidden="true">{String(number).padStart(2, '0')}</span>
-  <span class="atlas-card__eyebrow">Path · {difficulty}</span>
-  <h3 class="atlas-card__title">{title}</h3>
-  <p class="atlas-card__desc">{description}</p>
-  <div class="atlas-path-card__meta">
-    {modules !== undefined && <span>{modules} modules</span>}
-    {hours !== undefined && <span>~{hours} hrs</span>}
+<a class="atlas-card atlas-path-card" href={withBase(href)} style={`--card-accent:${accent}`}>
+  <div class="atlas-path-card__num" aria-hidden="true">{String(number).padStart(2, '0')}</div>
+
+  <div class="atlas-path-card__head">
+    <span class="atlas-card__eyebrow">
+      <svg width="10" height="10" viewBox="0 0 12 12" aria-hidden="true">
+        <circle cx="6" cy="6" r="3" fill="currentColor" />
+        <circle cx="6" cy="6" r="5.4" fill="none" stroke="currentColor" stroke-opacity="0.4" />
+      </svg>
+      Path · {difficulty}
+    </span>
+    <h3 class="atlas-card__title">{title}</h3>
   </div>
+
+  <p class="atlas-card__desc">{description}</p>
+
+  {(modules !== undefined || hours !== undefined) && (
+    <div class="atlas-path-card__meta">
+      {modules !== undefined && (
+        <span class="atlas-path-card__meta-chip">
+          <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+            <rect x="1.5" y="1.5" width="9" height="9" rx="1.5" fill="none" stroke="currentColor" stroke-opacity="0.7"/>
+            <line x1="1.5" y1="4.5" x2="10.5" y2="4.5" stroke="currentColor" stroke-opacity="0.7"/>
+          </svg>
+          {modules} modules
+        </span>
+      )}
+      {hours !== undefined && (
+        <span class="atlas-path-card__meta-chip">
+          <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
+            <circle cx="6" cy="6" r="4.5" fill="none" stroke="currentColor" stroke-opacity="0.7"/>
+            <path d="M6 3.5V6l1.7 1" fill="none" stroke="currentColor" stroke-linecap="round" stroke-opacity="0.7"/>
+          </svg>
+          ~{hours}h
+        </span>
+      )}
+    </div>
+  )}
+
+  <span class="atlas-path-card__arrow" aria-hidden="true">→</span>
 </a>
 
 <style>
   .atlas-path-card {
+    --accent-soft: oklch(from var(--card-accent) l c h / 0.12);
+    --accent-glow: oklch(from var(--card-accent) l c h / 0.4);
     position: relative;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    gap: var(--atlas-sp-3);
+    min-height: 17rem;
+    padding-block-end: var(--atlas-sp-12);
   }
 
-  .atlas-path-card::before {
+  .atlas-path-card::after {
+    /* Soft accent gradient inside the card */
     content: '';
     position: absolute;
-    inset: 0 auto auto 0;
-    width: 4px;
-    height: 100%;
-    background: var(--accent);
-    border-radius: var(--atlas-radius-lg) 0 0 var(--atlas-radius-lg);
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background: radial-gradient(circle at 100% 0%, var(--accent-soft) 0%, transparent 50%);
+    opacity: 0.65;
+    transition: opacity var(--atlas-dur-base) var(--atlas-ease-out);
   }
+  .atlas-path-card:hover::after,
+  .atlas-path-card:focus-visible::after { opacity: 1; }
 
   .atlas-path-card__num {
     position: absolute;
-    top: var(--atlas-sp-3);
-    right: var(--atlas-sp-4);
+    top: var(--atlas-sp-5);
+    right: var(--atlas-sp-6);
     font-family: var(--atlas-font-display);
-    font-size: var(--atlas-fs-3xl);
-    color: var(--accent);
-    opacity: 0.18;
-    font-weight: 700;
+    font-size: clamp(2.4rem, 4vw, 3.4rem);
+    font-weight: 600;
     line-height: 1;
+    background: linear-gradient(160deg, var(--card-accent) 0%, transparent 110%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    opacity: 0.5;
+    letter-spacing: -0.04em;
+    transition: opacity var(--atlas-dur-base) var(--atlas-ease-out);
+  }
+  .atlas-path-card:hover .atlas-path-card__num { opacity: 0.85; }
+
+  .atlas-path-card__head { padding-right: 4.5rem; }
+
+  .atlas-path-card__head .atlas-card__eyebrow {
+    color: var(--card-accent);
   }
 
   .atlas-path-card__meta {
-    margin-top: var(--atlas-sp-4);
     display: flex;
-    gap: var(--atlas-sp-3);
-    font-size: var(--atlas-fs-xs);
+    gap: var(--atlas-sp-2);
+    margin-top: auto;
+    padding-top: var(--atlas-sp-4);
+    flex-wrap: wrap;
+  }
+  .atlas-path-card__meta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4em;
+    padding: 0.3em 0.65em;
+    border-radius: var(--atlas-radius-pill);
+    background: var(--sl-color-bg-inline-code);
     color: var(--sl-color-gray-3);
+    font-size: var(--atlas-fs-xs);
+    font-weight: 500;
+    border: 1px solid var(--sl-color-hairline-light);
+  }
+
+  .atlas-path-card__arrow {
+    position: absolute;
+    bottom: var(--atlas-sp-5);
+    right: var(--atlas-sp-6);
+    width: 2.2rem;
+    height: 2.2rem;
+    display: grid;
+    place-items: center;
+    border-radius: 999px;
+    background: var(--card-accent);
+    color: oklch(15% 0.04 250);
+    font-size: 1.05rem;
+    transform: translateX(-4px);
+    opacity: 0;
+    transition:
+      transform var(--atlas-dur-base) var(--atlas-ease-out),
+      opacity var(--atlas-dur-base) var(--atlas-ease-out);
+  }
+  .atlas-path-card:hover .atlas-path-card__arrow,
+  .atlas-path-card:focus-visible .atlas-path-card__arrow {
+    transform: translateX(0);
+    opacity: 1;
   }
 </style>

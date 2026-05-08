@@ -1,154 +1,217 @@
 /* Atlas — Design tokens
- * Maps cartography-inspired colors and a modern type scale onto Starlight's CSS variables.
  *
- * IMPORTANT: Starlight's gray scale is inverted between dark and light modes.
- *   Dark  mode: gray-1 = lightest (text), gray-7 = darkest (panel bg).
- *   Light mode: gray-1 = darkest  (text), gray-7 = lightest (panel bg).
- * Many Starlight components reference these directly, so we mirror the convention.
+ * 2026 modern design system. Built on oklch for perceptually uniform color,
+ * a 1.25 modular type scale, and a coherent gradient + shadow vocabulary.
+ *
+ * Convention note: Starlight inverts the gray scale between dark and light
+ * modes. We mirror that — dark gray-1 is light, light gray-1 is dark.
  */
 
 :root {
-  /* Brand */
-  --atlas-navy-50:  #f1f5fa;
-  --atlas-navy-100: #d9e2ee;
-  --atlas-navy-200: #b3c5dd;
-  --atlas-navy-300: #7e9abf;
-  --atlas-navy-400: #4d6f9b;
-  --atlas-navy-500: #2c4d7c;
-  --atlas-navy-600: #1c3963;
-  --atlas-navy-700: #142b4c;
-  --atlas-navy-800: #0e2039;
-  --atlas-navy-900: #0b1b2b;
-  --atlas-navy-950: #060f1a;
+  /* ---------- BRAND PALETTE (oklch) ---------- */
 
-  --atlas-amber-50:  #fff8ec;
-  --atlas-amber-100: #fdecc7;
-  --atlas-amber-200: #fbd685;
-  --atlas-amber-300: #f9c34f;
-  --atlas-amber-400: #f5b14a;
-  --atlas-amber-500: #e8951f;
-  --atlas-amber-600: #c47312;
-  --atlas-amber-700: #9b5611;
-  --atlas-amber-800: #7c4413;
-  --atlas-amber-900: #663812;
+  /* Atlas amber — warm, energetic, the primary brand color */
+  --atlas-amber-50:  oklch(98.4% 0.02 75);
+  --atlas-amber-100: oklch(95.2% 0.06 75);
+  --atlas-amber-200: oklch(90% 0.12 72);
+  --atlas-amber-300: oklch(83% 0.16 70);
+  --atlas-amber-400: oklch(78% 0.17 67);
+  --atlas-amber-500: oklch(72% 0.18 65);
+  --atlas-amber-600: oklch(65% 0.19 60);
+  --atlas-amber-700: oklch(54% 0.18 55);
+  --atlas-amber-800: oklch(44% 0.15 50);
+  --atlas-amber-900: oklch(34% 0.12 50);
 
-  --atlas-teal-500:  #2bb4a4;
-  --atlas-rose-500:  #e25c64;
-  --atlas-leaf-500:  #6abf6e;
+  /* Atlas navy — deep, sophisticated, reliable */
+  --atlas-navy-50:  oklch(97% 0.02 250);
+  --atlas-navy-100: oklch(93% 0.04 250);
+  --atlas-navy-200: oklch(85% 0.06 250);
+  --atlas-navy-300: oklch(72% 0.08 250);
+  --atlas-navy-400: oklch(58% 0.1 250);
+  --atlas-navy-500: oklch(46% 0.11 250);
+  --atlas-navy-600: oklch(36% 0.1 250);
+  --atlas-navy-700: oklch(28% 0.08 250);
+  --atlas-navy-800: oklch(20% 0.06 250);
+  --atlas-navy-900: oklch(14% 0.04 250);
+  --atlas-navy-950: oklch(8% 0.03 250);
 
-  /* Type scale (modular, ratio 1.2) */
+  /* Accent — used for highlights and as a counterpoint to amber */
+  --atlas-teal-50:  oklch(96% 0.03 195);
+  --atlas-teal-300: oklch(78% 0.13 195);
+  --atlas-teal-500: oklch(68% 0.15 195);
+  --atlas-teal-600: oklch(58% 0.16 195);
+
+  --atlas-violet-300: oklch(78% 0.13 295);
+  --atlas-violet-500: oklch(62% 0.18 295);
+  --atlas-violet-600: oklch(54% 0.2 295);
+
+  --atlas-rose-500:  oklch(68% 0.18 20);
+  --atlas-leaf-500:  oklch(68% 0.16 145);
+
+  /* ---------- GRADIENTS ---------- */
+
+  --grad-amber:      linear-gradient(135deg, oklch(80% 0.18 75) 0%, oklch(68% 0.2 55) 100%);
+  --grad-amber-soft: linear-gradient(135deg, oklch(95% 0.08 75) 0%, oklch(88% 0.13 60) 100%);
+  --grad-aurora:     linear-gradient(135deg, oklch(75% 0.18 65) 0%, oklch(65% 0.2 30) 50%, oklch(60% 0.2 320) 100%);
+  --grad-navy:       linear-gradient(180deg, oklch(20% 0.06 250) 0%, oklch(10% 0.04 250) 100%);
+  --grad-text-amber: linear-gradient(135deg, oklch(75% 0.18 70), oklch(60% 0.22 50));
+
+  /* Mesh gradient (for hero) — multi-layered radial */
+  --grad-mesh:
+    radial-gradient(at 12% 18%, oklch(78% 0.16 60 / 0.55) 0px, transparent 45%),
+    radial-gradient(at 86% 24%, oklch(70% 0.18 280 / 0.4) 0px, transparent 40%),
+    radial-gradient(at 76% 86%, oklch(68% 0.16 200 / 0.35) 0px, transparent 40%),
+    radial-gradient(at 24% 88%, oklch(75% 0.16 30 / 0.4) 0px, transparent 45%);
+
+  /* ---------- TYPOGRAPHY ---------- */
+
   --atlas-font-sans:
-    'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
-    sans-serif;
+    'Inter Variable', 'Inter', ui-sans-serif, system-ui, -apple-system,
+    'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   --atlas-font-mono:
-    ui-monospace, 'JetBrains Mono', SFMono-Regular, Menlo, Consolas, 'Liberation Mono', monospace;
-  --atlas-font-display: 'Fraunces', 'Playfair Display', ui-serif, Georgia, serif;
+    'JetBrains Mono Variable', 'JetBrains Mono', ui-monospace, SFMono-Regular,
+    Menlo, Consolas, 'Liberation Mono', monospace;
+  --atlas-font-display:
+    'Fraunces', 'Playfair Display', ui-serif, Georgia, serif;
 
-  --atlas-fs-xs: 0.78rem;
-  --atlas-fs-sm: 0.875rem;
-  --atlas-fs-base: 1rem;
-  --atlas-fs-md: 1.125rem;
-  --atlas-fs-lg: 1.25rem;
-  --atlas-fs-xl: 1.5rem;
-  --atlas-fs-2xl: 1.875rem;
-  --atlas-fs-3xl: 2.25rem;
-  --atlas-fs-4xl: 3rem;
-  --atlas-fs-5xl: 3.75rem;
+  /* Modular scale — ratio 1.25 — fluid via clamp */
+  --atlas-fs-xs:   clamp(0.75rem,  0.72rem + 0.15vw, 0.8125rem);
+  --atlas-fs-sm:   clamp(0.875rem, 0.85rem  + 0.18vw, 0.95rem);
+  --atlas-fs-base: clamp(1rem,     0.96rem  + 0.22vw, 1.0625rem);
+  --atlas-fs-md:   clamp(1.125rem, 1.07rem  + 0.3vw,  1.25rem);
+  --atlas-fs-lg:   clamp(1.25rem,  1.18rem  + 0.4vw,  1.5rem);
+  --atlas-fs-xl:   clamp(1.5rem,   1.4rem   + 0.5vw,  1.875rem);
+  --atlas-fs-2xl:  clamp(1.875rem, 1.7rem   + 0.85vw, 2.5rem);
+  --atlas-fs-3xl:  clamp(2.25rem,  2rem     + 1.25vw, 3.25rem);
+  --atlas-fs-4xl:  clamp(2.75rem,  2.4rem   + 1.7vw,  4rem);
+  --atlas-fs-5xl:  clamp(3.5rem,   2.8rem   + 3vw,    5.5rem);
 
-  /* Spacing (base 4px) */
-  --atlas-sp-1: 0.25rem;
-  --atlas-sp-2: 0.5rem;
-  --atlas-sp-3: 0.75rem;
-  --atlas-sp-4: 1rem;
-  --atlas-sp-5: 1.25rem;
-  --atlas-sp-6: 1.5rem;
-  --atlas-sp-8: 2rem;
+  --atlas-leading-tight: 1.15;
+  --atlas-leading-snug:  1.3;
+  --atlas-leading-base:  1.55;
+  --atlas-leading-loose: 1.75;
+
+  --atlas-tracking-tight: -0.02em;
+  --atlas-tracking-snug:  -0.012em;
+  --atlas-tracking-base:  0;
+  --atlas-tracking-wide:  0.04em;
+
+  /* ---------- SPACING (4px base) ---------- */
+  --atlas-sp-1:  0.25rem;
+  --atlas-sp-2:  0.5rem;
+  --atlas-sp-3:  0.75rem;
+  --atlas-sp-4:  1rem;
+  --atlas-sp-5:  1.25rem;
+  --atlas-sp-6:  1.5rem;
+  --atlas-sp-8:  2rem;
   --atlas-sp-10: 2.5rem;
   --atlas-sp-12: 3rem;
   --atlas-sp-16: 4rem;
   --atlas-sp-20: 5rem;
+  --atlas-sp-24: 6rem;
 
-  /* Radii */
-  --atlas-radius-sm: 4px;
-  --atlas-radius-md: 8px;
-  --atlas-radius-lg: 14px;
-  --atlas-radius-xl: 22px;
+  /* Section rhythm */
+  --atlas-section-y: clamp(3rem, 6vw, 6rem);
+
+  /* ---------- RADII ---------- */
+  --atlas-radius-sm:   6px;
+  --atlas-radius-md:   10px;
+  --atlas-radius-lg:   16px;
+  --atlas-radius-xl:   24px;
+  --atlas-radius-2xl:  32px;
   --atlas-radius-pill: 999px;
 
-  /* Shadows (light) */
-  --atlas-shadow-sm: 0 1px 2px rgba(11, 27, 43, 0.06);
-  --atlas-shadow-md: 0 4px 14px rgba(11, 27, 43, 0.08);
-  --atlas-shadow-lg: 0 12px 32px rgba(11, 27, 43, 0.12);
+  /* ---------- MOTION ---------- */
+  --atlas-ease-out:  cubic-bezier(0.16, 1, 0.3, 1);
+  --atlas-ease-in:   cubic-bezier(0.7, 0, 0.84, 0);
+  --atlas-ease:      cubic-bezier(0.4, 0, 0.2, 1);
+  --atlas-spring:    cubic-bezier(0.25, 1.4, 0.5, 1);
 
-  /* Motion */
-  --atlas-ease: cubic-bezier(0.2, 0.65, 0.2, 1);
-  --atlas-dur-fast: 120ms;
-  --atlas-dur-base: 240ms;
-  --atlas-dur-slow: 480ms;
+  --atlas-dur-fast:  150ms;
+  --atlas-dur-base:  280ms;
+  --atlas-dur-slow:  520ms;
 }
 
-/* ---------- Dark theme (default Starlight order: gray-1 light → gray-7 dark) ---------- */
+/* ---------- DARK THEME (default — Starlight order: gray-1 light → gray-7 dark) ---------- */
 :root,
 :root[data-theme='dark'] {
-  --sl-color-white: #ffffff;
-  --sl-color-gray-1: #ecf0f7; /* page text on dark bg */
-  --sl-color-gray-2: #c5cde0;
-  --sl-color-gray-3: #8e9bbb; /* muted text on dark bg */
-  --sl-color-gray-4: #5a6889;
-  --sl-color-gray-5: #38436a;
-  --sl-color-gray-6: #1c2643; /* panel borders / sidebar bg */
-  --sl-color-gray-7: var(--atlas-navy-950);
-  --sl-color-black: #04080f; /* page bg in dark */
+  --sl-color-white: oklch(99% 0.005 250);
+  --sl-color-gray-1: oklch(94% 0.01 250);   /* primary text */
+  --sl-color-gray-2: oklch(82% 0.02 250);
+  --sl-color-gray-3: oklch(67% 0.03 250);   /* muted text */
+  --sl-color-gray-4: oklch(50% 0.04 250);
+  --sl-color-gray-5: oklch(36% 0.04 250);
+  --sl-color-gray-6: oklch(22% 0.04 250);   /* sidebar bg */
+  --sl-color-gray-7: oklch(14% 0.03 250);
+  --sl-color-black: oklch(10% 0.02 250);     /* page bg */
 
-  --sl-color-accent-low: #2a1c0a;
-  --sl-color-accent: var(--atlas-amber-400);
+  --sl-color-accent-low:  oklch(28% 0.08 60);
+  --sl-color-accent:      var(--atlas-amber-400);
   --sl-color-accent-high: var(--atlas-amber-200);
 
-  --sl-color-text: var(--sl-color-gray-2);
+  --sl-color-text:        var(--sl-color-gray-2);
   --sl-color-text-accent: var(--atlas-amber-300);
-  --sl-color-bg: var(--atlas-navy-900);
-  --sl-color-bg-nav: var(--atlas-navy-950);
-  --sl-color-bg-sidebar: var(--atlas-navy-950);
-  --sl-color-bg-inline-code: rgba(245, 177, 74, 0.12);
-  --sl-color-hairline-light: rgba(255, 255, 255, 0.06);
-  --sl-color-hairline: rgba(255, 255, 255, 0.1);
-  --sl-color-hairline-shade: rgba(255, 255, 255, 0.18);
+  --sl-color-bg:          oklch(11% 0.02 250);
+  --sl-color-bg-nav:      oklch(9% 0.025 250 / 0.85);
+  --sl-color-bg-sidebar:  oklch(9% 0.025 250);
+  --sl-color-bg-inline-code: oklch(72% 0.18 65 / 0.12);
 
-  --sl-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --sl-shadow-md: 0 6px 18px rgba(0, 0, 0, 0.45);
-  --sl-shadow-lg: 0 14px 36px rgba(0, 0, 0, 0.5);
+  --sl-color-hairline-light: oklch(100% 0 0 / 0.06);
+  --sl-color-hairline:       oklch(100% 0 0 / 0.1);
+  --sl-color-hairline-shade: oklch(100% 0 0 / 0.16);
 
-  --sl-font-system: var(--atlas-font-sans);
+  --sl-shadow-sm: 0 1px 2px oklch(0% 0 0 / 0.4);
+  --sl-shadow-md: 0 6px 18px oklch(0% 0 0 / 0.45);
+  --sl-shadow-lg: 0 14px 36px oklch(0% 0 0 / 0.5);
+
+  --sl-font-system:      var(--atlas-font-sans);
   --sl-font-system-mono: var(--atlas-font-mono);
+
+  /* Atlas glass / depth */
+  --atlas-glass-bg: oklch(15% 0.04 250 / 0.55);
+  --atlas-glass-border: oklch(100% 0 0 / 0.08);
+  --atlas-card-bg: oklch(15% 0.03 250 / 0.7);
+  --atlas-card-border: oklch(100% 0 0 / 0.07);
+  --atlas-shadow-soft: 0 8px 24px -8px oklch(0% 0 0 / 0.5);
+  --atlas-shadow-glow: 0 0 0 1px oklch(72% 0.18 65 / 0.25), 0 18px 40px -16px oklch(72% 0.18 65 / 0.45);
 }
 
-/* ---------- Light theme (INVERTED: gray-1 dark → gray-7 light) ---------- */
+/* ---------- LIGHT THEME (gray-1 dark → gray-7 light) ---------- */
 :root[data-theme='light'] {
-  --sl-color-white: #060f1a; /* "white" is the highest-emphasis color → near-black on light */
-  --sl-color-gray-1: #142b4c; /* headings & strong text */
-  --sl-color-gray-2: #1c3963; /* body text */
-  --sl-color-gray-3: #3d4f74; /* muted text — must remain readable on light */
-  --sl-color-gray-4: #6b7a99; /* secondary muted */
-  --sl-color-gray-5: #c1c9da; /* dividers, light borders */
-  --sl-color-gray-6: #e7eaf2; /* panel bg */
-  --sl-color-gray-7: #f4f6fb; /* sidebar bg */
-  --sl-color-black: #ffffff; /* "black" is page bg on light = white */
+  --sl-color-white: oklch(8% 0.02 250);     /* highest-emphasis text */
+  --sl-color-gray-1: oklch(16% 0.04 250);   /* headings */
+  --sl-color-gray-2: oklch(24% 0.04 250);   /* body */
+  --sl-color-gray-3: oklch(40% 0.04 250);   /* muted but readable */
+  --sl-color-gray-4: oklch(58% 0.03 250);
+  --sl-color-gray-5: oklch(82% 0.02 250);
+  --sl-color-gray-6: oklch(94% 0.01 250);
+  --sl-color-gray-7: oklch(97% 0.01 250);   /* sidebar bg */
+  --sl-color-black: oklch(100% 0 0);         /* page bg */
 
-  --sl-color-accent-low: #fff5e1;
-  --sl-color-accent: var(--atlas-amber-500);
-  --sl-color-accent-high: #7c4413;
+  --sl-color-accent-low:  oklch(95% 0.05 75);
+  --sl-color-accent:      var(--atlas-amber-600);
+  --sl-color-accent-high: oklch(38% 0.13 50);
 
-  --sl-color-text: var(--sl-color-gray-2);
-  --sl-color-text-accent: #7c4413; /* WCAG-AA on white */
-  --sl-color-bg: #ffffff;
-  --sl-color-bg-nav: #ffffff;
-  --sl-color-bg-sidebar: #f4f6fb;
-  --sl-color-bg-inline-code: var(--atlas-navy-50);
-  --sl-color-hairline-light: rgba(11, 27, 43, 0.06);
-  --sl-color-hairline: rgba(11, 27, 43, 0.1);
-  --sl-color-hairline-shade: rgba(11, 27, 43, 0.18);
+  --sl-color-text:        var(--sl-color-gray-2);
+  --sl-color-text-accent: oklch(38% 0.13 50);
+  --sl-color-bg:          oklch(99% 0.005 80);
+  --sl-color-bg-nav:      oklch(100% 0 0 / 0.85);
+  --sl-color-bg-sidebar:  oklch(98% 0.01 80);
+  --sl-color-bg-inline-code: oklch(95% 0.05 70 / 0.6);
 
-  --sl-shadow-sm: var(--atlas-shadow-sm);
-  --sl-shadow-md: var(--atlas-shadow-md);
-  --sl-shadow-lg: var(--atlas-shadow-lg);
+  --sl-color-hairline-light: oklch(20% 0.04 250 / 0.06);
+  --sl-color-hairline:       oklch(20% 0.04 250 / 0.12);
+  --sl-color-hairline-shade: oklch(20% 0.04 250 / 0.22);
+
+  --sl-shadow-sm: 0 1px 2px oklch(20% 0.04 250 / 0.06);
+  --sl-shadow-md: 0 6px 18px oklch(20% 0.04 250 / 0.08);
+  --sl-shadow-lg: 0 14px 36px oklch(20% 0.04 250 / 0.12);
+
+  /* Atlas glass / depth */
+  --atlas-glass-bg: oklch(100% 0 0 / 0.6);
+  --atlas-glass-border: oklch(20% 0.04 250 / 0.08);
+  --atlas-card-bg: oklch(100% 0 0);
+  --atlas-card-border: oklch(20% 0.04 250 / 0.08);
+  --atlas-shadow-soft: 0 8px 24px -8px oklch(20% 0.04 250 / 0.18);
+  --atlas-shadow-glow: 0 0 0 1px oklch(72% 0.18 65 / 0.35), 0 20px 40px -18px oklch(72% 0.18 65 / 0.4);
 }

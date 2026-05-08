@@ -18,8 +18,8 @@ const BASE = process.env.BASE ?? '/atlas';
 function rehypeBaseUrl() {
   const base = BASE.replace(/\/$/, '');
   if (!base) return () => {};
-  return (tree) => {
-    visit(tree, 'element', (node) => {
+  return (/** @type {any} */ tree) => {
+    visit(tree, 'element', (/** @type {any} */ node) => {
       const ATTR = node.tagName === 'a' ? 'href' : node.tagName === 'img' ? 'src' : null;
       if (!ATTR) return;
       const url = node.properties?.[ATTR];
