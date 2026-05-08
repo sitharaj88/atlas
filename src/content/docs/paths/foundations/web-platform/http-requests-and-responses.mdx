@@ -1,0 +1,198 @@
+---
+title: HTTP requests and responses, hands-on with curl
+description: The actual bytes that fly between your browser and a server. With curl, DevTools, and the patterns you'll see every day.
+sidebar:
+  order: 3
+pathSlug: foundations
+module: web-platform
+lessonNumber: 3
+difficulty: beginner
+duration: 14 min
+prerequisites:
+  - You\'ve read *How the web works* and *DNS, IP, and localhost*
+objectives:
+  - Read an HTTP request and response, headers and all
+  - Use curl to make requests with methods, headers, and a body
+  - Recognize the headers that show up in real apps
+tags: [http, curl, networking]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** What an HTTP request actually looks like on the wire, how to send one yourself, and the dozen headers that matter most in practice.
+
+## A request, in real bytes
+
+```http
+GET /api/posts?limit=10 HTTP/1.1
+Host: atlas.dev
+User-Agent: curl/8.6.0
+Accept: application/json
+Accept-Encoding: gzip, br
+Authorization: Bearer eyJhbGciOiJIUzI1NiIs…
+```
+
+Five parts:
+
+1. **Method** — `GET`, `POST`, `PUT`, `PATCH`, `DELETE`, `OPTIONS`, `HEAD`.
+2. **Path + query** — `/api/posts?limit=10`.
+3. **Version** — `HTTP/1.1` or `HTTP/2` (binary on the wire, same shape conceptually).
+4. **Headers** — key/value metadata.
+5. **Body** — optional. Present on POST/PUT/PATCH; absent on GET.
+
+## A response
+
+```http
+HTTP/1.1 200 OK
+Content-Type: application/json; charset=utf-8
+Content-Encoding: br
+Cache-Control: public, max-age=300
+Content-Length: 2341
+Date: Sat, 08 May 2026 17:22:41 GMT
+
+{"posts":[{"id":1,"title":"Hello"},...]}
+```
+
+Status line, headers, blank line, body. Same shape every time.
+
+## curl in 60 seconds
+
+```bash
+# Simplest GET
+curl https://atlas.dev/
+
+# With headers (-v shows everything; -i shows just headers + body)
+curl -i https://atlas.dev/
+
+# POST JSON
+curl -X POST https://atlas.dev/api/echo \
+  -H 'content-type: application/json' \
+  -d '{"hello":"world"}'
+
+# Send a file
+curl -X POST https://atlas.dev/api/upload -F 'file=@photo.jpg'
+
+# Follow redirects
+curl -L https://t.co/abc123
+
+# Save to file (preserve filename)
+curl -O https://atlas.dev/cheatsheets/git.pdf
+
+# Headers only (HEAD request)
+curl -I https://atlas.dev/
+```
+
+`man curl` is one of the most useful man pages on your machine.
+
+## Headers worth knowing
+
+**Content negotiation:**
+- `Content-Type` — what the body actually is (`application/json`, `text/html; charset=utf-8`).
+- `Accept` — what the client wants (server picks the closest match).
+- `Accept-Language`, `Accept-Encoding` — locale and compression.
+
+**Caching:**
+- `Cache-Control: public, max-age=3600` — cache for an hour.
+- `ETag: "v8a9..."` — version identifier.
+- `If-None-Match: "v8a9..."` — conditional GET. Server replies `304 Not Modified` if unchanged.
+
+**Security:**
+- `Authorization: Bearer <token>` — auth header for APIs.
+- `Cookie: session=...` — sessions for browsers.
+- `Strict-Transport-Security` — "always use HTTPS" (HSTS).
+- `Content-Security-Policy` — script/style allowlist.
+
+**CORS** (when JS in one origin calls another):
+- Browser sends `Origin: https://atlas.dev`.
+- Server replies with `Access-Control-Allow-Origin: ...`.
+- For non-simple requests, browser preflights with `OPTIONS`.
+
+**Misc:**
+- `User-Agent` — client identifier (lies often).
+- `Referer` — *spelled wrong on purpose since 1996*. The page that linked here.
+- `X-*` — anything custom. Less common now; standard headers preferred.
+
+<Callout variant="tip" title="HTTP/2 vs HTTP/1.1: same shape, different wire format">
+HTTP/2 binary-encodes headers and multiplexes requests over one connection. As an app developer you write the same headers and methods. As a perf engineer, you stop worrying about request count and start worrying about serialization order.
+</Callout>
+
+## Status codes, briefly
+
+- **2xx** success — `200 OK`, `201 Created`, `204 No Content`.
+- **3xx** redirection — `301`/`308` permanent, `302`/`307` temporary, `303` "see other," `304` not modified.
+- **4xx** you sent garbage — `400 Bad Request`, `401 Unauthorized` (auth missing/invalid), `403 Forbidden` (auth fine, not allowed), `404 Not Found`, `409 Conflict`, `422 Unprocessable`, `429 Too Many Requests`.
+- **5xx** server broke — `500 Internal`, `502 Bad Gateway`, `503 Service Unavailable`, `504 Gateway Timeout`.
+
+The full breakdown is in the [HTTP status codes cheatsheet](/cheatsheets/http-status-codes/).
+
+## Reading DevTools → Network like a doctor reads X-rays
+
+For each row:
+- **Status** — color-coded; red = problem.
+- **Time** — total. Click for waterfall: DNS → connect → TLS → wait (TTFB) → download.
+- **Size** — `Content-Length` vs. transferred (compression).
+- **Headers** tab — full request and response.
+- **Initiator** — what code triggered this request (link to the JS line).
+
+Open it on a slow page once. You'll learn more in 5 minutes than from an hour of articles.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/web-platform/http-requests-and-responses"
+  questions={[
+    {
+      id: 'http-1',
+      type: 'single',
+      prompt: 'A `GET` request typically has…',
+      options: [
+        { value: 'a', label: 'A body and no headers' },
+        { value: 'b', label: 'Headers but no body' },
+        { value: 'c', label: 'Neither headers nor a body' },
+        { value: 'd', label: 'A body only when authenticated' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'http-2',
+      type: 'single',
+      prompt: 'Which response status means "the cached version is still good"?',
+      options: [
+        { value: 'a', label: '200 OK' },
+        { value: 'b', label: '301 Moved Permanently' },
+        { value: 'c', label: '304 Not Modified' },
+        { value: 'd', label: '503 Service Unavailable' },
+      ],
+      answer: 'c',
+    },
+    {
+      id: 'http-3',
+      type: 'single',
+      prompt: 'You send `Authorization: Bearer abc`. Server returns `401 Unauthorized`. What does that tell you?',
+      options: [
+        { value: 'a', label: 'You\'re authenticated but lack permission' },
+        { value: 'b', label: 'The token is missing, malformed, or rejected' },
+        { value: 'c', label: 'The server is overloaded' },
+        { value: 'd', label: 'The endpoint doesn\'t exist' },
+      ],
+      answer: 'b',
+      explanation: '401 = unauthenticated. 403 would mean "I know who you are, you can\'t do this."',
+    },
+  ]}
+/>
+
+## What's next
+
+Now that requests and responses make sense, let's see what the browser does once it gets the bytes back: **the rendering pipeline**.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/web-platform/http-requests-and-responses"
+  lessonHref="/paths/foundations/web-platform/http-requests-and-responses/"
+  lessonTitle="HTTP requests and responses, hands-on with curl"
+  nextHref="/paths/foundations/web-platform/the-browser-rendering-pipeline/"
+  nextTitle="The browser rendering pipeline"
+/>

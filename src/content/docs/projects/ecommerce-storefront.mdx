@@ -1,0 +1,150 @@
+---
+title: 'E-commerce storefront with React + Stripe (test mode)'
+description: A working storefront — product listing, cart, Stripe Checkout, success/cancel pages. Test mode, free.
+sidebar:
+  order: 3
+difficulty: intermediate
+duration: 4 hours
+tags: [ecommerce, react, stripe, project]
+---
+
+import Callout from '~/components/Callout.astro';
+
+## What you'll build
+
+- Product listing page (server-rendered).
+- Add to cart (client state).
+- Checkout via Stripe Checkout.
+- Success and cancel pages.
+- Webhook to fulfill the order.
+
+## Stack
+
+- **Astro + React islands** — fastest content + cart island.
+- **Hono** — webhook endpoint.
+- **Stripe** — payments (test mode, free).
+- **SQLite** — product catalog (or hardcode if you want zero infra).
+
+## Setup
+
+```bash
+pnpm create astro@latest ecom -- --template minimal --typescript strict
+cd ecom
+pnpm add @astrojs/react @astrojs/node react react-dom stripe
+pnpm add -D @types/react @types/react-dom
+```
+
+Get a Stripe **test-mode** secret key from dashboard.stripe.com → API keys. Set `STRIPE_SECRET_KEY` in `.env`.
+
+## Step 1 — Product list
+
+```ts
+// src/data/products.ts
+export const products = [
+  { id: 'p1', name: 'Atlas T-shirt', price: 2500, image: '/shirt.jpg' }, // cents
+  { id: 'p2', name: 'Compass mug',   price: 1500, image: '/mug.jpg' },
+];
+```
+
+```astro
+---
+// src/pages/index.astro
+import { products } from '../data/products';
+import Cart from '../components/Cart.tsx';
+---
+<html><body>
+  <h1>Atlas Shop</h1>
+  <ul>
+    {products.map(p => (
+      <li>
+        <h3>{p.name}</h3>
+        <p>${(p.price / 100).toFixed(2)}</p>
+        <Cart product={p} client:load />
+      </li>
+    ))}
+  </ul>
+</body></html>
+```
+
+## Step 2 — Cart island
+
+```tsx
+// src/components/Cart.tsx
+import { useState, useEffect } from 'react';
+
+export default function Cart({ product }) {
+  const [count, setCount] = useState(0);
+  // ... add to cart logic
+  return (
+    <button onClick={() => setCount(count + 1)}>
+      {count > 0 ? `In cart (${count})` : 'Add to cart'}
+    </button>
+  );
+}
+```
+
+For brevity, skip a full cart store — keep state in a small Zustand store and persist to localStorage.
+
+## Step 3 — Checkout endpoint
+
+```ts
+// src/pages/api/checkout.ts
+import Stripe from 'stripe';
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!);
+
+export async function POST({ request }) {
+  const { items } = await request.json();
+  const session = await stripe.checkout.sessions.create({
+    mode: 'payment',
+    line_items: items.map(i => ({
+      price_data: {
+        currency: 'usd',
+        unit_amount: i.price,
+        product_data: { name: i.name },
+      },
+      quantity: i.quantity,
+    })),
+    success_url: `${request.headers.get('origin')}/thanks?session_id={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${request.headers.get('origin')}/cancel`,
+  });
+  return Response.redirect(session.url!, 303);
+}
+```
+
+Cart submits to `/api/checkout`; user lands on Stripe; pays with test card `4242 4242 4242 4242`.
+
+## Step 4 — Webhook
+
+```ts
+// src/pages/api/webhook.ts
+const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET!;
+
+export async function POST({ request }) {
+  const sig = request.headers.get('stripe-signature')!;
+  const body = await request.text();
+  const event = stripe.webhooks.constructEvent(body, sig, endpointSecret);
+
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    await fulfillOrder(session); // mark in DB, send email, etc.
+  }
+  return new Response('ok');
+}
+```
+
+Use `stripe listen --forward-to localhost:4321/api/webhook` to test locally.
+
+## Step 5 — Success / cancel pages
+
+Just two static pages. The webhook is the source of truth that the order completed.
+
+## What you learned
+
+- Server actions + client islands (Astro pattern).
+- Stripe's redirect-based checkout flow.
+- Webhooks as the source of truth (not the redirect).
+- Cart state persisted in localStorage.
+
+<Callout variant="success" title="Ship it">
+Deploy to Cloudflare Pages or Vercel. Add a Stripe restricted key to env. Use test mode for the demo, then activate live mode when you're ready for real money.
+</Callout>

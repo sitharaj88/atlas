@@ -1,0 +1,85 @@
+---
+title: Default type parameters
+description: Make generics easier to consume by providing sensible defaults.
+sidebar:
+  order: 3
+pathSlug: typescript
+module: generics
+lessonNumber: 3
+difficulty: intermediate
+duration: 5 min
+prerequisites:
+  - Generics from first principles
+objectives:
+  - Add default type arguments
+  - Use defaults to simplify common cases
+tags: [typescript, generics]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Defaults
+
+```ts
+type ApiResponse<T = unknown> = { ok: boolean; data: T };
+
+const r1: ApiResponse = { ok: true, data: 42 };       // T = unknown
+const r2: ApiResponse<{ name: string }> = { ok: true, data: { name: 'a' } };
+```
+
+Same syntax as JS function defaults. Trailing arguments can be omitted.
+
+## React's useState
+
+```ts
+function useState<T = undefined>(initial?: T): [T, (v: T) => void];
+
+const [count, setCount] = useState(0);     // T = number
+const [name, setName] = useState<string>(); // T = string (initial: undefined)
+```
+
+## Constraints + defaults
+
+```ts
+type ListBox<T extends string = 'general'> = {
+  category: T;
+  items: string[];
+};
+```
+
+`T` must be a string; defaults to `'general'` if omitted.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/generics/defaults"
+  questions={[
+    {
+      id: 'gd-1',
+      type: 'single',
+      prompt: '`type Box<T = string>` — what does the `= string` part do?',
+      options: [
+        { value: 'a', label: 'Constrains T to be string' },
+        { value: 'b', label: 'Sets the default type when T is omitted' },
+        { value: 'c', label: 'Initializes runtime value' },
+        { value: 'd', label: 'Nothing' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+The Generics module wraps. Next: **Type-Level Programming.**
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/generics/defaults"
+  lessonHref="/paths/typescript/generics/defaults/"
+  lessonTitle="Default type parameters"
+  nextHref="/paths/typescript/type-level/conditional-types/"
+  nextTitle="Conditional types and infer"
+/>

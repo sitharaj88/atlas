@@ -1,0 +1,97 @@
+---
+title: 'Discriminated unions — the workhorse pattern'
+description: A union with a common literal field. The pattern that handles 80% of state-machine and result-type cases.
+sidebar:
+  order: 3
+pathSlug: typescript
+module: narrowing
+lessonNumber: 3
+difficulty: intermediate
+duration: 7 min
+prerequisites:
+  - You've seen the narrowing flowchart
+objectives:
+  - Model state machines with discriminated unions
+  - Use exhaustive switch with never
+tags: [typescript, narrowing]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The pattern
+
+```ts
+type Result<T> =
+  | { status: 'pending' }
+  | { status: 'success'; data: T }
+  | { status: 'error'; message: string };
+
+function handle<T>(r: Result<T>) {
+  switch (r.status) {
+    case 'pending': return 'Loading…';
+    case 'success': return r.data;     // ✓ `data` is in scope
+    case 'error':   return r.message;  // ✓ `message` is in scope
+  }
+}
+```
+
+The shared **`status`** field discriminates. TypeScript narrows automatically inside each branch.
+
+## Exhaustive checks
+
+```ts
+function handle<T>(r: Result<T>) {
+  switch (r.status) {
+    case 'pending': return 'Loading…';
+    case 'success': return r.data;
+    case 'error':   return r.message;
+    default: {
+      const _: never = r;          // ← compile error if a new variant is added
+      return _;
+    }
+  }
+}
+```
+
+Add a new `Result` variant → the `default` errors → you must handle it. The compiler enforces completeness.
+
+## When to use
+
+- **State machines** — pending/loading/success/error.
+- **Variant data** — different shapes for different kinds of items.
+- **Event types** — `{ type: 'click'; x: number; y: number } | { type: 'scroll'; delta: number }`.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/narrowing/discriminated-unions"
+  questions={[
+    {
+      id: 'du-1',
+      type: 'single',
+      prompt: 'What makes a discriminated union "discriminated"?',
+      options: [
+        { value: 'a', label: 'A `discriminator` keyword' },
+        { value: 'b', label: 'A common LITERAL-typed field across all union members' },
+        { value: 'c', label: 'It uses interfaces, not types' },
+        { value: 'd', label: 'It\'s wrapped in a class' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Assertion functions and `asserts x is T`.**
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/narrowing/discriminated-unions"
+  lessonHref="/paths/typescript/narrowing/discriminated-unions/"
+  lessonTitle="Discriminated unions"
+  nextHref="/paths/typescript/narrowing/assertions/"
+  nextTitle="Assertion functions"
+/>

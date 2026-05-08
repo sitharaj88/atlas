@@ -1,0 +1,72 @@
+---
+title: 'Streaming and Suspense — UX, not just perf'
+description: Render the fast parts now, the slow parts later. Without page jank.
+sidebar:
+  order: 3
+pathSlug: frontier
+module: rsc
+lessonNumber: 3
+difficulty: advanced
+duration: 5 min
+tags: [react, suspense, streaming]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The pattern
+
+```tsx
+export default async function Page() {
+  return (
+    <main>
+      <Header />                                {/* fast — synchronous */}
+      <Suspense fallback={<Spinner />}>
+        <SlowFeed />                             {/* awaits data, takes 800ms */}
+      </Suspense>
+      <Suspense fallback={<Spinner />}>
+        <RecommendedList />                      {/* takes 1200ms */}
+      </Suspense>
+    </main>
+  );
+}
+```
+
+The HTML for `<Header />` flushes immediately. The Suspense boundaries' HTML streams in as their data resolves — no waiting for the slowest one to start rendering.
+
+## Why this is amazing
+
+- **First Contentful Paint** — fastest possible.
+- **No spinner-on-everything** — only the slow parts show fallback.
+- **Parallel data fetching** — siblings start fetching at the same time.
+- **No waterfalls** — without RSC, you'd often see "fetch user, then fetch user's posts, then render."
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/rsc/streaming-suspense"
+  questions={[
+    {
+      id: 'sus-1',
+      type: 'single',
+      prompt: 'Wrapping a slow component in <Suspense> means…',
+      options: [
+        { value: 'a', label: 'It runs faster' },
+        { value: 'b', label: 'The page renders the rest immediately; the suspended part streams in when ready, with a fallback in the meantime' },
+        { value: 'c', label: 'It moves to the client' },
+        { value: 'd', label: 'It crashes' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/rsc/streaming-suspense"
+  lessonHref="/paths/frontier/rsc/streaming-suspense/"
+  lessonTitle="Streaming and Suspense"
+  nextHref="/paths/frontier/edge/what-edge-is/"
+  nextTitle="What 'the edge' actually is"
+/>

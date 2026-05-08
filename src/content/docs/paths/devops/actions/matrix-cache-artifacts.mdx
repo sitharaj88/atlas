@@ -1,0 +1,100 @@
+---
+title: 'Matrix builds, caching, artifacts'
+description: Speed and parallelism for CI.
+sidebar:
+  order: 2
+pathSlug: devops
+module: actions
+lessonNumber: 2
+difficulty: intermediate
+duration: 5 min
+tags: [github-actions]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Matrix
+
+```yaml
+strategy:
+  matrix:
+    node: [18, 20, 22]
+    os: [ubuntu-latest, macos-latest]
+runs-on: ${{ matrix.os }}
+steps:
+  - uses: actions/setup-node@v4
+    with: { node-version: ${{ matrix.node }} }
+```
+
+Runs the job 6 times (3 nodes × 2 OS) in parallel.
+
+## Caching
+
+`actions/setup-node@v4` with `cache: pnpm` caches `node_modules` keyed by lockfile hash:
+
+```yaml
+- uses: actions/setup-node@v4
+  with: { node-version: 20, cache: pnpm }
+```
+
+For arbitrary paths:
+
+```yaml
+- uses: actions/cache@v4
+  with:
+    path: ~/.cache/playwright
+    key: pw-${{ hashFiles('pnpm-lock.yaml') }}
+```
+
+## Artifacts
+
+Pass files between jobs (build → deploy) or save for debugging:
+
+```yaml
+# In build job
+- uses: actions/upload-artifact@v4
+  with: { name: dist, path: dist }
+
+# In deploy job
+- uses: actions/download-artifact@v4
+  with: { name: dist, path: dist }
+```
+
+For traces / logs from failures:
+
+```yaml
+- if: failure()
+  uses: actions/upload-artifact@v4
+  with: { name: traces, path: test-results }
+```
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="devops/actions/matrix-cache-artifacts"
+  questions={[
+    {
+      id: 'mca-1',
+      type: 'single',
+      prompt: 'Best key for a node_modules cache?',
+      options: [
+        { value: 'a', label: 'A constant string' },
+        { value: 'b', label: 'A hash of the lockfile (`pnpm-lock.yaml`) — invalidates only when deps change' },
+        { value: 'c', label: 'The branch name' },
+        { value: 'd', label: 'The current date' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="devops/actions/matrix-cache-artifacts"
+  lessonHref="/paths/devops/actions/matrix-cache-artifacts/"
+  lessonTitle="Matrix, cache, artifacts"
+  nextHref="/paths/devops/actions/reusable-workflows/"
+  nextTitle="Reusable workflows and composite actions"
+/>

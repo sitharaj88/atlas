@@ -1,0 +1,74 @@
+---
+title: 'CLS — Cumulative Layout Shift'
+description: How much the page jumps around. Almost always fixable in CSS.
+sidebar:
+  order: 4
+pathSlug: performance-a11y-seo
+module: web-vitals
+lessonNumber: 3
+difficulty: intermediate
+duration: 5 min
+tags: [performance, cls]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What it measures
+
+Sum of unexpected layout shifts during page life. Goal: ≤ 0.1 at the 75th percentile.
+
+## Common causes
+
+- Images without `width`/`height`.
+- Embeds (YouTube, ads) loading after content.
+- Web fonts swapping in with very different metrics.
+- Banners pushed in by JS late.
+
+## Fixes
+
+```html
+<!-- 1. Images: always width + height (or aspect-ratio) -->
+<img src="..." width="1200" height="675" alt="...">
+
+<!-- 2. Reserve space for embeds -->
+<div style="aspect-ratio: 16 / 9; background: #f0f0f0;">
+  <iframe src="..." />
+</div>
+
+<!-- 3. Match font metrics -->
+@font-face { src: url(...); size-adjust: 105%; ascent-override: 90%; }
+
+<!-- 4. Animate with transform, not top/left -->
+.menu { transform: translateX(-100%); transition: transform 200ms; }
+```
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/web-vitals/cls"
+  questions={[
+    {
+      id: 'cls-1',
+      type: 'single',
+      prompt: 'Best single fix for image-caused CLS?',
+      options: [
+        { value: 'a', label: 'loading="lazy"' },
+        { value: 'b', label: 'Set `width` and `height` on every image' },
+        { value: 'c', label: 'Use AVIF' },
+        { value: 'd', label: 'Inline images' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/web-vitals/cls"
+  lessonHref="/paths/performance-a11y-seo/web-vitals/cls/"
+  lessonTitle="CLS"
+  nextHref="/paths/performance-a11y-seo/optimization/image-optimization/"
+  nextTitle="Image optimization"
+/>

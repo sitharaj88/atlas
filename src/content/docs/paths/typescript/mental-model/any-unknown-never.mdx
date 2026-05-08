@@ -1,0 +1,136 @@
+---
+title: '`any`, `unknown`, `never` — when each is right'
+description: Three special types with surprisingly different powers — and when each is the correct answer.
+sidebar:
+  order: 4
+pathSlug: typescript
+module: mental-model
+lessonNumber: 4
+difficulty: beginner
+duration: 8 min
+prerequisites:
+  - You\'ve completed the previous mental-model lessons
+objectives:
+  - Distinguish any, unknown, never
+  - Use unknown for untrusted inputs
+  - Recognize never as the "this can\'t happen" type
+tags: [typescript, types]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** When to use `any` (almost never), `unknown` (when you don't yet know), `never` (when nothing is possible).
+
+## any — escape hatch
+
+```ts
+let x: any = 5;
+x.foo.bar();    // no error; runtime crash awaits
+```
+
+Disables type checking entirely. Use only when:
+- Migrating from JS and you'll fix it later (mark with TODO).
+- Working with truly dynamic data and there's no better type.
+
+`any` is contagious: it propagates through expressions and returns. Banish it.
+
+## unknown — type-safe any
+
+```ts
+let x: unknown = JSON.parse(text);
+x.foo;          // ✗ Object is of type 'unknown'
+if (typeof x === 'object' && x !== null && 'foo' in x) {
+  x.foo;        // ✓ narrowed
+}
+```
+
+`unknown` accepts any value but won't let you use it without narrowing. **Default to `unknown`** for untrusted input (parsed JSON, `catch (e)`, `localStorage`).
+
+## never — bottom type
+
+```ts
+function fail(msg: string): never {
+  throw new Error(msg);
+}
+
+function exhaustive(x: 'a' | 'b'): string {
+  if (x === 'a') return 'A';
+  if (x === 'b') return 'B';
+  const _: never = x;   // ← if a new variant is added, this errors
+  return _;
+}
+```
+
+`never` is the type with no values. Functions that throw or loop forever return `never`. The exhaustive-check pattern is the killer use — adding a new union variant breaks the build until you handle it.
+
+## A handy comparison
+
+| Type | Accepts | Lets you use it |
+|---|---|---|
+| **`any`** | anything | yes (no checks) |
+| **`unknown`** | anything | no (must narrow) |
+| **`never`** | nothing | always assignable |
+
+## In catch clauses
+
+```ts
+try { /* ... */ }
+catch (e) {                  // type: unknown (with strict)
+  if (e instanceof Error) console.error(e.message);
+  else console.error('unknown error', e);
+}
+```
+
+With `strict` (specifically `useUnknownInCatchVariables`), `e` is `unknown`. You must narrow before using.
+
+<Callout variant="warn" title="Forbid `any` in your linter">
+Add `@typescript-eslint/no-explicit-any` to your ESLint or `noExplicitAny` in Biome. Force yourself to reach for `unknown`. Code quality jumps overnight.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/mental-model/any-unknown-never"
+  questions={[
+    {
+      id: 'aun-1',
+      type: 'single',
+      prompt: 'You parse JSON from a remote API. Best annotation?',
+      options: [
+        { value: 'a', label: 'any (you can\'t know)' },
+        { value: 'b', label: 'unknown — forces validation before use' },
+        { value: 'c', label: 'never' },
+        { value: 'd', label: 'object' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'aun-2',
+      type: 'single',
+      prompt: 'A function `throw new Error(...)` (always throws) returns…',
+      options: [
+        { value: 'a', label: 'undefined' },
+        { value: 'b', label: 'never' },
+        { value: 'c', label: 'void' },
+        { value: 'd', label: 'unknown' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+The mental-model module is complete. Next: **The Building Blocks** — primitives, unions, intersections, interfaces.
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/mental-model/any-unknown-never"
+  lessonHref="/paths/typescript/mental-model/any-unknown-never/"
+  lessonTitle="any, unknown, never"
+  nextHref="/paths/typescript/building-blocks/primitives-unions/"
+  nextTitle="Primitives, literals, unions, intersections"
+/>

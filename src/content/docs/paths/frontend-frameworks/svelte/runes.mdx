@@ -1,0 +1,66 @@
+---
+title: 'Runes — Svelte 5''s reactivity primitives'
+description: Svelte 5 replaces magic compilation with explicit runes. Less surprise, same DX.
+sidebar:
+  order: 1
+pathSlug: frontend-frameworks
+module: svelte
+lessonNumber: 1
+difficulty: intermediate
+duration: 6 min
+tags: [svelte, runes]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## A component
+
+```svelte
+<script>
+  let count = $state(0);
+  let doubled = $derived(count * 2);
+  $effect(() => console.log('count:', count));
+</script>
+
+<button onclick={() => count++}>{count} (doubled: {doubled})</button>
+```
+
+- **`$state`** — reactive value.
+- **`$derived`** — computed. Auto-tracks deps.
+- **`$effect`** — side effect that re-runs when its deps change.
+- **`$props`** — declare component props.
+
+## Why runes (vs. Svelte 4)
+
+Svelte 4 used compiler magic — top-level `let` was reactive, plain assignment in scripts triggered updates. Powerful but surprising. Runes make reactivity explicit; type-checking and AST tooling work better.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/svelte/runes"
+  questions={[
+    {
+      id: 'rn-1',
+      type: 'single',
+      prompt: 'In Svelte 5, the rune for a reactive value is…',
+      options: [
+        { value: 'a', label: '$ref' },
+        { value: 'b', label: '$state' },
+        { value: 'c', label: '$reactive' },
+        { value: 'd', label: 'plain `let`' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/svelte/runes"
+  lessonHref="/paths/frontend-frameworks/svelte/runes/"
+  lessonTitle="Svelte 5 runes"
+  nextHref="/paths/frontend-frameworks/svelte/compile-vs-runtime/"
+  nextTitle="Compile-time vs. runtime tradeoffs"
+/>

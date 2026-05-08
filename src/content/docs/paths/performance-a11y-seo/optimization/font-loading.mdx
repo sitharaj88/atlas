@@ -1,0 +1,78 @@
+---
+title: Font loading without FOUT/FOIT
+description: Custom fonts that don't make text invisible or jump around.
+sidebar:
+  order: 2
+pathSlug: performance-a11y-seo
+module: optimization
+lessonNumber: 2
+difficulty: intermediate
+duration: 5 min
+tags: [performance, fonts]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The four behaviors
+
+- **`font-display: auto`** — browser default; usually FOIT (text invisible briefly).
+- **`font-display: swap`** — show fallback immediately, swap when loaded. FOUT.
+- **`font-display: optional`** — try briefly; if not loaded fast enough, never use the custom font this session. Best for CWV but visually inconsistent.
+- **`font-display: fallback`** — middle ground.
+
+## Recommended setup
+
+```css
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter.woff2') format('woff2');
+  font-weight: 400 700;
+  font-display: swap;
+  /* Match the fallback's metrics to reduce visible shift on swap */
+  size-adjust: 105%;
+  ascent-override: 90%;
+}
+```
+
+## Preload the LCP font
+
+```html
+<link rel="preload" as="font" type="font/woff2" href="/fonts/Inter.woff2" crossorigin>
+```
+
+`crossorigin` is required even for same-origin fonts.
+
+## Subset
+
+Strip glyphs you don't use. `glyphhanger` and Google's `&text=` parameter help.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/optimization/font-loading"
+  questions={[
+    {
+      id: 'fl-1',
+      type: 'single',
+      prompt: 'Default `font-display: swap` ensures…',
+      options: [
+        { value: 'a', label: 'Custom font shows immediately' },
+        { value: 'b', label: 'Fallback font shows immediately; custom font swaps in when ready' },
+        { value: 'c', label: 'No custom font' },
+        { value: 'd', label: 'No fallback' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/optimization/font-loading"
+  lessonHref="/paths/performance-a11y-seo/optimization/font-loading/"
+  lessonTitle="Font loading"
+  nextHref="/paths/performance-a11y-seo/optimization/code-splitting/"
+  nextTitle="Code splitting and prefetching"
+/>

@@ -1,0 +1,77 @@
+---
+title: A first WebGPU compute shader
+description: Run code on the GPU from the browser. The hello world.
+sidebar:
+  order: 2
+pathSlug: frontier
+module: graphics
+lessonNumber: 2
+difficulty: advanced
+duration: 5 min
+tags: [webgpu, compute]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The shape
+
+```ts
+const adapter = await navigator.gpu.requestAdapter();
+const device = await adapter!.requestDevice();
+
+const shader = device.createShaderModule({ code: `
+  @group(0) @binding(0) var<storage, read_write> data: array<f32>;
+  @compute @workgroup_size(64)
+  fn main(@builtin(global_invocation_id) id: vec3u) {
+    data[id.x] = data[id.x] * 2.0;
+  }
+`});
+
+// (Buffer creation, pipeline setup, dispatch — ~30 lines of plumbing)
+```
+
+GPUs run thousands of threads in parallel. For data-parallel work (multiplying every element of an array), you can outperform CPU code by 10-100×.
+
+## What's possible in the browser
+
+- Image filters (blur, sharpen) on huge images.
+- ML inference (TensorFlow.js, ONNX Runtime Web with WebGPU backend).
+- Physics simulations.
+- Real-time generative art.
+
+## Limits
+
+- Verbose plumbing. Use libraries (TF.js, ONNX, Hugging Face Transformers.js).
+- WebGPU requires a recent browser. Fall back to WebGL or CPU for older ones.
+- Mobile WebGPU support is recent.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/graphics/first-compute-shader"
+  questions={[
+    {
+      id: 'cs-1',
+      type: 'single',
+      prompt: 'WebGPU compute shaders are good for…',
+      options: [
+        { value: 'a', label: 'DOM rendering' },
+        { value: 'b', label: 'Data-parallel compute on the GPU — image filters, ML inference, simulation' },
+        { value: 'c', label: 'CSS layouts' },
+        { value: 'd', label: 'Network requests' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/graphics/first-compute-shader"
+  lessonHref="/paths/frontier/graphics/first-compute-shader/"
+  lessonTitle="WebGPU compute shader"
+  nextHref="/paths/frontier/realtime/crdts-explained/"
+  nextTitle="CRDTs in plain English"
+/>

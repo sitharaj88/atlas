@@ -1,0 +1,77 @@
+---
+title: 'Deployment targets compared (Vercel, Fly, Railway, Cloudflare, your own VPS)'
+description: Where to host a full-stack web app. Trade-offs and recommendations.
+sidebar:
+  order: 1
+pathSlug: full-stack
+module: shipping
+lessonNumber: 1
+difficulty: intermediate
+duration: 6 min
+tags: [deployment, hosting]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The choices
+
+| Platform | Best for | Trade-off |
+|---|---|---|
+| **Vercel** | Next.js apps, frontend-heavy, CDN edge | Cost ramps with traffic; vendor opinions baked in |
+| **Cloudflare Pages + Workers** | Edge-first, low-cost, global | Workers runtime is not full Node |
+| **Netlify** | Static sites + functions | Functions less mature than Vercel |
+| **Fly.io** | Real apps with persistent processes, multi-region | Slightly more setup |
+| **Railway** | Quick deploy, simple full-stack | Smaller scale than Fly |
+| **Render** | Heroku-like simplicity | Pricier at scale |
+| **AWS / GCP** | Anything | Maximum flexibility, maximum complexity |
+| **Your own VPS (Hetzner, Linode)** | Cost control, root access | You manage everything |
+
+## Recommendations
+
+- **Frontend-only / static** — Cloudflare Pages or Netlify.
+- **Next.js / Remix full-stack** — Vercel for ease, Fly/Render if Vercel costs add up.
+- **Node + Postgres** — Fly + Fly Postgres, Railway, or Render.
+- **Cost-sensitive at scale** — your own server (Hetzner $5/mo VPSes go far).
+- **Edge-first (low latency global)** — Cloudflare Workers + D1/Hyperdrive.
+
+## What "managed" gets you
+
+- Zero-downtime deploys.
+- Auto SSL.
+- DNS / CDN.
+- Logs UI.
+- Reboots when crashed.
+- Scaling (auto or manual).
+
+You can do all this on a VPS with skill and time. Most teams get more value from spending that time on product.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/shipping/deployment-targets"
+  questions={[
+    {
+      id: 'dt-1',
+      type: 'single',
+      prompt: 'For a static Astro site, the cheapest reasonable host?',
+      options: [
+        { value: 'a', label: 'AWS EC2' },
+        { value: 'b', label: 'Cloudflare Pages or Netlify (both free for low traffic)' },
+        { value: 'c', label: 'A dedicated server' },
+        { value: 'd', label: 'A managed Kubernetes cluster' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/shipping/deployment-targets"
+  lessonHref="/paths/full-stack/shipping/deployment-targets/"
+  lessonTitle="Deployment targets"
+  nextHref="/paths/full-stack/shipping/zero-downtime/"
+  nextTitle="Zero-downtime deploys"
+/>

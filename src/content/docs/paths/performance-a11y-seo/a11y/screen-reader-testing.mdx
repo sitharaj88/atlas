@@ -1,0 +1,68 @@
+---
+title: 'Screen reader testing — VoiceOver, NVDA, TalkBack'
+description: Five-minute screen reader tests you can do today.
+sidebar:
+  order: 4
+pathSlug: performance-a11y-seo
+module: a11y
+lessonNumber: 4
+difficulty: intermediate
+duration: 5 min
+tags: [a11y, screen-readers]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Three screen readers worth knowing
+
+- **VoiceOver** — built into macOS (Cmd+F5) and iOS (triple-click home).
+- **NVDA** — free for Windows.
+- **TalkBack** — built into Android.
+
+## A 5-minute test
+
+1. Cmd+F5. **Tab through your page.** Each control should announce a clear name and role.
+2. **VO+H** — list headings. Are they ordered? Make sense?
+3. **VO+L** — list links. Are they descriptive?
+4. **Submit a form** with errors. Does VO announce them?
+5. **Open a modal.** Does focus move?
+
+You'll find 5 issues in 5 minutes on a fresh codebase. That's normal.
+
+## Common fails
+
+- Buttons named "click here."
+- Empty buttons (icon only, no aria-label).
+- Modal opens but focus stays on the trigger button.
+- Toasts appear with no `aria-live`.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/a11y/screen-reader-testing"
+  questions={[
+    {
+      id: 'sr-1',
+      type: 'single',
+      prompt: 'A form submit fails. The fastest way to make the error announce to a screen reader is…',
+      options: [
+        { value: 'a', label: 'A red border' },
+        { value: 'b', label: 'role="alert" or aria-live="assertive" on the error message container' },
+        { value: 'c', label: 'A bigger font' },
+        { value: 'd', label: 'A toast' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/a11y/screen-reader-testing"
+  lessonHref="/paths/performance-a11y-seo/a11y/screen-reader-testing/"
+  lessonTitle="Screen reader testing"
+  nextHref="/paths/performance-a11y-seo/a11y/color-motion/"
+  nextTitle="Color contrast and motion"
+/>

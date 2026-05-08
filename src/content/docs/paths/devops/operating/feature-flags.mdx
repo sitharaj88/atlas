@@ -1,0 +1,79 @@
+---
+title: Feature flags
+description: Decouple deploy from release. The single most calming tool in production ops.
+sidebar:
+  order: 1
+pathSlug: devops
+module: operating
+lessonNumber: 1
+difficulty: intermediate
+duration: 5 min
+tags: [feature-flags, ops]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What and why
+
+Code ships. Feature stays off until you flip a flag. Benefits:
+
+- **Kill switch** — instantly disable a buggy feature without redeploying.
+- **Gradual rollout** — 1%, 10%, 50%, 100% of users.
+- **A/B test** — assign variants by user hash.
+- **Per-user override** — turn on for QA / specific customers.
+- **Trunk-based dev** — merge incomplete features behind flags.
+
+## Code shape
+
+```ts
+if (await flags.isEnabled('new-checkout', { userId })) {
+  return newCheckout();
+} else {
+  return oldCheckout();
+}
+```
+
+## Tools
+
+- **LaunchDarkly** — full-featured, enterprise.
+- **GrowthBook** — open source, self-hostable.
+- **Unleash** — open source.
+- **Vercel Edge Config / Cloudflare KV** — DIY for simple cases.
+- **A row in Postgres** — fine for small teams.
+
+## Anti-patterns
+
+- **Stale flags** that nobody removes. Audit and clean up.
+- **Flags as long-term config.** Use env vars or settings instead.
+- **Cascading flags** (flag A depends on flag B depends on...). Hard to reason about.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="devops/operating/feature-flags"
+  questions={[
+    {
+      id: 'ff-1',
+      type: 'single',
+      prompt: 'Main benefit of feature flags?',
+      options: [
+        { value: 'a', label: 'Better performance' },
+        { value: 'b', label: 'Decouple "ship code" from "release feature" — instant rollback, gradual rollout' },
+        { value: 'c', label: 'Replace env vars' },
+        { value: 'd', label: 'Smaller bundle' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="devops/operating/feature-flags"
+  lessonHref="/paths/devops/operating/feature-flags/"
+  lessonTitle="Feature flags"
+  nextHref="/paths/devops/operating/canary-blue-green/"
+  nextTitle="Canary and blue/green deploys"
+/>

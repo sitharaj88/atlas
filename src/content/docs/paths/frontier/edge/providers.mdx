@@ -1,0 +1,63 @@
+---
+title: 'Cloudflare Workers, Vercel Edge, Deno Deploy'
+description: Three edge-runtime providers with different trade-offs.
+sidebar:
+  order: 2
+pathSlug: frontier
+module: edge
+lessonNumber: 2
+difficulty: advanced
+duration: 5 min
+tags: [edge, providers]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Cloudflare Workers
+
+300+ edge locations. Fastest cold starts. Cheapest at scale. Tightest runtime constraints (10ms CPU per request on free tier).
+
+Pair with: D1 (SQLite at edge), Workers KV, R2 (S3-compat object storage), Durable Objects (stateful per-key).
+
+## Vercel Edge
+
+Built into Next.js's `runtime: 'edge'` opt-in. Easiest if you're already on Vercel. Slightly fewer locations than Cloudflare.
+
+## Deno Deploy
+
+Deno's edge platform. TypeScript-native, npm-compatible. Fewer locations than Cloudflare.
+
+## All speak the same standards
+
+`Request`, `Response`, `fetch`, `streams` — all three platforms support the same Web Standards. Same Hono app deploys to all three.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/edge/providers"
+  questions={[
+    {
+      id: 'pr-1',
+      type: 'single',
+      prompt: 'Most edge-locations and cheapest at scale?',
+      options: [
+        { value: 'a', label: 'Vercel Edge' },
+        { value: 'b', label: 'Cloudflare Workers' },
+        { value: 'c', label: 'Deno Deploy' },
+        { value: 'd', label: 'AWS Lambda@Edge' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/edge/providers"
+  lessonHref="/paths/frontier/edge/providers/"
+  lessonTitle="Edge providers"
+  nextHref="/paths/frontier/edge/fetch-handler/"
+  nextTitle="The Fetch handler and the small global object"
+/>

@@ -1,0 +1,206 @@
+---
+title: Grid, the powerful version
+description: Two-dimensional CSS layout — the right tool when items align across rows AND columns. With the modern fr unit, repeat(), and auto-fit.
+sidebar:
+  order: 4
+pathSlug: foundations
+module: css
+lessonNumber: 4
+difficulty: beginner
+duration: 14 min
+prerequisites:
+  - You've completed the Flexbox lesson
+objectives:
+  - Lay out a 2D grid with explicit and implicit tracks
+  - Use fr, repeat(), minmax(), auto-fit/auto-fill
+  - Place items by line, span, or named area
+tags: [css, grid, layout]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Grid is for two-dimensional layout — when you need control across BOTH rows and columns. Once you have the recipes, it's the most ergonomic layout tool CSS has ever offered.
+
+## The minimum viable grid
+
+```css
+.container {
+  display: grid;
+  grid-template-columns: 200px 1fr 100px;
+  gap: 1rem;
+}
+```
+
+Three columns: 200px, then "fill the remaining space," then 100px. Done.
+
+## The `fr` unit
+
+`fr` = "fraction of available space." It distributes leftover after fixed sizes are accounted for.
+
+```css
+grid-template-columns: 1fr 2fr 1fr;  /* 25% / 50% / 25% of available */
+grid-template-columns: 200px 1fr 1fr; /* 200 fixed; rest split equally */
+```
+
+## `repeat()` and `minmax()`
+
+The killer combo.
+
+```css
+/* 12 equal columns */
+grid-template-columns: repeat(12, 1fr);
+
+/* 12 columns, each at least 80px (text won't overflow) */
+grid-template-columns: repeat(12, minmax(80px, 1fr));
+
+/* Cards that wrap when they can't fit at min 14rem */
+grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+```
+
+`auto-fit` is the magic. Drop a bunch of children in, they auto-arrange into as many columns as fit, with each at least 14rem. **No media queries needed.**
+
+`auto-fill` is similar but creates empty tracks even when no items remain — useful when you want a visible grid skeleton.
+
+## Rows
+
+By default Grid creates rows automatically as items flow in. To set them:
+
+```css
+grid-template-rows: 60px 1fr 80px;     /* header, body, footer */
+grid-auto-rows: minmax(120px, auto);   /* implicit row size */
+```
+
+## Placing items
+
+Three ways:
+
+**1. Auto flow** — items fill row by row, left to right. Good default.
+
+**2. Line numbers**
+
+```css
+.hero { grid-column: 1 / 4; }   /* span columns 1 to 4 */
+.hero { grid-column: 1 / -1; }  /* span all columns */
+.hero { grid-column: span 2; }  /* span 2 columns from current */
+```
+
+**3. Named areas** — the most readable for page layouts:
+
+```css
+.app {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "header header"
+    "side   main"
+    "footer footer";
+}
+.header { grid-area: header; }
+.side   { grid-area: side;   }
+.main   { grid-area: main;   }
+.footer { grid-area: footer; }
+```
+
+The visual ASCII layout in CSS *is* the layout. Reorder by editing the strings.
+
+## Aligning items
+
+Same names as flex, two of them:
+
+- **`justify-items`** / `justify-self` — inline axis (horizontal in default writing mode).
+- **`align-items`** / `align-self` — block axis (vertical).
+- **`place-items`** / `place-self` — both at once.
+
+```css
+.container { place-items: center; }   /* center every cell's contents */
+.special   { place-self: end center; } /* override one item */
+```
+
+## Subgrid
+
+When a grid child wants to share its parent's tracks:
+
+```css
+.parent {
+  display: grid;
+  grid-template-columns: 200px 1fr 100px;
+}
+.child {
+  grid-column: 1 / -1;
+  display: grid;
+  grid-template-columns: subgrid;   /* inherit parent's columns */
+}
+```
+
+Useful for forms (label + input across rows), card grids that need internal alignment.
+
+## When NOT to use Grid
+
+- Single-axis layout (use Flex).
+- Centering one element (use Flex or `place-items: center`).
+- Tabular data (use `<table>` — yes, really).
+
+<Callout variant="tip" title='The "auto-fit" + "minmax" gold pattern'>
+Almost any responsive card grid you'll ever build is `grid-template-columns: repeat(auto-fit, minmax(<min-card-width>, 1fr))`. Memorize that one line — it eliminates 80% of media queries you used to write.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/css/grid"
+  questions={[
+    {
+      id: 'grid-1',
+      type: 'single',
+      prompt: 'You want responsive cards: at least 16rem each, as many across as fit, no media queries. The `grid-template-columns` value is…',
+      options: [
+        { value: 'a', label: 'repeat(auto-fit, 16rem)' },
+        { value: 'b', label: 'repeat(auto-fit, minmax(16rem, 1fr))' },
+        { value: 'c', label: 'repeat(3, 16rem)' },
+        { value: 'd', label: '16rem 16rem 16rem' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'grid-2',
+      type: 'single',
+      prompt: 'A grid item should span all columns. Which works?',
+      options: [
+        { value: 'a', label: 'grid-column: 1 / -1' },
+        { value: 'b', label: 'grid-column: span all' },
+        { value: 'c', label: 'width: 100%' },
+        { value: 'd', label: 'grid-area: full' },
+      ],
+      answer: 'a',
+    },
+    {
+      id: 'grid-3',
+      type: 'single',
+      prompt: 'When does Flexbox win over Grid?',
+      options: [
+        { value: 'a', label: 'Always — Grid is overkill' },
+        { value: 'b', label: 'When laying out a single row or column without 2D alignment needs' },
+        { value: 'c', label: 'When using `gap`' },
+        { value: 'd', label: 'For form fields' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Responsive design with relative units** — `rem`, `em`, `%`, `vw`/`vh`, `clamp()` — pick the right one for the job.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/css/grid"
+  lessonHref="/paths/foundations/css/grid/"
+  lessonTitle="Grid, the powerful version"
+  nextHref="/paths/foundations/css/responsive-units/"
+  nextTitle="Responsive design with relative units"
+/>

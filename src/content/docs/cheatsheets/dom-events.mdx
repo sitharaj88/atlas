@@ -1,0 +1,122 @@
+---
+title: DOM events cheatsheet
+description: The events you'll use, when each fires, and the gotchas.
+sidebar:
+  order: 9
+tags: [dom, events, cheatsheet]
+---
+
+> Print-friendly.
+
+## Mouse / pointer
+
+| Event | Fires when |
+|---|---|
+| `click` | Pointer down then up over same element |
+| `dblclick` | Two clicks in a row |
+| `mousedown` / `mouseup` | Button pressed / released |
+| `mousemove` | Pointer moves |
+| `mouseenter` / `mouseleave` | Pointer enters/leaves (no bubble) |
+| `mouseover` / `mouseout` | Same but bubble |
+| `contextmenu` | Right-click / long-press |
+| `wheel` | Scroll wheel / trackpad |
+| `pointerdown` / `pointerup` / `pointermove` | Unified mouse + touch + pen (preferred) |
+
+## Keyboard
+
+| Event | Fires when |
+|---|---|
+| `keydown` | Key pressed |
+| `keyup` | Key released |
+| ~~`keypress`~~ | **Deprecated** |
+
+```js
+addEventListener('keydown', e => {
+  e.key;          // 'Enter', 'a', 'ArrowUp', '/'
+  e.code;         // physical key 'KeyA' (layout-independent)
+  e.ctrlKey, e.metaKey, e.shiftKey, e.altKey;
+});
+```
+
+## Form
+
+| Event | Fires when |
+|---|---|
+| `submit` | Form submitted (Enter or button) |
+| `change` | Value changed AND committed (blur for text inputs) |
+| `input` | Value changes (per keystroke for text) |
+| `focus` / `blur` | Element focused / lost focus (no bubble) |
+| `focusin` / `focusout` | Same but bubble |
+| `reset` | Form reset |
+
+## Window / document
+
+| Event | Fires when |
+|---|---|
+| `DOMContentLoaded` | Initial HTML parsed (subresources may still load) |
+| `load` | All resources loaded |
+| `beforeunload` | Tab/window about to close (returnValue prompts user) |
+| `pagehide` / `pageshow` | More reliable than unload (bfcache-aware) |
+| `visibilitychange` | Tab hidden/visible |
+| `online` / `offline` | Network connectivity changed |
+| `hashchange` | URL hash changed |
+| `popstate` | Browser back/forward |
+| `resize` | Window resized |
+| `scroll` | Document or element scrolled |
+
+## Drag & drop
+
+```js
+zone.addEventListener('dragover', e => e.preventDefault());  // REQUIRED
+zone.addEventListener('drop', e => {
+  e.preventDefault();
+  for (const file of e.dataTransfer.files) upload(file);
+});
+```
+
+Don't forget `preventDefault` on `dragover`.
+
+## Custom events
+
+```js
+el.dispatchEvent(new CustomEvent('atlas:save', { detail: { id: 42 }, bubbles: true }));
+parent.addEventListener('atlas:save', e => console.log(e.detail));
+```
+
+## addEventListener options
+
+```js
+el.addEventListener('click', fn, {
+  once: true,        // remove after first
+  passive: true,     // promises NOT to call preventDefault — improves scroll perf
+  capture: true,     // capture phase (default is bubble)
+  signal: ctrl.signal // remove via AbortController.abort()
+});
+```
+
+## Event flow
+
+1. **Capture** — window down to target's parent.
+2. **Target** — on the element.
+3. **Bubble** — back up to window.
+
+Default `addEventListener` runs in bubble. Pass `capture: true` for capture.
+
+## Stopping propagation
+
+```js
+e.preventDefault();              // cancel default action (form submit, link nav)
+e.stopPropagation();             // stop bubbling
+e.stopImmediatePropagation();    // also skip remaining handlers on this element
+```
+
+## Delegation
+
+```js
+list.addEventListener('click', e => {
+  const item = e.target.closest('li');
+  if (item) handle(item.dataset.id);
+});
+```
+
+One listener for thousands of items. Survives DOM changes.

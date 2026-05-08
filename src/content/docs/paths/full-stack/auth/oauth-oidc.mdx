@@ -1,0 +1,76 @@
+---
+title: 'OAuth 2.0 / OIDC — Sign in with Google, GitHub, etc.'
+description: The protocols behind every "Sign in with" button.
+sidebar:
+  order: 3
+pathSlug: full-stack
+module: auth
+lessonNumber: 3
+difficulty: advanced
+duration: 7 min
+tags: [auth, oauth, oidc]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Two layers
+
+**OAuth 2.0** — authorization. "Can this app access your X on this provider?" Returns an access token.
+
+**OpenID Connect (OIDC)** — built on OAuth 2.0. Adds identity. Returns an ID token (a JWT) saying who the user is.
+
+For login, you want OIDC.
+
+## The Authorization Code flow with PKCE
+
+```text
+1. User clicks "Sign in with Google."
+2. Your app redirects to Google with: client_id, redirect_uri, scope, code_challenge.
+3. User logs in to Google, approves.
+4. Google redirects back with ?code=XYZ.
+5. Your server exchanges code + code_verifier → access_token + id_token.
+6. Verify id_token signature; extract user info.
+7. Create your own session for the user.
+```
+
+PKCE (Proof Key for Code Exchange) is mandatory for public clients (SPAs, mobile). Use it always.
+
+## Don't roll your own
+
+Use a library:
+- **Auth.js / NextAuth** — Next.js + others.
+- **Lucia Auth** — modern, framework-agnostic.
+- **Clerk, Auth0, WorkOS** — managed identity.
+
+Or your framework's plugin. The protocol has too many footguns to hand-implement.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/auth/oauth-oidc"
+  questions={[
+    {
+      id: 'oo-1',
+      type: 'single',
+      prompt: 'For "Sign in with Google" you specifically want…',
+      options: [
+        { value: 'a', label: 'OAuth 2.0' },
+        { value: 'b', label: 'OpenID Connect (OIDC) — adds identity to OAuth' },
+        { value: 'c', label: 'SAML' },
+        { value: 'd', label: 'Basic auth' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/auth/oauth-oidc"
+  lessonHref="/paths/full-stack/auth/oauth-oidc/"
+  lessonTitle="OAuth / OIDC"
+  nextHref="/paths/full-stack/auth/passkeys/"
+  nextTitle="Passkeys (WebAuthn)"
+/>

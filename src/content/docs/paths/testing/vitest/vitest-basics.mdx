@@ -1,0 +1,93 @@
+---
+title: Vitest in 5 minutes
+description: Modern, fast, ESM-native test runner. Jest-compatible API.
+sidebar:
+  order: 1
+pathSlug: testing
+module: vitest
+lessonNumber: 1
+difficulty: beginner
+duration: 5 min
+tags: [vitest, testing]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Setup
+
+```bash
+pnpm add -D vitest
+```
+
+```json
+// package.json
+{ "scripts": { "test": "vitest" } }
+```
+
+## A test
+
+```ts
+// math.test.ts
+import { describe, it, expect } from 'vitest';
+import { add } from './math';
+
+describe('add', () => {
+  it('sums two numbers', () => {
+    expect(add(2, 3)).toBe(5);
+  });
+});
+```
+
+`pnpm test` — watch mode by default. `pnpm test --run` for CI.
+
+## What you get
+
+- TypeScript out of the box.
+- Native ESM.
+- Jest-compatible matchers (`toBe`, `toEqual`, `toContain`, `toThrow`, ...).
+- `vi.fn()` for mocks.
+- UI mode: `vitest --ui`.
+- Coverage via V8 (`vitest --coverage`).
+
+## Common matchers
+
+```ts
+expect(x).toBe(y);                    // ===
+expect(obj).toEqual({ a: 1 });        // deep equal
+expect(arr).toContain(x);
+expect(fn).toThrow('message');
+expect(promise).resolves.toBe(x);
+expect(promise).rejects.toThrow();
+expect(spy).toHaveBeenCalledWith(x);
+```
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="testing/vitest/vitest-basics"
+  questions={[
+    {
+      id: 'vt-1',
+      type: 'single',
+      prompt: 'Difference between toBe and toEqual?',
+      options: [
+        { value: 'a', label: 'toBe is === (reference equality), toEqual is deep equality for objects' },
+        { value: 'b', label: 'toBe is for booleans only' },
+        { value: 'c', label: 'They\'re identical' },
+        { value: 'd', label: 'toEqual throws on null' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="testing/vitest/vitest-basics"
+  lessonHref="/paths/testing/vitest/vitest-basics/"
+  lessonTitle="Vitest"
+  nextHref="/paths/testing/vitest/mocks-spies-fakes/"
+  nextTitle="Mocks, spies, and fakes"
+/>

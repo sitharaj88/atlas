@@ -1,0 +1,68 @@
+---
+title: 'Cron and scheduled jobs — pitfalls'
+description: Recurring tasks that don't lock up your DB or run twice.
+sidebar:
+  order: 2
+pathSlug: full-stack
+module: background
+lessonNumber: 2
+difficulty: intermediate
+duration: 5 min
+tags: [cron, jobs]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Picking a runner
+
+- **GitHub Actions** — cron schedules in YAML. Free for public repos, generous for private.
+- **Vercel Cron** — for Vercel-deployed apps. Hits a route on schedule.
+- **Cloudflare Triggers** — for Workers.
+- **System cron** — on a VPS, classic.
+- **In-app schedulers (BullMQ repeat)** — when jobs are tightly coupled to your queue.
+
+## The pitfalls
+
+**Multiple instances run the same job.** Solution: a lock or "leader election" record. The first instance to acquire the lock runs.
+
+```sql
+-- Postgres advisory lock
+SELECT pg_try_advisory_lock(hash('daily-digest'));
+```
+
+**Jobs run forever and overlap.** Solution: a max runtime, killed on timeout. Lock with TTL.
+
+**Time zones.** Always use UTC in cron expressions. Convert for display only.
+
+**Long jobs miss their next run.** Either skip overlapping runs (most common) or queue them with a guard.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/background/cron"
+  questions={[
+    {
+      id: 'cn-1',
+      type: 'single',
+      prompt: 'Multiple servers run the same nightly job. To avoid duplicate work, use…',
+      options: [
+        { value: 'a', label: 'Time-based randomization' },
+        { value: 'b', label: 'A lock (advisory lock, Redis SETNX, etc.) so one server claims the run' },
+        { value: 'c', label: 'Catch the error if it fails' },
+        { value: 'd', label: 'Run twice anyway' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/background/cron"
+  lessonHref="/paths/full-stack/background/cron/"
+  lessonTitle="Cron and scheduled jobs"
+  nextHref="/paths/full-stack/observability/structured-logging/"
+  nextTitle="Structured logging"
+/>

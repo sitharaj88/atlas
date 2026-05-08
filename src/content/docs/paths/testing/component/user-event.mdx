@@ -1,0 +1,73 @@
+---
+title: userEvent vs. fireEvent
+description: Two ways to simulate user interaction. Pick userEvent.
+sidebar:
+  order: 2
+pathSlug: testing
+module: component
+lessonNumber: 2
+difficulty: intermediate
+duration: 4 min
+tags: [testing-library]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## userEvent — high-level, realistic
+
+```ts
+import userEvent from '@testing-library/user-event';
+
+const user = userEvent.setup();
+await user.click(button);
+await user.type(input, 'hello');
+await user.tab();          // shift focus
+await user.keyboard('{Enter}');
+```
+
+Simulates the **full** sequence of events a user causes (focus → keydown → keyup → input → click → ...).
+
+## fireEvent — low-level
+
+```ts
+fireEvent.click(button);
+fireEvent.change(input, { target: { value: 'hello' } });
+```
+
+Fires a single synthetic event. Faster but less realistic — bypasses focus, hover, etc.
+
+## When to use each
+
+- **userEvent** by default. Catches real bugs.
+- **fireEvent** for precise scenarios — testing a single event handler in isolation.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="testing/component/user-event"
+  questions={[
+    {
+      id: 'ue-1',
+      type: 'single',
+      prompt: 'For most component tests, prefer…',
+      options: [
+        { value: 'a', label: 'fireEvent' },
+        { value: 'b', label: 'userEvent — closer to real user behavior' },
+        { value: 'c', label: 'document.dispatchEvent' },
+        { value: 'd', label: 'No interaction simulation' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="testing/component/user-event"
+  lessonHref="/paths/testing/component/user-event/"
+  lessonTitle="userEvent vs fireEvent"
+  nextHref="/paths/testing/component/msw/"
+  nextTitle="Mock Service Worker for API stubs"
+/>

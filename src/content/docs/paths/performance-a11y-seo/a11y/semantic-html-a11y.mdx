@@ -1,0 +1,60 @@
+---
+title: 'Semantic HTML is 80% of a11y'
+description: The shortcut to most a11y wins — the right element does the right thing automatically.
+sidebar:
+  order: 1
+pathSlug: performance-a11y-seo
+module: a11y
+lessonNumber: 1
+difficulty: intermediate
+duration: 5 min
+tags: [a11y, semantics]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> Already covered in detail under Foundations: [Semantic HTML is 80% of a11y](/paths/foundations/a11y/semantic-html/). Recap below.
+
+## The rule
+
+Pick the element that **means** what you intend:
+
+- Click triggers an action → `<button>`
+- Click navigates → `<a href>`
+- Form group → `<form>` + `<fieldset>` + `<label>`
+- Sections → `<header>`, `<main>`, `<nav>`, `<aside>`, `<footer>`
+- Disclosure → `<details>` + `<summary>`
+- Modal → `<dialog>`
+
+`<div onclick>` is always wrong unless you've also added: focusable (`tabindex`), keyboard activation (Space+Enter), role (`role="button"`), and accessible name (`aria-label`). At which point — just use `<button>`.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/a11y/semantic-html-a11y"
+  questions={[
+    {
+      id: 'sh-1',
+      type: 'single',
+      prompt: 'Modal dialog. Best element?',
+      options: [
+        { value: 'a', label: '<div role="dialog">' },
+        { value: 'b', label: '<dialog> — built-in, accessible by default' },
+        { value: 'c', label: '<aside>' },
+        { value: 'd', label: '<section>' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/a11y/semantic-html-a11y"
+  lessonHref="/paths/performance-a11y-seo/a11y/semantic-html-a11y/"
+  lessonTitle="Semantic HTML for a11y"
+  nextHref="/paths/performance-a11y-seo/a11y/aria-rules/"
+  nextTitle="ARIA — the rules of use"
+/>

@@ -1,0 +1,63 @@
+---
+title: 'The big tradeoffs: ergonomics, performance, ecosystem'
+description: When to optimize for which axis when picking a framework.
+sidebar:
+  order: 3
+pathSlug: frontend-frameworks
+module: component-model
+lessonNumber: 3
+difficulty: intermediate
+duration: 5 min
+tags: [frameworks, choices]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The three axes
+
+- **Ergonomics** — how it feels to write code daily. (Svelte, Vue, Solid all win here for different reasons.)
+- **Performance** — runtime speed, memory, bundle size. (Signal-based and compiled win.)
+- **Ecosystem** — libraries, jobs, hires, learning material. (React leads by miles.)
+
+## Which axis matters?
+
+- **Solo project** — pick what you'll enjoy.
+- **Startup hiring devs** — React. Largest pool.
+- **Performance-critical (TVs, embedded)** — Solid, Lit, or vanilla.
+- **Content sites** — Astro (islands).
+- **Refactor-heavy team app** — TypeScript-friendly framework (React, Solid, Vue 3).
+
+## Reality check
+
+For 90% of web apps, **any modern framework is fine**. The bottleneck is rarely the framework — it's the developers' familiarity, the design system, the data layer, and the deploy pipeline.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/component-model/tradeoffs"
+  questions={[
+    {
+      id: 'to-1',
+      type: 'single',
+      prompt: 'Bigger ecosystem usually means…',
+      options: [
+        { value: 'a', label: 'Slower runtime' },
+        { value: 'b', label: 'More libraries, more devs available, more learning material' },
+        { value: 'c', label: 'Higher quality code' },
+        { value: 'd', label: 'Better DX' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/component-model/tradeoffs"
+  lessonHref="/paths/frontend-frameworks/component-model/tradeoffs/"
+  lessonTitle="The big tradeoffs"
+  nextHref="/paths/frontend-frameworks/react/jsx/"
+  nextTitle="JSX is just function calls"
+/>

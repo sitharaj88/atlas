@@ -1,0 +1,65 @@
+---
+title: CRDTs in plain English
+description: Conflict-free Replicated Data Types — multiple users, no central coordinator, no conflicts.
+sidebar:
+  order: 1
+pathSlug: frontier
+module: realtime
+lessonNumber: 1
+difficulty: advanced
+duration: 5 min
+tags: [crdt, realtime]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The problem
+
+Two users edit the same document offline. They reconnect. Whose change wins? Last-writer-wins is OK for some data, terrible for others.
+
+## CRDTs
+
+Data structures designed so concurrent edits **always merge cleanly** — the order operations arrive doesn't matter. Two replicas applying the same set of ops end up identical, regardless of order.
+
+## The intuition
+
+Each operation has a unique ID (timestamp + author). Operations are commutative under the merge function. "User A inserted X at position 5" + "User B inserted Y at position 5" → both inserts coexist; ordering deterministic by ID.
+
+## Real CRDT libraries
+
+- **Yjs** — most popular for collaborative documents. Used in CodeMirror, ProseMirror, Tiptap.
+- **Automerge** — JSON-document CRDTs. Strong type story.
+- **Liveblocks** — managed CRDT service with React/Vue/Svelte hooks.
+
+You almost never implement CRDTs by hand — pick a library.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/realtime/crdts-explained"
+  questions={[
+    {
+      id: 'cdt-1',
+      type: 'single',
+      prompt: 'CRDTs solve which problem?',
+      options: [
+        { value: 'a', label: 'Faster network transfer' },
+        { value: 'b', label: 'Concurrent edits from multiple users merging without conflicts and without a central coordinator' },
+        { value: 'c', label: 'Compression' },
+        { value: 'd', label: 'Encryption' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/realtime/crdts-explained"
+  lessonHref="/paths/frontier/realtime/crdts-explained/"
+  lessonTitle="CRDTs in plain English"
+  nextHref="/paths/frontier/realtime/yjs-liveblocks/"
+  nextTitle="Yjs and Liveblocks"
+/>

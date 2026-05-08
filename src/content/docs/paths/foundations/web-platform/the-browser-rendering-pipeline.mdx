@@ -1,0 +1,173 @@
+---
+title: The browser rendering pipeline
+description: From HTML bytes to pixels — DOM, CSSOM, layout, paint, composite. The mental model behind every performance fix.
+sidebar:
+  order: 4
+pathSlug: foundations
+module: web-platform
+lessonNumber: 4
+difficulty: beginner
+duration: 12 min
+prerequisites:
+  - You\'ve seen HTTP requests and responses
+objectives:
+  - Trace the steps from received HTML to painted pixels
+  - Distinguish layout, paint, and composite — and what triggers each
+  - Predict when a CSS change will cause layout vs. just paint
+tags: [browsers, rendering, performance]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** What the browser does between "received HTML bytes" and "pixels on screen" — and why understanding this changes how you write CSS, JS, and animations.
+
+## The pipeline
+
+```text
+HTML bytes ─► tokens ─► DOM tree
+CSS bytes  ─► tokens ─► CSSOM tree
+                        │
+            DOM + CSSOM ▼
+                Render tree (visible nodes only)
+                        │
+                        ▼
+           Layout (where + how big — "reflow")
+                        │
+                        ▼
+              Paint (pixels into layers)
+                        │
+                        ▼
+        Composite (layers stitched to screen)
+```
+
+Bytes flow downstream. JavaScript can punch into any stage and force the next.
+
+## What each stage does
+
+**Parsing** — The HTML parser builds the DOM tree. The CSS parser builds the CSSOM. Both happen incrementally as bytes arrive.
+
+**Render tree** — DOM + CSSOM, filtered to *visible* nodes. `display: none` elements aren't here. `visibility: hidden` elements *are* (they take up space).
+
+**Layout** — Compute the geometry: where each box goes, how big it is, how text wraps. Expensive. Triggered by anything that changes size, position, or content (width, height, top/left, font, text, adding/removing nodes).
+
+**Paint** — Fill in pixels for each box: backgrounds, borders, text, shadows. Less expensive than layout. Triggered by visual-only changes (color, background-image, box-shadow).
+
+**Composite** — Merge painted layers into the final image. Cheap. The GPU handles it. Transforms and opacity changes can stay on the compositor and skip layout/paint entirely.
+
+## The cheap properties
+
+Animating these stays on the compositor — the holy grail of smooth 60fps:
+
+- `transform` — `translate`, `scale`, `rotate`, `skew`
+- `opacity`
+- `filter` (in some browsers)
+
+Animating these triggers layout (slow):
+
+- `width`, `height`, `top`, `left`, `right`, `bottom`, `margin`, `padding`
+- `font-size`, `border-width`
+
+<Callout variant="tip" title="Move things with transform, not top/left">
+A menu sliding in via `transform: translateX(-100%)` → `translateX(0)` runs at 60fps on a phone. The same menu animating `left: -300px` → `left: 0` triggers layout every frame and stutters.
+</Callout>
+
+## How JavaScript can ruin it
+
+Two ways:
+
+**1. Long tasks block paint.** The main thread is single-threaded. While JS runs, no rendering happens. A 500ms parse blocks every frame for half a second.
+
+**2. Forced synchronous layout (a.k.a. "layout thrashing").** Reading certain DOM properties *forces* the browser to compute layout right now, even if it was about to do it anyway:
+
+```js
+// ❌ Bad: read in a loop after every write → layout per iteration
+for (const el of items) {
+  el.style.width = el.offsetWidth + 10 + 'px'; // read THEN write THEN read THEN write …
+}
+
+// ✅ Good: batch reads, then batch writes
+const widths = items.map((el) => el.offsetWidth);
+items.forEach((el, i) => {
+  el.style.width = widths[i] + 10 + 'px';
+});
+```
+
+Properties that force layout when read: `offsetWidth`, `offsetHeight`, `offsetTop`, `clientWidth/Height`, `scrollWidth/Height`, `scrollTop/Left`, `getBoundingClientRect()`, `getComputedStyle()`.
+
+## Streaming: pipeline starts before bytes finish
+
+The browser doesn't wait for the full HTML before starting. As bytes arrive:
+
+- Parser builds DOM incrementally
+- Preload scanner discovers `<img>`, `<link>`, `<script>` and starts fetches in parallel
+- First paint can happen before `</body>` is even received
+
+This is why **chunked HTML streaming + `<Suspense>`** wins so dramatically — the user sees something fast, the slow parts arrive later.
+
+## What blocks rendering
+
+- **Synchronous `<script>` in `<head>`** — parser stops dead until the script executes. Use `defer` or `async`.
+- **`<link rel="stylesheet">`** — parser continues, but rendering blocks until the stylesheet is downloaded and parsed. Inline critical CSS, defer the rest.
+- **Web fonts** — by default, text is invisible until the font loads ("FOIT"). Use `font-display: swap`.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/web-platform/the-browser-rendering-pipeline"
+  questions={[
+    {
+      id: 'pipe-1',
+      type: 'single',
+      prompt: 'You change `transform: translateX(0)` to `translateX(20px)`. Which pipeline stages run?',
+      options: [
+        { value: 'a', label: 'Layout, Paint, Composite' },
+        { value: 'b', label: 'Paint, Composite' },
+        { value: 'c', label: 'Composite only' },
+        { value: 'd', label: 'Layout only' },
+      ],
+      answer: 'c',
+      explanation: 'Transforms stay on the compositor — that\'s why they\'re the gold standard for animation.',
+    },
+    {
+      id: 'pipe-2',
+      type: 'single',
+      prompt: 'Reading `el.offsetWidth` after writing `el.style.width` causes…',
+      options: [
+        { value: 'a', label: 'Nothing — reads are free' },
+        { value: 'b', label: 'A forced synchronous layout' },
+        { value: 'c', label: 'A network request' },
+        { value: 'd', label: 'A composite layer to be created' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'pipe-3',
+      type: 'single',
+      prompt: 'Which element is in the render tree?',
+      options: [
+        { value: 'a', label: '`<div style="display: none">`' },
+        { value: 'b', label: '`<div style="visibility: hidden">`' },
+        { value: 'c', label: '`<head>`' },
+        { value: 'd', label: '`<script>` (the element itself, not what it does)' },
+      ],
+      answer: 'b',
+      explanation: '`display: none` is excluded; `visibility: hidden` still takes up space and is in the tree.',
+    },
+  ]}
+/>
+
+## What's next
+
+The Web Platform module wraps here. Next module: **HTML5** — the markup language you'll spend your career writing.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/web-platform/the-browser-rendering-pipeline"
+  lessonHref="/paths/foundations/web-platform/the-browser-rendering-pipeline/"
+  lessonTitle="The browser rendering pipeline"
+  nextHref="/paths/foundations/html/html-contract/"
+  nextTitle="HTML, the contract you sign with the browser"
+/>

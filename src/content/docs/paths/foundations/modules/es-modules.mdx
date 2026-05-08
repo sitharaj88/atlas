@@ -1,0 +1,205 @@
+---
+title: 'ES Modules, native `import`/`export`'
+description: How modern JavaScript organizes code — import, export, default vs named, and the differences from the old CommonJS world.
+sidebar:
+  order: 1
+pathSlug: foundations
+module: modules
+lessonNumber: 1
+difficulty: beginner
+duration: 10 min
+prerequisites:
+  - You\'ve completed the JavaScript Basics module
+objectives:
+  - Use named and default exports correctly
+  - Import statically and dynamically
+  - Recognize ESM vs. CJS gotchas
+tags: [javascript, modules, esm]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Native module syntax — what every modern bundler, browser, Node, Deno, and Bun all understand.
+
+## Named exports
+
+```js
+// math.js
+export function add(a, b) { return a + b; }
+export const PI = 3.14159;
+export class Vec2 { /* ... */ }
+```
+
+```js
+// app.js
+import { add, PI } from './math.js';
+import { add as plus } from './math.js';   // rename
+import * as math from './math.js';         // namespace import
+```
+
+The `.js` extension is required in browsers and in Node ESM. Bundlers and TS often allow you to omit it; keep it for portability.
+
+## Default export
+
+```js
+// logger.js
+export default function log(msg) { console.log(msg); }
+
+// app.js
+import log from './logger.js';   // any name; default is unnamed
+import myLogger from './logger.js'; // also fine
+```
+
+You can mix: a module can have **one default export** and any number of named exports.
+
+```js
+// react.js
+export default React;
+export { useState, useEffect };
+```
+
+## Re-exports
+
+```js
+// index.js — barrel file
+export * from './math.js';
+export { default as Logger } from './logger.js';
+export { useState } from './hooks.js';
+```
+
+Barrels let you say `import { add, Logger } from '~/lib'` instead of `~/lib/math.js` etc. Use sparingly — they can hurt tree-shaking and confuse build tools.
+
+## Dynamic imports
+
+```js
+const { add } = await import('./math.js');
+```
+
+Returns a Promise. Use for **code-splitting** — load heavy modules only when needed:
+
+```js
+button.addEventListener('click', async () => {
+  const { showEditor } = await import('./editor.js');
+  showEditor();
+});
+```
+
+Bundlers see `import('./editor.js')` and split it into a separate chunk.
+
+## import.meta
+
+```js
+console.log(import.meta.url);     // file:///path/to/this/module.js
+console.log(import.meta.resolve('./other.js')); // resolved URL
+
+// Vite-specific
+console.log(import.meta.env.MODE); // 'development' or 'production'
+```
+
+`import.meta` lets a module introspect itself — its URL, its env, its hot-reload context.
+
+## How ESM differs from CommonJS
+
+CommonJS is the old Node module system:
+
+```js
+// CJS
+const { add } = require('./math.js');
+module.exports = { add };
+```
+
+Differences that bite:
+
+- **ESM is async, CJS is sync.** ESM modules can use top-level `await`; CJS can't.
+- **ESM has live bindings** — if a module exports `let x`, you see updates. CJS exports a snapshot.
+- **ESM uses URLs**, CJS uses relative file paths.
+- **You can use ESM from CJS** via `import()`, but **not** the other way around with sync `require`.
+
+In a `package.json`, `"type": "module"` means `.js` files are ESM. Or use `.mjs` (ESM) and `.cjs` (CJS) explicitly.
+
+## Static analysis wins
+
+Static `import`/`export` lets bundlers do:
+
+- **Tree shaking** — strip unused exports.
+- **Hoisting** — imports are hoisted, so order doesn't matter as much.
+- **Dead-code elimination** — if you never call it, it's not in the bundle.
+
+Dynamic `import()` is opaque to most of these — bundle splits but doesn't tree-shake what's inside.
+
+## Common pitfalls
+
+```js
+// ❌ Circular imports — they often work, but are fragile.
+// a.js imports b.js, which imports a.js. Try to avoid.
+
+// ❌ Importing a CSS or JSON file might not work without a bundler / loader.
+//   In Vite/Webpack: yes. In raw browser ESM: only `import data from './x.json' assert { type: 'json' }` (newer).
+
+// ❌ Default exports lose their name. `import x from './y.js'` — x is whatever name you gave it.
+//    Some teams ban default exports for this reason.
+```
+
+<Callout variant="tip" title="Default vs named — pick a convention">
+There's no objectively right answer. Some teams say "always named, never default" for explicit imports. Others use default for the "main thing" of a module. Pick one and stick to it across the codebase.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/modules/es-modules"
+  questions={[
+    {
+      id: 'esm-1',
+      type: 'single',
+      prompt: 'A module exports `default function log() {...}`. Correct import?',
+      options: [
+        { value: 'a', label: 'import { log } from \'./logger.js\'' },
+        { value: 'b', label: 'import * as log from \'./logger.js\'' },
+        { value: 'c', label: 'import log from \'./logger.js\'' },
+        { value: 'd', label: 'import default as log from \'./logger.js\'' },
+      ],
+      answer: 'c',
+    },
+    {
+      id: 'esm-2',
+      type: 'single',
+      prompt: 'Which is true about static `import` vs. dynamic `import()`?',
+      options: [
+        { value: 'a', label: 'Both produce code-split chunks' },
+        { value: 'b', label: 'Static imports are statically analyzable; dynamic imports return a Promise and enable lazy loading' },
+        { value: 'c', label: 'Dynamic imports are deprecated' },
+        { value: 'd', label: 'Static imports are async' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'esm-3',
+      type: 'single',
+      prompt: 'You have a heavy editor module that\'s only needed when a button is clicked. Best loading?',
+      options: [
+        { value: 'a', label: 'Top-level static import — simpler' },
+        { value: 'b', label: 'Dynamic import inside the click handler: const m = await import(\'./editor.js\')' },
+        { value: 'c', label: 'Inline the entire editor in HTML' },
+        { value: 'd', label: 'Lazy with require()' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Bundlers vs. native — when each makes sense.**
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/modules/es-modules"
+  lessonHref="/paths/foundations/modules/es-modules/"
+  lessonTitle="ES Modules, native import/export"
+  nextHref="/paths/foundations/modules/bundlers/"
+  nextTitle="Bundlers vs. native — when each makes sense"
+/>

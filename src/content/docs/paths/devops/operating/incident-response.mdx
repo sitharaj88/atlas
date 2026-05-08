@@ -1,0 +1,82 @@
+---
+title: Incident response — the human part
+description: When prod is on fire, calm process beats fast hacking.
+sidebar:
+  order: 3
+pathSlug: devops
+module: operating
+lessonNumber: 3
+difficulty: intermediate
+duration: 6 min
+tags: [incidents, ops]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The roles (any team size)
+
+- **Incident commander** — coordinates, doesn't code. Makes decisions.
+- **Communications** — updates status page, customers, internal Slack.
+- **Subject experts** — actually fixing.
+
+In a small team, one person can wear two hats; never all three.
+
+## The first 10 minutes
+
+1. **Acknowledge.** Turn off the alarm, take ownership.
+2. **Stabilize > investigate.** Roll back if you can. Disable the feature. Throttle traffic.
+3. **Communicate.** Status page: "We're investigating issues with X."
+4. **Logs and dashboards open.** Look at the timeline of recent deploys / config changes.
+
+## The first 60 minutes
+
+- Identify the cause enough to fix or work around.
+- Update status page every 15-30 min, even with "still investigating."
+- Don't theorize publicly. State facts.
+
+## After
+
+- Status page: incident closed.
+- **Blameless postmortem** within 48 hours. What happened, what we did, what we'll change. **People-blame doesn't fix systems.**
+- Action items with owners and dates.
+
+## Tools
+
+- **Status pages**: Statuspage, Instatus, your own.
+- **PagerDuty / Opsgenie** for on-call rotation.
+- **Slack channel per incident** for the running log.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="devops/operating/incident-response"
+  questions={[
+    {
+      id: 'ir-1',
+      type: 'single',
+      prompt: 'In the first 10 minutes of an incident, the priority is…',
+      options: [
+        { value: 'a', label: 'Find root cause' },
+        { value: 'b', label: 'Stabilize first (rollback, disable) — investigate after' },
+        { value: 'c', label: 'Send a thorough customer email' },
+        { value: 'd', label: 'Refactor the broken code' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## Path complete
+
+You\'ve finished **DevOps for Web Developers**. Combine with [Testing & Quality](/paths/testing/) (CI plumbing) and [The Modern Frontier](/paths/frontier/) (edge runtimes, real-time).
+
+<LessonComplete
+  client:idle
+  lessonId="devops/operating/incident-response"
+  lessonHref="/paths/devops/operating/incident-response/"
+  lessonTitle="Incident response"
+  nextHref="/paths/frontier/"
+  nextTitle="The Modern Frontier"
+/>

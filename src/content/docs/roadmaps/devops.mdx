@@ -1,0 +1,52 @@
+---
+title: DevOps Roadmap
+description: From git to incident response — the operations skill set for shipping web apps.
+sidebar:
+  order: 4
+tags: [roadmap, devops]
+---
+
+import Roadmap from '~/components/Roadmap.tsx';
+
+<Roadmap
+  client:visible
+  height={620}
+  nodes={[
+    { id: 'git', label: 'Git, properly', description: 'Mental model + rescue toolkit',
+      href: '/paths/devops/git/mental-model/', position: { x: 0, y: 0 }, group: 'milestone' },
+
+    { id: 'gha', label: 'GitHub Actions', description: 'Workflows, jobs, secrets',
+      href: '/paths/devops/actions/workflows-jobs/', position: { x: 0, y: 110 }, group: 'core' },
+
+    { id: 'docker', label: 'Docker', description: 'Containers, multi-stage builds',
+      href: '/paths/devops/containers/docker-basics/', position: { x: -200, y: 230 }, group: 'core' },
+    { id: 'pages', label: 'Static deploys', description: 'GitHub Pages, Netlify, CF',
+      href: '/paths/devops/deploy/github-pages/',
+      lessonId: 'devops/deploy/github-pages',
+      position: { x: 0, y: 230 }, group: 'core' },
+    { id: 'fly', label: 'App platforms', description: 'Vercel, Fly, Railway',
+      href: '/paths/devops/deploy/vercel-netlify-cf/', position: { x: 200, y: 230 }, group: 'core' },
+
+    { id: 'observe', label: 'Observability', description: 'Logs, metrics, traces',
+      href: '/paths/devops/observability/three-pillars/',
+      position: { x: -150, y: 360 }, group: 'milestone' },
+    { id: 'flags', label: 'Feature flags', description: 'Decouple deploy from release',
+      href: '/paths/devops/operating/feature-flags/',
+      position: { x: 150, y: 360 }, group: 'core' },
+
+    { id: 'incidents', label: 'Incident response', description: 'Stabilize first, blameless postmortems',
+      href: '/paths/devops/operating/incident-response/',
+      position: { x: 0, y: 490 }, group: 'milestone' },
+  ]}
+  edges={[
+    { source: 'git', target: 'gha' },
+    { source: 'gha', target: 'docker', dashed: true },
+    { source: 'gha', target: 'pages' },
+    { source: 'gha', target: 'fly' },
+    { source: 'pages', target: 'observe' },
+    { source: 'fly', target: 'observe' },
+    { source: 'observe', target: 'flags' },
+    { source: 'observe', target: 'incidents' },
+    { source: 'flags', target: 'incidents' },
+  ]}
+/>

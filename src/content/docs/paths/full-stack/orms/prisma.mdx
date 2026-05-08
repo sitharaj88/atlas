@@ -1,0 +1,79 @@
+---
+title: 'Prisma — the popular choice'
+description: The most-used Node ORM. Powerful, batteries-included, occasionally heavy.
+sidebar:
+  order: 2
+pathSlug: full-stack
+module: orms
+lessonNumber: 2
+difficulty: intermediate
+duration: 5 min
+tags: [prisma, orms]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Schema in its own DSL
+
+```prisma
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  createdAt DateTime @default(now())
+  posts     Post[]
+}
+```
+
+`prisma migrate dev` generates SQL migrations.
+
+## Queries
+
+```ts
+const u = await prisma.user.findUnique({ where: { email: 'a@b.com' } });
+const created = await prisma.user.create({ data: { email: 'c@d.com' } });
+const withPosts = await prisma.user.findFirst({ include: { posts: true } });
+```
+
+Excellent autocomplete; nested includes feel natural.
+
+## Trade-offs
+
+Pros: largest ecosystem, polished tooling (Prisma Studio), great DX, well-documented.
+
+Cons: ships a Rust query engine binary (slower cold starts in serverless), generates a large client.
+
+## When Prisma vs Drizzle
+
+- **Prisma** — when you want batteries-included; team prefers DSL.
+- **Drizzle** — when you want lighter, SQL-first, faster cold starts.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/orms/prisma"
+  questions={[
+    {
+      id: 'pr-1',
+      type: 'single',
+      prompt: 'Prisma\'s schema is written in…',
+      options: [
+        { value: 'a', label: 'TypeScript' },
+        { value: 'b', label: 'Its own DSL (`schema.prisma`)' },
+        { value: 'c', label: 'Raw SQL only' },
+        { value: 'd', label: 'YAML' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/orms/prisma"
+  lessonHref="/paths/full-stack/orms/prisma/"
+  lessonTitle="Prisma"
+  nextHref="/paths/full-stack/orms/kysely/"
+  nextTitle="Kysely — query builder for SQL purists"
+/>

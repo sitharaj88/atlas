@@ -1,0 +1,74 @@
+---
+title: 'OWASP Top 10 — for web devs, not pen-testers'
+description: Ten classes of web app vulnerabilities, what they are, and how to defend.
+sidebar:
+  order: 1
+pathSlug: frontier
+module: security
+lessonNumber: 1
+difficulty: advanced
+duration: 7 min
+tags: [security, owasp]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The Top 10 (paraphrased)
+
+1. **Broken access control** — users do things they shouldn't. Always check authz on the server. Don't trust hidden form fields.
+2. **Cryptographic failures** — weak hashes, plaintext storage. Argon2 for passwords; HTTPS everywhere; encrypt at rest.
+3. **Injection** — SQL injection, NoSQL injection, OS command injection. Always parameterize queries. Never concatenate user input into commands.
+4. **Insecure design** — missing rate limiting, no MFA, weak password reset. Threat-model.
+5. **Security misconfiguration** — default creds, debug endpoints exposed, verbose errors. Lock down.
+6. **Vulnerable components** — outdated libs with known CVEs. Keep dependencies updated; use `pnpm audit`.
+7. **Auth failures** — broken login, session fixation, credential stuffing. Use a battle-tested library.
+8. **Software integrity failures** — npm supply-chain attacks, unsigned updates. Pin versions, audit installs.
+9. **Logging and monitoring failures** — you didn't notice the breach. Alert on anomalies.
+10. **SSRF** — server-side request forgery. Validate URLs the user supplies for the server to fetch.
+
+## Where most apps fall down
+
+- Authorization checks missing (API endpoints that work just because the URL is hard to guess).
+- SQL injection via `where ${userInput}`.
+- Stored XSS via `innerHTML = userContent`.
+- Tokens leaked in logs or screenshots.
+
+## Defenses you should have by default
+
+- HTTPS only, HSTS header.
+- CSP header.
+- HTTP-only `SameSite=Lax` cookies.
+- Server-side authz on every endpoint.
+- `pnpm audit` in CI.
+- Rate limit auth endpoints.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/security/owasp-top-10"
+  questions={[
+    {
+      id: 'ow-1',
+      type: 'single',
+      prompt: 'The #1 OWASP risk in 2026?',
+      options: [
+        { value: 'a', label: 'Broken access control' },
+        { value: 'b', label: 'CSRF' },
+        { value: 'c', label: 'Clickjacking' },
+        { value: 'd', label: 'SQL injection' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/security/owasp-top-10"
+  lessonHref="/paths/frontier/security/owasp-top-10/"
+  lessonTitle="OWASP Top 10"
+  nextHref="/paths/frontier/security/csp-cors-sri/"
+  nextTitle="CSP, CORS, Subresource Integrity"
+/>

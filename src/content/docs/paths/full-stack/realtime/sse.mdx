@@ -1,0 +1,80 @@
+---
+title: 'Server-Sent Events — the underused workhorse'
+description: HTTP-based one-way streaming. Simpler than WebSockets when you don't need bidirectional traffic.
+sidebar:
+  order: 2
+pathSlug: full-stack
+module: realtime
+lessonNumber: 2
+difficulty: intermediate
+duration: 5 min
+tags: [sse, realtime]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Server
+
+```ts
+app.get('/events', (c) => {
+  return new Response(new ReadableStream({
+    start(controller) {
+      const id = setInterval(() => {
+        controller.enqueue(`data: ${Date.now()}\n\n`);
+      }, 1000);
+      c.req.raw.signal.addEventListener('abort', () => clearInterval(id));
+    },
+  }), { headers: { 'content-type': 'text/event-stream' } });
+});
+```
+
+## Client
+
+```ts
+const es = new EventSource('/events');
+es.onmessage = (e) => console.log(e.data);
+```
+
+## Why SSE wins
+
+- Plain HTTP — works through proxies, CORS, auth, load balancers.
+- Auto-reconnect built into `EventSource`.
+- Native compression.
+- No special infra.
+
+## Best for
+
+- LLM token streams.
+- Live dashboards (server pushes, client doesn't reply).
+- Notifications.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/realtime/sse"
+  questions={[
+    {
+      id: 'sse-1',
+      type: 'single',
+      prompt: 'Why prefer SSE over WebSockets when traffic is one-way (server → client)?',
+      options: [
+        { value: 'a', label: 'SSE is faster' },
+        { value: 'b', label: 'SSE is plain HTTP — works through proxies, auth, load balancers; auto-reconnect is built in' },
+        { value: 'c', label: 'WebSockets don\'t work in browsers' },
+        { value: 'd', label: 'No reason' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/realtime/sse"
+  lessonHref="/paths/full-stack/realtime/sse/"
+  lessonTitle="Server-Sent Events"
+  nextHref="/paths/full-stack/realtime/webrtc/"
+  nextTitle="WebRTC primer"
+/>

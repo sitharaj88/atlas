@@ -1,0 +1,70 @@
+---
+title: 'Presence, cursors, conflict-free editing'
+description: The collaborative-app patterns users now expect.
+sidebar:
+  order: 3
+pathSlug: frontier
+module: realtime
+lessonNumber: 3
+difficulty: advanced
+duration: 4 min
+tags: [realtime, collaboration]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What "presence" looks like
+
+- Avatars of who's online.
+- Cursor positions in the document.
+- "X is typing" indicators.
+- Selection highlights ("X selected this paragraph").
+
+These are **ephemeral** — they don't need to persist. Liveblocks' `useOthers()` gives you exactly this.
+
+## Conflict-free editing
+
+The CRDT handles merging two simultaneous text edits at the same position. No "ask the user to resolve conflict" UI.
+
+For richer collaboration (commenting, suggestions, branching), look at:
+
+- **Liveblocks Comments** — threads on any element.
+- **Tiptap with Yjs** — production-grade collaborative rich text.
+- **Loro** — newer, fast CRDT library.
+
+## Trade-offs
+
+- Network costs scale with users × frequency × document size.
+- Storage of CRDT history can be hefty over time. Periodically snapshot + compact.
+- Initial sync can be slow for huge docs — paginate or lazy-load.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/realtime/presence"
+  questions={[
+    {
+      id: 'pres-1',
+      type: 'single',
+      prompt: 'Presence data (cursors, "X is typing") is best stored as…',
+      options: [
+        { value: 'a', label: 'Persistent in the DB' },
+        { value: 'b', label: 'Ephemeral — broadcast in real time, not stored' },
+        { value: 'c', label: 'In localStorage' },
+        { value: 'd', label: 'In a cookie' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/realtime/presence"
+  lessonHref="/paths/frontier/realtime/presence/"
+  lessonTitle="Presence and cursors"
+  nextHref="/paths/frontier/ai/embeddings-rag/"
+  nextTitle="Embeddings and vector search (RAG)"
+/>

@@ -1,0 +1,66 @@
+---
+title: 'Sentry, Honeycomb, Grafana — picking tools'
+description: A short tour of the popular observability stacks.
+sidebar:
+  order: 3
+pathSlug: devops
+module: observability
+lessonNumber: 3
+difficulty: intermediate
+duration: 5 min
+tags: [observability]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The popular options
+
+- **Sentry** — best at error tracking with stack traces, releases, breadcrumbs. Decent metrics + traces now too.
+- **Honeycomb** — the best DX for distributed tracing. Pricey but worth it for heavy-traffic services.
+- **Grafana stack (Loki + Tempo + Mimir)** — open source, self-hostable. Steep learning curve, full control.
+- **Datadog** — all-in-one. Expensive but smooth.
+- **New Relic** — similar.
+- **AWS CloudWatch / GCP Operations** — built into the cloud, cheaper if you live there.
+
+## Pick by scale
+
+- **Solo / small team** — Sentry + cloud built-ins (CloudWatch, etc.).
+- **Growing SaaS** — Sentry for errors + Honeycomb or Datadog for traces.
+- **Enterprise / cost-sensitive** — Grafana stack self-hosted.
+
+## What to wire first
+
+1. Errors → Sentry.
+2. Logs (structured) → wherever's cheap.
+3. Traces (auto-instrumented) → starts free with most platforms.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="devops/observability/picking-tools"
+  questions={[
+    {
+      id: 'pt-1',
+      type: 'single',
+      prompt: 'For a small team, the highest-leverage observability tool to wire first?',
+      options: [
+        { value: 'a', label: 'A custom dashboard' },
+        { value: 'b', label: 'Error tracking (Sentry) — surfaces production bugs you would otherwise miss' },
+        { value: 'c', label: 'A self-hosted Grafana stack' },
+        { value: 'd', label: 'A spreadsheet' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="devops/observability/picking-tools"
+  lessonHref="/paths/devops/observability/picking-tools/"
+  lessonTitle="Picking observability tools"
+  nextHref="/paths/devops/operating/feature-flags/"
+  nextTitle="Feature flags"
+/>

@@ -1,0 +1,71 @@
+---
+title: Astro — islands for content sites
+description: Static-first, ships zero JS by default, adds it where needed. The right tool for content.
+sidebar:
+  order: 3
+pathSlug: frontend-frameworks
+module: meta-frameworks
+lessonNumber: 3
+difficulty: intermediate
+duration: 6 min
+tags: [astro, islands]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The model
+
+Astro renders to static HTML. Components are server-rendered by default — no JS shipped. You opt into hydration on a per-component basis (an "island"):
+
+```astro
+---
+import Counter from './Counter.tsx';
+---
+<h1>Welcome</h1>
+<Counter client:visible />
+```
+
+`client:load`, `client:idle`, `client:visible`, `client:media` — different hydration triggers. Most components stay static.
+
+## When Astro shines
+
+- Documentation sites (this very Atlas runs on Starlight, which is Astro).
+- Marketing sites.
+- Blogs.
+- Anywhere content is the product.
+
+## When Astro doesn't fit
+
+- Highly interactive apps (dashboards, editors). Reach for Next/Remix/SvelteKit instead.
+- Realtime/collaborative features. Astro can do them via islands but it's not the sweet spot.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/meta-frameworks/astro"
+  questions={[
+    {
+      id: 'as-1',
+      type: 'single',
+      prompt: 'Astro\'s default JS shipping behavior is…',
+      options: [
+        { value: 'a', label: 'Hydrate every component' },
+        { value: 'b', label: 'Ship zero JS; opt into client-side hydration per island' },
+        { value: 'c', label: 'Server-side only, no JS allowed' },
+        { value: 'd', label: 'Same as Next.js' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/meta-frameworks/astro"
+  lessonHref="/paths/frontend-frameworks/meta-frameworks/astro/"
+  lessonTitle="Astro"
+  nextHref="/paths/frontend-frameworks/meta-frameworks/tanstack-start/"
+  nextTitle="TanStack Start — type-safe full-stack"
+/>

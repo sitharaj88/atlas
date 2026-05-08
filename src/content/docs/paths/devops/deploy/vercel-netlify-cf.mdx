@@ -1,0 +1,69 @@
+---
+title: 'Vercel, Netlify, Cloudflare Pages — the static + edge stack'
+description: Three platforms that deploy your site or app in seconds, with edge functions for dynamic bits.
+sidebar:
+  order: 2
+pathSlug: devops
+module: deploy
+lessonNumber: 2
+difficulty: intermediate
+duration: 5 min
+tags: [deployment, vercel, netlify, cloudflare]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What they all do
+
+Watch your repo, build on push, deploy globally on a CDN, manage SSL/DNS, run "edge functions" for dynamic logic. Rollback is one click.
+
+## How they differ
+
+- **Vercel** — best Next.js DX, generous free tier, opinionated. Cost ramps with traffic and features.
+- **Netlify** — strong static + functions story, simple pricing. Less specialized for any one framework.
+- **Cloudflare Pages + Workers** — cheapest at scale, fastest edge runtime, excellent for global. Workers runtime is a Web-Standards subset of Node.
+
+## Pick by stack
+
+| Stack | First choice |
+|---|---|
+| Next.js, full-stack | Vercel |
+| Astro, static + sprinkles | Cloudflare Pages |
+| SvelteKit, Nuxt | Any of the three |
+| Public API at scale | Cloudflare Workers |
+| Simple JAMstack | Netlify |
+
+## The deploy preview superpower
+
+All three give every PR a unique preview URL. Reviewers click, test, comment. **Don't ship without this.**
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="devops/deploy/vercel-netlify-cf"
+  questions={[
+    {
+      id: 'vnc-1',
+      type: 'single',
+      prompt: 'Cheapest of the three at scale?',
+      options: [
+        { value: 'a', label: 'Vercel' },
+        { value: 'b', label: 'Cloudflare Pages + Workers' },
+        { value: 'c', label: 'Netlify' },
+        { value: 'd', label: 'They\'re all identical' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="devops/deploy/vercel-netlify-cf"
+  lessonHref="/paths/devops/deploy/vercel-netlify-cf/"
+  lessonTitle="Vercel, Netlify, Cloudflare"
+  nextHref="/paths/devops/deploy/fly-railway-render/"
+  nextTitle="Fly, Railway, Render"
+/>

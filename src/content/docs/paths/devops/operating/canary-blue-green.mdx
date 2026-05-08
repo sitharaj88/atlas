@@ -1,0 +1,74 @@
+---
+title: Canary and blue/green deploys
+description: Reduce blast radius when something goes wrong.
+sidebar:
+  order: 2
+pathSlug: devops
+module: operating
+lessonNumber: 2
+difficulty: intermediate
+duration: 5 min
+tags: [deployment, ops]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Canary
+
+Deploy the new version to a small slice of traffic. Watch metrics. If healthy, ramp up. If not, roll back — only X% of users were affected.
+
+```text
+Old: ████████████████████ 100%
+   ↓
+New: █                    5%   ← canary
+Old: ███████████████████  95%
+
+(metrics good?) → ramp to 25%, 50%, 100%.
+```
+
+Implementation:
+- **Load balancer weighted routing** (most platforms).
+- **Service mesh** (Istio) for fine-grained.
+- **Feature flag** at the request level for application-layer canary.
+
+## Blue / green
+
+Two complete environments. Switch DNS / LB from blue to green when green is ready. Roll back instantly by switching back.
+
+Pro: instant rollback. Con: 2× infra cost during cutover.
+
+## Pick
+
+- **Canary** — gradual, ideal for risk reduction on every deploy.
+- **Blue/green** — when you need atomic switchover, like for DB migrations or breaking changes.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="devops/operating/canary-blue-green"
+  questions={[
+    {
+      id: 'cbg-1',
+      type: 'single',
+      prompt: 'Canary deploy means…',
+      options: [
+        { value: 'a', label: 'Yellow background in CI' },
+        { value: 'b', label: 'Send a small % of traffic to the new version, ramp up if healthy' },
+        { value: 'c', label: 'Two complete environments, swap atomically' },
+        { value: 'd', label: 'Feature flag' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="devops/operating/canary-blue-green"
+  lessonHref="/paths/devops/operating/canary-blue-green/"
+  lessonTitle="Canary, blue/green"
+  nextHref="/paths/devops/operating/incident-response/"
+  nextTitle="Incident response — the human part"
+/>

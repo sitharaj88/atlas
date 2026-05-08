@@ -1,0 +1,71 @@
+---
+title: Docker without the mystique
+description: A container is a process with its own filesystem and network. That's it.
+sidebar:
+  order: 1
+pathSlug: devops
+module: containers
+lessonNumber: 1
+difficulty: intermediate
+duration: 5 min
+tags: [docker, containers]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What a container is
+
+A Linux process running with namespaces (its own view of filesystem, network, processes) and cgroups (CPU/memory limits). The container's filesystem comes from an **image** — a stack of read-only layers.
+
+## Hello, Docker
+
+```dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN corepack enable && pnpm install --frozen-lockfile
+COPY . .
+RUN pnpm build
+CMD ["node", "dist/server.js"]
+```
+
+```bash
+docker build -t atlas-api .
+docker run -p 3000:3000 atlas-api
+```
+
+## Image vs. container
+
+- **Image** — the recipe. Built once, immutable.
+- **Container** — a running instance. Disposable, ephemeral.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="devops/containers/docker-basics"
+  questions={[
+    {
+      id: 'dk-1',
+      type: 'single',
+      prompt: 'Difference between Docker image and container?',
+      options: [
+        { value: 'a', label: 'No difference' },
+        { value: 'b', label: 'Image is the recipe; container is a running instance of it' },
+        { value: 'c', label: 'Image runs; container is the file' },
+        { value: 'd', label: 'They\'re different products' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="devops/containers/docker-basics"
+  lessonHref="/paths/devops/containers/docker-basics/"
+  lessonTitle="Docker basics"
+  nextHref="/paths/devops/containers/multi-stage-builds/"
+  nextTitle="Multi-stage builds"
+/>

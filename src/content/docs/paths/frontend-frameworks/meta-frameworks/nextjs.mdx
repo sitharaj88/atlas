@@ -1,0 +1,92 @@
+---
+title: 'Next.js — the conventional choice'
+description: The most popular React meta-framework. App Router, Server Components, Server Actions.
+sidebar:
+  order: 1
+pathSlug: frontend-frameworks
+module: meta-frameworks
+lessonNumber: 1
+difficulty: intermediate
+duration: 7 min
+tags: [react, nextjs]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What you get
+
+- File-based routing (App Router).
+- React Server Components + Server Actions out of the box.
+- Image, font, and script optimization.
+- Edge & Node runtime selection per route.
+- Middleware, route handlers, streaming.
+- First-class Vercel deploy; runs anywhere as a Node server.
+
+## App Router shape
+
+```
+app/
+├── layout.tsx        # root layout
+├── page.tsx          # /
+├── posts/
+│   ├── page.tsx      # /posts
+│   └── [id]/
+│       └── page.tsx  # /posts/:id
+└── api/route.ts      # /api (route handler)
+```
+
+`page.tsx` is the route. `layout.tsx` wraps. Components are server by default — add `'use client'` when interactive.
+
+## Server Components fetch directly
+
+```tsx
+export default async function Posts() {
+  const posts = await db.post.findMany();
+  return <ul>{posts.map(p => <li key={p.id}>{p.title}</li>)}</ul>;
+}
+```
+
+No useEffect, no client-side fetch — just `await`.
+
+## When Next is the right pick
+
+- You want server components, server actions, file-based routing — all in one default.
+- You're deploying to Vercel (or comfortable with their patterns elsewhere).
+- You want the largest community and library ecosystem.
+
+## When to look elsewhere
+
+- You want a non-React stack.
+- You want a smaller, more transparent framework (Astro for content, TanStack Start for client-heavy).
+- You really don't want Vercel-flavored choices.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/meta-frameworks/nextjs"
+  questions={[
+    {
+      id: 'nx-1',
+      type: 'single',
+      prompt: 'In Next.js App Router, the default for components is…',
+      options: [
+        { value: 'a', label: 'Client component' },
+        { value: 'b', label: 'Server component (until you add `\'use client\'`)' },
+        { value: 'c', label: 'Static HTML' },
+        { value: 'd', label: 'Edge function' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/meta-frameworks/nextjs"
+  lessonHref="/paths/frontend-frameworks/meta-frameworks/nextjs/"
+  lessonTitle="Next.js"
+  nextHref="/paths/frontend-frameworks/meta-frameworks/remix-rr7/"
+  nextTitle="Remix → React Router 7"
+/>

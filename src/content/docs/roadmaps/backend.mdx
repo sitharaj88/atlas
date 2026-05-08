@@ -1,0 +1,66 @@
+---
+title: Backend Roadmap
+description: A visual graph of the backend developer's path — from runtimes to deployment.
+sidebar:
+  order: 2
+tags: [roadmap, backend]
+---
+
+import Roadmap from '~/components/Roadmap.tsx';
+
+Each node maps to a lesson. Click any node to jump in.
+
+<Roadmap
+  client:visible
+  height={680}
+  nodes={[
+    { id: 'http', label: 'How HTTP works', description: 'Methods, status, headers',
+      href: '/paths/foundations/web-platform/http-requests-and-responses/',
+      lessonId: 'foundations/web-platform/http-requests-and-responses',
+      position: { x: 0, y: 0 }, group: 'milestone' },
+
+    { id: 'node', label: 'Node / Deno / Bun', description: 'Server runtimes',
+      href: '/paths/full-stack/runtimes/node/', position: { x: -200, y: 110 }, group: 'core' },
+    { id: 'hono', label: 'Hono', description: 'Edge-ready HTTP',
+      href: '/paths/full-stack/apis/rest-api-hono/',
+      lessonId: 'full-stack/apis/rest-api-hono',
+      position: { x: 60, y: 110 }, group: 'milestone' },
+    { id: 'fastify', label: 'Fastify / Express', description: 'Node alternatives',
+      href: '/paths/full-stack/frameworks/fastify/', position: { x: 280, y: 110 }, group: 'optional' },
+
+    { id: 'rest', label: 'REST design', description: 'Status, idempotency, pagination',
+      href: '/paths/full-stack/apis/rest-2026/', position: { x: -120, y: 230 }, group: 'core' },
+    { id: 'gql', label: 'GraphQL / tRPC', description: 'Alternatives',
+      href: '/paths/full-stack/apis/graphql/', position: { x: 160, y: 230 }, group: 'optional' },
+
+    { id: 'auth', label: 'Auth', description: 'Sessions, OIDC, passkeys',
+      href: '/paths/full-stack/auth/sessions-vs-jwts/',
+      position: { x: -120, y: 350 }, group: 'core' },
+    { id: 'realtime', label: 'Real-time', description: 'WebSockets, SSE',
+      href: '/paths/full-stack/realtime/websockets/', position: { x: 160, y: 350 }, group: 'optional' },
+
+    { id: 'db', label: 'Databases', description: 'Postgres, SQLite, Redis',
+      href: '/paths/full-stack/databases/postgres/', position: { x: 0, y: 470 }, group: 'milestone' },
+    { id: 'orm', label: 'ORM / Query Builder', description: 'Drizzle, Prisma, Kysely',
+      href: '/paths/full-stack/orms/drizzle/', position: { x: 280, y: 470 }, group: 'core' },
+
+    { id: 'observe', label: 'Observability', description: 'Logs, traces, errors',
+      href: '/paths/full-stack/observability/structured-logging/', position: { x: -120, y: 590 }, group: 'core' },
+    { id: 'deploy', label: 'Deployment', description: 'Vercel, Fly, Cloudflare, VPS',
+      href: '/paths/full-stack/shipping/deployment-targets/',
+      position: { x: 160, y: 590 }, group: 'milestone' },
+  ]}
+  edges={[
+    { source: 'http', target: 'node' },
+    { source: 'http', target: 'hono' },
+    { source: 'http', target: 'fastify', dashed: true },
+    { source: 'hono', target: 'rest' },
+    { source: 'hono', target: 'gql', dashed: true },
+    { source: 'rest', target: 'auth' },
+    { source: 'rest', target: 'realtime', dashed: true },
+    { source: 'auth', target: 'db' },
+    { source: 'db', target: 'orm' },
+    { source: 'orm', target: 'observe' },
+    { source: 'observe', target: 'deploy' },
+  ]}
+/>

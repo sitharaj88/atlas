@@ -1,0 +1,178 @@
+---
+title: Color contrast, motion, screen readers
+description: Color that's readable, motion that respects preferences, and a quick screen-reader test routine you can do in 5 minutes.
+sidebar:
+  order: 3
+pathSlug: foundations
+module: a11y
+lessonNumber: 3
+difficulty: beginner
+duration: 10 min
+prerequisites:
+  - You\'ve completed *Keyboard navigation and focus*
+objectives:
+  - Meet WCAG 2.2 contrast targets
+  - Respect prefers-reduced-motion
+  - Run a 5-minute screen-reader test
+tags: [accessibility, color, motion, screen-readers]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** The remaining a11y essentials — contrast, motion, screen reader basics. None of them take long; all of them are required.
+
+## Color contrast
+
+WCAG 2.2 sets minimum contrast ratios for text:
+
+| Level | Normal text | Large text (≥18.66px bold or ≥24px) |
+|---|---|---|
+| **AA** (legal minimum in most jurisdictions) | 4.5:1 | 3:1 |
+| **AAA** | 7:1 | 4.5:1 |
+
+Non-text UI (button borders, form input outlines): **3:1** at AA.
+
+Tools:
+- DevTools → Inspector → color picker shows the ratio.
+- **Stark** (Figma plugin) for design.
+- **WebAIM Contrast Checker** — https://webaim.org/resources/contrastchecker/
+
+## Don't rely on color alone
+
+A red error message paired with green success requires color discrimination. Add an icon, an aria-live region, or a label:
+
+```html
+<!-- ❌ Color-only -->
+<p style="color: red">Email is invalid</p>
+
+<!-- ✓ Icon + color -->
+<p style="color: red"><span aria-hidden="true">⚠</span> Email is invalid</p>
+
+<!-- ✓ Color + aria-live for screen readers -->
+<p role="alert" style="color: red">Email is invalid</p>
+```
+
+About 8% of men have some form of red/green color-blindness. Designers underrate this constantly.
+
+## Motion and animation
+
+Some users get motion sickness from page animations. Respect their preference:
+
+```css
+.menu { transition: transform 200ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .menu { transition: none; }
+  /* Or in Atlas's reset: */
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```
+
+```js
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (!reduce) playVideo();
+```
+
+Don't auto-play videos. Don't have giant scroll animations. Don't have flashing content faster than 3 Hz (epilepsy risk).
+
+## A 5-minute screen reader test
+
+**macOS:** Cmd+F5 turns on VoiceOver.
+**Windows:** download NVDA (free).
+**iOS:** Settings → Accessibility → VoiceOver.
+
+Now:
+
+1. **Tab through the page.** Does VO announce a clear name and role for each control?
+2. **Use VO+H** (macOS) to navigate by heading. Are headings in a logical order? Does the page outline make sense?
+3. **Use VO+L** to list links. Are they descriptive ("Read more" everywhere is a fail)?
+4. **Submit a form** with errors. Does VO announce the error?
+5. **Open a modal.** Does VO move into it?
+
+Five issues found in five minutes is normal on a fresh codebase. Each fix lifts everyone.
+
+## Common screen reader fails
+
+- Buttons named "click here" or "read more" (out of context).
+- Empty `<a>` or `<button>` (icon-only without `aria-label`).
+- Form inputs without `<label>`.
+- Modal opens but focus stays behind.
+- Toast notifications with no `aria-live`.
+- "+" or "→" as the entire button content.
+
+## Tools that catch automatable issues
+
+- **axe DevTools** browser extension.
+- **Lighthouse** Accessibility category.
+- **eslint-plugin-jsx-a11y** in JSX projects.
+- **Pa11y** for CI scanning.
+
+These catch ~30% of issues. The rest need humans (and screen readers).
+
+<Callout variant="tip" title="Don't add ARIA where HTML works">
+The first ARIA rule still applies: when in doubt, the right answer is usually a different HTML element, not more ARIA.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/a11y/color-motion-screenreaders"
+  questions={[
+    {
+      id: 'crm-1',
+      type: 'single',
+      prompt: 'WCAG AA minimum contrast ratio for normal text?',
+      options: [
+        { value: 'a', label: '3:1' },
+        { value: 'b', label: '4.5:1' },
+        { value: 'c', label: '7:1' },
+        { value: 'd', label: 'There is no minimum' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'crm-2',
+      type: 'single',
+      prompt: 'A user has prefers-reduced-motion enabled. Best response?',
+      options: [
+        { value: 'a', label: 'Show a dialog warning them' },
+        { value: 'b', label: 'In CSS, suppress non-essential animations under `@media (prefers-reduced-motion: reduce)`' },
+        { value: 'c', label: 'Disable JS' },
+        { value: 'd', label: 'Show a static screenshot instead' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'crm-3',
+      type: 'single',
+      prompt: 'Which of these is "color alone" failure?',
+      options: [
+        { value: 'a', label: 'A green check icon next to "Saved!"' },
+        { value: 'b', label: 'A pie chart that uses red for losses and green for gains, with no labels' },
+        { value: 'c', label: 'A button with high contrast' },
+        { value: 'd', label: 'An icon paired with text' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**The Foundations path is complete.** You have the full mental model of the web platform. Move on to [Modern CSS & Design Systems](/paths/modern-css/), [TypeScript Mastery](/paths/typescript/), or [Frontend Frameworks](/paths/frontend-frameworks/) — all three build directly on what you've learned here.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/a11y/color-motion-screenreaders"
+  lessonHref="/paths/foundations/a11y/color-motion-screenreaders/"
+  lessonTitle="Color contrast, motion, screen readers"
+  nextHref="/paths/modern-css/"
+  nextTitle="Modern CSS & Design Systems"
+/>

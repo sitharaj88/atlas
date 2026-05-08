@@ -1,0 +1,138 @@
+---
+title: 'The `:where()` and `:is()` ergonomics'
+description: Group selectors without specificity blow-ups, and write tidier rules along the way.
+sidebar:
+  order: 3
+pathSlug: modern-css
+module: cascade
+lessonNumber: 3
+difficulty: intermediate
+duration: 8 min
+prerequisites:
+  - You've read the cascade lessons
+objectives:
+  - Group selectors with :is() for terseness
+  - Use :where() to opt out of specificity
+  - Read the modern selector list
+tags: [css, selectors]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Two pseudo-classes that let you write less, fight specificity less, and read CSS more easily.
+
+## `:is()` — group selectors
+
+```css
+/* Without :is() — repetition */
+header h1, header h2, header h3,
+main h1, main h2, main h3,
+footer h1, footer h2, footer h3 { font-family: serif; }
+
+/* With :is() */
+:is(header, main, footer) :is(h1, h2, h3) { font-family: serif; }
+```
+
+Specificity: `:is(...)` takes the **highest specificity of its arguments**. So `:is(.foo, #bar)` is `0,1,0,0` (the ID).
+
+## `:where()` — same grouping, zero specificity
+
+```css
+:where(header, main, footer) h1 { font-family: serif; }
+```
+
+Identical to `:is(...)` but always 0,0,0 specificity. Perfect for resets and base styles you don't want to fight later:
+
+```css
+:where(button, [type='button']) {
+  /* base button styles — easy to override */
+}
+```
+
+## `:not()` — exclusion
+
+```css
+button:not(:disabled, .ghost) { background: navy; }
+```
+
+`:not()` accepts a selector list (multiple args). Specificity equals its **most specific argument** (just like `:is`).
+
+## Combine for clean rules
+
+```css
+:where(article) :is(h2, h3) + :is(p, ul) {
+  margin-block-start: 0.4em;
+}
+```
+
+Translation: in any `article`, paragraphs/lists immediately after `h2`/`h3` get tighter top margin. Reads almost as plain English.
+
+## When to use which
+
+- **`:is()`** — when you want shorter selectors AND want them to keep their full specificity (you're competing with other rules).
+- **`:where()`** — for base styles, resets, or whenever you want overrides to be easy.
+- **`:not()`** — exclude. Pairs cleanly with `:is()`.
+
+<Callout variant="tip" title="Default to `:where` for resets">
+Anything that says "this is the baseline" — typography, button defaults, link styles — wrap selectors in `:where()`. Page-specific styles override without needing more specificity.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/cascade/where-is"
+  questions={[
+    {
+      id: 'wis-1',
+      type: 'single',
+      prompt: 'Specificity of `:is(.btn, #submit)`?',
+      options: [
+        { value: 'a', label: '0, 1, 0' },
+        { value: 'b', label: '1, 0, 0 (highest of arguments)' },
+        { value: 'c', label: '1, 1, 0 (sums)' },
+        { value: 'd', label: '0, 0, 0' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'wis-2',
+      type: 'single',
+      prompt: 'You\'re writing base button styles in a design system. The wrapping pseudo-class is…',
+      options: [
+        { value: 'a', label: ':is(...)' },
+        { value: 'b', label: ':where(...)' },
+        { value: 'c', label: ':not(...)' },
+        { value: 'd', label: 'No wrapper needed' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'wis-3',
+      type: 'single',
+      prompt: 'Modern way to write "buttons that are not disabled and not ghost"?',
+      options: [
+        { value: 'a', label: 'button:not(:disabled):not(.ghost)' },
+        { value: 'b', label: 'button:not(:disabled, .ghost)' },
+        { value: 'c', label: 'Both work; b is the modern syntax with a list' },
+        { value: 'd', label: 'You can\'t with :not' },
+      ],
+      answer: 'c',
+    },
+  ]}
+/>
+
+## What's next
+
+The Cascade module is complete. Next: **Layout, Modern** — flexbox, grid, container queries, and `:has()`.
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/cascade/where-is"
+  lessonHref="/paths/modern-css/cascade/where-is/"
+  lessonTitle="The :where() and :is() ergonomics"
+  nextHref="/paths/modern-css/layout/flexbox-modern/"
+  nextTitle="Flexbox you actually understand"
+/>

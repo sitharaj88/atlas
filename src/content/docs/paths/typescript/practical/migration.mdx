@@ -1,0 +1,97 @@
+---
+title: 'Migration playbook: from JS, gradually'
+description: Adding TypeScript to an existing JavaScript codebase without big-bang rewrites.
+sidebar:
+  order: 4
+pathSlug: typescript
+module: practical
+lessonNumber: 4
+difficulty: intermediate
+duration: 8 min
+prerequisites:
+  - You\'ve completed previous practical lessons
+objectives:
+  - Plan an incremental TS migration
+  - Use allowJs and JSDoc effectively
+tags: [typescript, migration]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Two viable strategies
+
+**1. allowJs + checkJs** — keep `.js` files, type-check them.
+
+```json
+{ "compilerOptions": { "allowJs": true, "checkJs": true, "strict": false } }
+```
+
+Adopt strict mode flags one at a time. Convert files to `.ts` as you touch them.
+
+**2. JSDoc types in JS** — never convert files; just add types as comments.
+
+```js
+/** @typedef {{ id: string; name: string }} User */
+
+/** @param {User} user */
+function greet(user) {
+  return `Hello, ${user.name}`;
+}
+```
+
+Works in `.js` files with `checkJs: true`. Suite of teams (Bun internals, Svelte's runtime) use this.
+
+## Recommended order
+
+1. **Start in a corner** — pick a small module. Add TS, fix errors.
+2. **Add `tsconfig.json`** with `allowJs: true, checkJs: false, strict: false`.
+3. **Convert leaf files first** — files no other file imports are easiest.
+4. **Turn on flags incrementally**: `noImplicitAny` → `strictNullChecks` → `strict`.
+5. **`@ts-expect-error` to mark known issues** with TODO so they don't drift.
+
+## Tools that help
+
+- **`type-coverage`** — % of typed lines.
+- **`ts-migrate`** (Airbnb) — automated codemod.
+- **DefinitelyTyped** — for libraries without types.
+
+## Don't
+
+- **Big-bang rewrite.** Months of pain, no business value.
+- **Skip `strict`.** "I'll turn it on later" rarely happens. Better strict-on-leaf than loose-everywhere.
+- **Use `any` to silence errors.** Use `unknown` and narrow.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/practical/migration"
+  questions={[
+    {
+      id: 'mig-1',
+      type: 'single',
+      prompt: 'Best initial migration strategy?',
+      options: [
+        { value: 'a', label: 'Rewrite all .js to .ts in one PR' },
+        { value: 'b', label: 'Add allowJs + checkJs, convert one leaf file at a time, increase strictness incrementally' },
+        { value: 'c', label: 'Use `any` everywhere' },
+        { value: 'd', label: 'Wait for the next rewrite' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## Path complete
+
+You've finished **TypeScript Mastery**. Combine with [Frontend Frameworks](/paths/frontend-frameworks/) and [Full-Stack](/paths/full-stack/) — that's where types pay off most.
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/practical/migration"
+  lessonHref="/paths/typescript/practical/migration/"
+  lessonTitle="Migration playbook"
+  nextHref="/paths/frontend-frameworks/"
+  nextTitle="Frontend Frameworks"
+/>

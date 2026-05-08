@@ -1,0 +1,70 @@
+---
+title: The network waterfall
+description: Read DevTools' Network tab like a doctor reads X-rays.
+sidebar:
+  order: 3
+pathSlug: performance-a11y-seo
+module: fundamentals
+lessonNumber: 3
+difficulty: intermediate
+duration: 5 min
+tags: [performance]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Reading the bars
+
+Each row's bar shows phases:
+
+```
+Queue → Stalled → DNS → TCP → TLS → Wait (TTFB) → Download
+```
+
+- **Long Wait** = server slow.
+- **Long Stalled** = too many requests on one connection (HTTP/1.1) or browser priority pushed it back.
+- **Long DNS / TCP / TLS** = first connection to a host (subsequent reuse is free).
+
+## Patterns of waste
+
+- **Render-blocking CSS deep in the waterfall.** Means HTML had inline `<link>` further down. Move to head OR inline.
+- **Sequential dependent fetches.** `app.js` waits for HTML, JSON waits for `app.js`, image waits for JSON. Three round-trips. Hint with `<link rel="preload">` to start fetches earlier.
+- **Render-blocking 3rd party scripts.** Tag managers, analytics. Defer or load async.
+- **Many small assets.** With HTTP/2, less of an issue, but bundling still helps.
+
+## Quick wins
+
+- **`<link rel="preconnect">`** for third-party origins you'll fetch from.
+- **`<link rel="preload" as="font">`** for the LCP web font.
+- **Resource hints in HTML head**, not added later via JS.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/fundamentals/network-waterfall"
+  questions={[
+    {
+      id: 'wf-1',
+      type: 'single',
+      prompt: 'Long "Wait (TTFB)" bar means…',
+      options: [
+        { value: 'a', label: 'Network is slow' },
+        { value: 'b', label: 'The server took a while to start sending bytes' },
+        { value: 'c', label: 'TLS handshake' },
+        { value: 'd', label: 'Browser is blocked' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/fundamentals/network-waterfall"
+  lessonHref="/paths/performance-a11y-seo/fundamentals/network-waterfall/"
+  lessonTitle="Network waterfall"
+  nextHref="/paths/performance-a11y-seo/web-vitals/lcp/"
+  nextTitle="LCP — Largest Contentful Paint"
+/>

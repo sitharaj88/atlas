@@ -1,0 +1,171 @@
+---
+title: 'The CSS cascade in 2026 — origin, layer, specificity, order'
+description: The full algorithm the browser uses to pick a winning style — refreshed for layers and the modern selectors.
+sidebar:
+  order: 1
+pathSlug: modern-css
+module: cascade
+lessonNumber: 1
+difficulty: intermediate
+duration: 10 min
+prerequisites:
+  - You've done the Foundations CSS module
+objectives:
+  - State all four cascade steps in order
+  - Predict winners in nested-layer scenarios
+  - Avoid !important by reaching for layers
+tags: [css, cascade]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** The full cascade algorithm — including layers, which most developers learned about cascade *without*. Once you see all four steps, "why isn't my style applying?" stops being a mystery.
+
+## The four steps, ranked
+
+1. **Origin & importance** — the source the rule came from, and whether it has `!important`.
+2. **Cascade layers** — `@layer` ordering.
+3. **Specificity** — selector strength.
+4. **Source order** — last declaration wins.
+
+When two rules conflict, the browser checks (1) first. Tie? Step (2). Tie? Step (3). Tie? Step (4).
+
+## Origins
+
+Three origins:
+
+- **User-agent** — browser defaults.
+- **User** — user stylesheets (rare).
+- **Author** — your CSS.
+
+Author beats user-agent. Inside an origin, **`!important` flips priority** — important user-agent styles even beat regular author styles. (You'll never see this; mentioned for completeness.)
+
+## Layers, the modern winning move
+
+```css
+@layer reset, base, components, utilities;
+
+@layer base {
+  .btn { padding: 0.6rem 1rem; }
+}
+@layer components {
+  .btn--primary { background: navy; }
+}
+```
+
+**Later layers always win, regardless of selector specificity.** A 0,0,1,0 class in `utilities` beats a 1,1,1 selector in `components`.
+
+Unlayered rules win against all layers. So:
+
+```css
+@layer components { .btn { color: blue; } }
+.btn { color: red; }   /* unlayered — wins */
+```
+
+That's deliberate — you can layer your library and override with un-layered project styles.
+
+## Specificity refresher
+
+Counted as `[id, class+attr+pseudo-class, type+pseudo-element]`:
+
+- `:where(...)` is always 0,0,0
+- `:is(...)`, `:not(...)`, `:has(...)` take their **most specific argument's** specificity
+- Inline `style=""` beats any selector
+- `!important` outranks specificity within the same origin/layer
+
+## Source order, the tiebreaker
+
+When everything else is equal, **last wins**:
+
+```css
+.btn { color: blue; }
+.btn { color: red; }   /* this wins */
+```
+
+This is why the order of imports matters when several stylesheets define the same selectors.
+
+## Putting it together
+
+```css
+@layer base, components;
+
+@layer base {
+  #header .btn { color: green; }   /* high specificity, but base layer */
+}
+@layer components {
+  .btn { color: blue; }            /* low specificity, but later layer */
+}
+.btn { color: red !important; }    /* unlayered + !important */
+```
+
+Result: `.btn` is **red**. Important wins step 1 outright.
+
+Without the `!important`:
+- Step 1: tie (all author).
+- Step 2: layered loses to unlayered → `.btn { color: red; }` (unlayered) and the layered ones lose.
+
+So: **red**.
+
+<Callout variant="tip" title="Layers replaced 90% of !important needs">
+Before layers, you fought specificity wars by adding more classes. Now, put your "must always win" overrides in a later layer (or unlayered) and you\'re done.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/cascade/cascade-2026"
+  questions={[
+    {
+      id: 'csc26-1',
+      type: 'single',
+      prompt: 'You declare `@layer a, b;` and write `.btn` rules in both. Which wins?',
+      options: [
+        { value: 'a', label: 'a (declared first)' },
+        { value: 'b', label: 'b (later layers win)' },
+        { value: 'c', label: 'Whichever has higher specificity' },
+        { value: 'd', label: 'Source order tiebreaker' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'csc26-2',
+      type: 'single',
+      prompt: 'Specificity of `:where(#big-id)`?',
+      options: [
+        { value: 'a', label: '1, 0, 0 (it\'s an ID)' },
+        { value: 'b', label: '0, 0, 0 (`:where` always zero)' },
+        { value: 'c', label: '0, 1, 0' },
+        { value: 'd', label: 'Variable' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'csc26-3',
+      type: 'single',
+      prompt: 'Unlayered styles vs. layered styles — who wins?',
+      options: [
+        { value: 'a', label: 'Layered (more explicit)' },
+        { value: 'b', label: 'Unlayered (treated as a "later" layer beyond declared ones)' },
+        { value: 'c', label: 'Unlayered, but only with !important' },
+        { value: 'd', label: 'Tie — source order decides' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Cascade layers (`@layer`)** — going deeper on the layer feature you just met.
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/cascade/cascade-2026"
+  lessonHref="/paths/modern-css/cascade/cascade-2026/"
+  lessonTitle="The CSS cascade in 2026"
+  nextHref="/paths/modern-css/cascade/cascade-layers/"
+  nextTitle="Cascade layers (@layer)"
+/>

@@ -1,0 +1,90 @@
+---
+title: 'Streaming responses, prompt caching, cost control'
+description: Three knobs that turn AI features from expensive into sustainable.
+sidebar:
+  order: 4
+pathSlug: frontier
+module: ai
+lessonNumber: 4
+difficulty: advanced
+duration: 5 min
+tags: [ai, llm, performance]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Streaming
+
+```ts
+const stream = client.messages.stream({ model, messages });
+for await (const event of stream) {
+  if (event.type === 'content_block_delta') {
+    write(event.delta.text);
+  }
+}
+```
+
+Send tokens to the browser as they arrive. UX wins, perceived latency drops.
+
+## Prompt caching
+
+Mark stable parts of the prompt as cacheable; subsequent calls within ~5 minutes pay a fraction of the cost:
+
+```ts
+client.messages.create({
+  model,
+  system: [
+    { type: 'text', text: longSystemPrompt, cache_control: { type: 'ephemeral' } },
+  ],
+  messages,
+});
+```
+
+For chatbots with long context, cuts cost 80-90% and speeds up responses.
+
+## Pick the smallest model
+
+Don't use Opus for what Haiku handles. Most apps over-provision and overspend 5–10×.
+
+| Model class | Use for |
+|---|---|
+| Haiku 4.5 | Classification, light Q&A, summarization |
+| Sonnet 4.6 | General work, agents, writing |
+| Opus 4.7 | Hard reasoning, code, complex analysis |
+
+## Cost calc
+
+Cost = (input tokens × input price) + (output tokens × output price).
+
+For Sonnet: ~$3/M input, $15/M output. A typical chat turn ≈ 1,000 input + 200 output ≈ $0.006. With caching, ≈ $0.002.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/ai/streaming-caching"
+  questions={[
+    {
+      id: 'sc-1',
+      type: 'single',
+      prompt: 'For a chatbot with a long system prompt, the biggest cost lever is…',
+      options: [
+        { value: 'a', label: 'Smaller model' },
+        { value: 'b', label: 'Prompt caching the stable system prompt — repeated calls pay a fraction of full cost' },
+        { value: 'c', label: 'Shorter responses' },
+        { value: 'd', label: 'Hashing the input' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/ai/streaming-caching"
+  lessonHref="/paths/frontier/ai/streaming-caching/"
+  lessonTitle="Streaming, caching, cost"
+  nextHref="/paths/frontier/security/owasp-top-10/"
+  nextTitle="OWASP Top 10 — for web devs"
+/>

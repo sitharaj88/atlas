@@ -1,0 +1,94 @@
+---
+title: Tuples and readonly
+description: Fixed-length, fixed-type arrays. And immutability at the type level.
+sidebar:
+  order: 3
+pathSlug: typescript
+module: building-blocks
+lessonNumber: 3
+difficulty: beginner
+duration: 6 min
+prerequisites:
+  - Previous building-blocks lesson
+objectives:
+  - Use tuples for known-shape arrays
+  - Apply readonly for compile-time immutability
+tags: [typescript, types]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Tuples
+
+A tuple is an array with a fixed length and known types per position:
+
+```ts
+type Point = [number, number];
+const p: Point = [3, 4];
+
+type Entry = [key: string, value: number];   // labeled tuples
+const e: Entry = ['x', 1];
+
+type Variadic = [string, ...number[]];        // rest in tuples
+```
+
+`useState`'s `[value, setter]` is a labeled tuple under the hood.
+
+## readonly
+
+```ts
+type FrozenList = readonly number[];
+const f: FrozenList = [1, 2, 3];
+f.push(4);           // ✗ Property 'push' does not exist on type 'readonly number[]'
+
+interface User { readonly id: number; name: string; }
+const u: User = { id: 1, name: 'Ada' };
+u.id = 2;            // ✗ Cannot assign to 'id' (read-only)
+u.name = 'Lin';      // ✓
+```
+
+`readonly` is compile-time only — runtime can still mutate via casts. Pair with `Object.freeze()` for true immutability.
+
+## as const
+
+```ts
+const config = { port: 3000, host: 'localhost' } as const;
+// type: { readonly port: 3000; readonly host: 'localhost' }
+```
+
+Deeply freezes literal values into their narrowest types. Tuples become readonly tuples.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/building-blocks/tuples-readonly"
+  questions={[
+    {
+      id: 'tup-1',
+      type: 'single',
+      prompt: '`readonly` enforces immutability…',
+      options: [
+        { value: 'a', label: 'At runtime' },
+        { value: 'b', label: 'At compile time only' },
+        { value: 'c', label: 'Both' },
+        { value: 'd', label: 'Neither' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Functions and overloads.**
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/building-blocks/tuples-readonly"
+  lessonHref="/paths/typescript/building-blocks/tuples-readonly/"
+  lessonTitle="Tuples and readonly"
+  nextHref="/paths/typescript/building-blocks/functions-overloads/"
+  nextTitle="Functions and overloads"
+/>

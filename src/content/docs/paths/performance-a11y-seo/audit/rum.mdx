@@ -1,0 +1,72 @@
+---
+title: Real User Monitoring (RUM)
+description: Measure perf in your real users' real browsers. Lab numbers are just guesses.
+sidebar:
+  order: 2
+pathSlug: performance-a11y-seo
+module: audit
+lessonNumber: 2
+difficulty: intermediate
+duration: 5 min
+tags: [performance, rum]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The web-vitals library
+
+```ts
+import { onLCP, onINP, onCLS, onFCP, onTTFB } from 'web-vitals';
+
+function send(metric) {
+  navigator.sendBeacon('/rum', JSON.stringify(metric));
+}
+
+onLCP(send); onINP(send); onCLS(send); onFCP(send); onTTFB(send);
+```
+
+`web-vitals` library handles the timing nuances. You ship the numbers to your analytics.
+
+## Where to send
+
+- **Sentry, Datadog, New Relic** — integrated with their products.
+- **Cloudflare Web Analytics** — free, anonymized, drop-in.
+- **Vercel Speed Insights** — built-in if you deploy there.
+- **Self-hosted** — Plausible, Umami, your own DB.
+
+## Slice by
+
+- **Country / device class.** Field perf varies wildly.
+- **Page type.** Home vs. product page.
+- **Build version.** "Did my last deploy regress LCP?"
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/audit/rum"
+  questions={[
+    {
+      id: 'rum-1',
+      type: 'single',
+      prompt: 'Why is RUM more trustworthy than lab tools?',
+      options: [
+        { value: 'a', label: 'Faster to run' },
+        { value: 'b', label: 'It captures actual users\' devices, networks, locations — not a single test machine\'s' },
+        { value: 'c', label: 'Free' },
+        { value: 'd', label: 'No reason' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/audit/rum"
+  lessonHref="/paths/performance-a11y-seo/audit/rum/"
+  lessonTitle="RUM"
+  nextHref="/paths/performance-a11y-seo/audit/perf-budgets-ci/"
+  nextTitle="Performance budgets in CI"
+/>

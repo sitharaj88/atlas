@@ -1,0 +1,69 @@
+---
+title: Type-checking as a test
+description: TypeScript is your fastest, broadest test. Treat `tsc` as a CI gate.
+sidebar:
+  order: 3
+pathSlug: testing
+module: quality-gates
+lessonNumber: 3
+difficulty: intermediate
+duration: 4 min
+tags: [typescript, ci]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Add to CI
+
+```yaml
+- run: pnpm tsc --noEmit
+- run: pnpm vitest --run
+- run: pnpm eslint .
+```
+
+`tsc --noEmit` runs every line through the type checker and catches typos, missing args, null bugs — entire categories that runtime tests would never reach.
+
+## Why it counts as testing
+
+A test asks "does this case behave correctly?" — `tsc` asks the same about every code path simultaneously. A green `tsc` is a guarantee about the entire project.
+
+## Strictness ratchets
+
+Turn on flags one at a time:
+
+- `strict: true` — baseline.
+- `noUncheckedIndexedAccess: true` — `arr[0]` is `T | undefined`.
+- `exactOptionalPropertyTypes: true` — explicit undefined handling.
+
+Each adds confidence; each adds short-term work.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="testing/quality-gates/type-check-as-test"
+  questions={[
+    {
+      id: 'tct-1',
+      type: 'single',
+      prompt: 'In CI, you should run…',
+      options: [
+        { value: 'a', label: 'Tests only' },
+        { value: 'b', label: 'tsc + tests + lint — type errors are bugs' },
+        { value: 'c', label: 'Just lint' },
+        { value: 'd', label: 'Nothing automatically' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="testing/quality-gates/type-check-as-test"
+  lessonHref="/paths/testing/quality-gates/type-check-as-test/"
+  lessonTitle="Type-checking as a test"
+  nextHref="/paths/testing/quality-gates/pr-ci/"
+  nextTitle="Pull-request CI you trust"
+/>

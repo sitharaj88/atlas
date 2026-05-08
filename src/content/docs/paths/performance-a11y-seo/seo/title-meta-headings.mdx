@@ -1,0 +1,76 @@
+---
+title: 'Title, meta description, headings hierarchy'
+description: The on-page basics that Google still cares about.
+sidebar:
+  order: 2
+pathSlug: performance-a11y-seo
+module: seo
+lessonNumber: 2
+difficulty: beginner
+duration: 5 min
+tags: [seo]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Title
+
+Unique per page. Under ~60 chars (else truncated in search results). Include the topic and brand:
+
+```html
+<title>How the web works — Atlas</title>
+```
+
+## Meta description
+
+Not a ranking factor, but the snippet shown in results. ~150 chars. Compelling, accurate, not stuffed.
+
+```html
+<meta name="description" content="A clear mental model — from typing a URL to seeing pixels. HTTP, DNS, browsers, the rendering pipeline.">
+```
+
+## Heading hierarchy
+
+- One `<h1>` per page — the topic.
+- `<h2>` for top-level sections.
+- `<h3>` for subsections.
+- Don't skip levels.
+
+Search engines use heading order to understand structure. Screen readers use it for navigation.
+
+## URL slugs
+
+- Lowercase, hyphenated.
+- Descriptive. `/posts/how-the-web-works` beats `/posts/12345`.
+- Stable. Once published, don't change without a redirect.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/seo/title-meta-headings"
+  questions={[
+    {
+      id: 'tmh-1',
+      type: 'single',
+      prompt: 'Best title length for search results?',
+      options: [
+        { value: 'a', label: 'Under 60 characters (avoid truncation)' },
+        { value: 'b', label: '500 characters' },
+        { value: 'c', label: 'No limit' },
+        { value: 'd', label: 'Single word' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/seo/title-meta-headings"
+  lessonHref="/paths/performance-a11y-seo/seo/title-meta-headings/"
+  lessonTitle="Title, meta, headings"
+  nextHref="/paths/performance-a11y-seo/seo/structured-data/"
+  nextTitle="Structured data (JSON-LD)"
+/>

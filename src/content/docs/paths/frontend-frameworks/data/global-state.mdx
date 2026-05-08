@@ -1,0 +1,71 @@
+---
+title: "Global state — when you don't need Redux"
+description: Lighter alternatives to Redux for the modern app.
+sidebar:
+  order: 3
+pathSlug: frontend-frameworks
+module: data
+lessonNumber: 3
+difficulty: intermediate
+duration: 5 min
+tags: [react, state]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The hierarchy
+
+1. **`useState`** + composition — try this first.
+2. **Context** — for app-wide values that rarely change (theme, locale, current user).
+3. **Zustand / Jotai / Valtio** — small, hooks-friendly. State outside React, slot in by hook.
+4. **Redux Toolkit** — when you need time-travel debugging, middleware, plugins.
+
+In 2026 most apps are at 1 + 3. Redux is great for huge, complex apps that benefit from its tooling.
+
+## Zustand example
+
+```js
+import { create } from 'zustand';
+const useStore = create((set) => ({
+  count: 0,
+  inc: () => set((s) => ({ count: s.count + 1 })),
+}));
+
+function Counter() {
+  const { count, inc } = useStore();
+  return <button onClick={inc}>{count}</button>;
+}
+```
+
+Lightweight, no boilerplate, no Provider needed.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/data/global-state"
+  questions={[
+    {
+      id: 'gs-1',
+      type: 'single',
+      prompt: 'Best fit for "current theme + locale"?',
+      options: [
+        { value: 'a', label: 'Redux Toolkit' },
+        { value: 'b', label: 'React Context (rarely changing app-wide value)' },
+        { value: 'c', label: 'TanStack Query' },
+        { value: 'd', label: 'localStorage' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/data/global-state"
+  lessonHref="/paths/frontend-frameworks/data/global-state/"
+  lessonTitle="Global state alternatives"
+  nextHref="/paths/frontend-frameworks/data/forms/"
+  nextTitle="Forms — RHF, Conform, native form"
+/>

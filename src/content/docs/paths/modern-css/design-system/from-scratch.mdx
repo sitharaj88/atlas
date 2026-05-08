@@ -1,0 +1,110 @@
+---
+title: 'From scratch: tokens → primitives → components'
+description: Build a design system in three layers — tokens, primitives, components. The approach that scales.
+sidebar:
+  order: 1
+pathSlug: modern-css
+module: design-system
+lessonNumber: 1
+difficulty: intermediate
+duration: 10 min
+prerequisites:
+  - You\'ve completed the Tokens module
+objectives:
+  - Sequence design system work from tokens to components
+  - Pick the right level of abstraction
+tags: [css, design-systems]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** A practical walkthrough — what to build first, what to delay, how to avoid the design-system death spiral.
+
+## Stage 1 — Tokens
+
+Start with primitives + semantics:
+
+```css
+:root {
+  /* primitives */
+  --gray-50: oklch(98% 0 0);
+  --gray-900: oklch(15% 0 0);
+  --space-4: 1rem;
+
+  /* semantics */
+  --bg: var(--gray-50);
+  --text: var(--gray-900);
+  --space-block: var(--space-4);
+}
+```
+
+Don't ship every component yet. Just tokens.
+
+## Stage 2 — Primitives (low-level layout)
+
+```css
+.stack > * + * { margin-block-start: var(--space-block); }
+.cluster { display: flex; flex-wrap: wrap; gap: var(--space-block); }
+.center { display: grid; place-items: center; }
+.box { padding: var(--space-block); border-radius: var(--radius-md); }
+```
+
+Layout helpers that the design depends on. Often called "objects" in BEM/ITCSS.
+
+## Stage 3 — Components
+
+```css
+.btn { /* uses primitives + tokens */ }
+.card { /* uses primitives + tokens */ }
+.field { /* form input */ }
+```
+
+Build the 5–7 components that show up everywhere first. Resist the urge to ship a fully-stocked component library on day one — it'll be wrong.
+
+## What to delay
+
+- **A theme switcher** until you have two themes.
+- **Component variants** until you have three call sites.
+- **A brand voice doc** until designers and engineers agree on tokens.
+
+Designs systems get used or they get ignored. Used means small, opinionated, and battle-tested through real product work.
+
+<Callout variant="warn" title="The design system death spiral">
+Teams build complete component libraries with 80 components in isolation, then ship them — and discover product needs only 6 of them, in shapes the library didn't predict. **Build by extracting from real product work**, not by speculating.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/design-system/from-scratch"
+  questions={[
+    {
+      id: 'ds-1',
+      type: 'single',
+      prompt: 'Best place to start a design system?',
+      options: [
+        { value: 'a', label: 'Build 80 components' },
+        { value: 'b', label: 'Tokens, then a few primitives, then extract components from real product work' },
+        { value: 'c', label: 'A Figma file with no code' },
+        { value: 'd', label: 'A grand naming scheme' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Documenting components with Storybook.**
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/design-system/from-scratch"
+  lessonHref="/paths/modern-css/design-system/from-scratch/"
+  lessonTitle="Design system from scratch"
+  nextHref="/paths/modern-css/design-system/storybook/"
+  nextTitle="Documenting components with Storybook"
+/>

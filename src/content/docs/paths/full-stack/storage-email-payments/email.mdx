@@ -1,0 +1,90 @@
+---
+title: 'Email — transactional vs. marketing, deliverability basics'
+description: Sending email so it actually arrives. SPF, DKIM, DMARC, providers.
+sidebar:
+  order: 2
+pathSlug: full-stack
+module: storage-email-payments
+lessonNumber: 2
+difficulty: intermediate
+duration: 6 min
+tags: [email, deliverability]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Use a provider
+
+Don't run an SMTP server. Use:
+- **Resend** — modern, dev-friendly, React Email components.
+- **Postmark** — strong reputation, transactional focus.
+- **SendGrid, Mailgun** — established players.
+- **AWS SES** — cheap, requires more setup.
+
+Reputation matters. Sharing a provider's IPs that are already trusted is the fastest path to inbox.
+
+## Authentication records
+
+DNS records that prove your domain is allowed to send:
+
+- **SPF** — list of IPs allowed to send from your domain.
+- **DKIM** — cryptographic signature on each message.
+- **DMARC** — policy combining SPF + DKIM, reports to you.
+
+Configure all three. Without them, Gmail/Outlook send your mail to spam.
+
+## Transactional vs marketing
+
+- **Transactional** — receipt, password reset, OTP. Triggered by user. Critical to deliver.
+- **Marketing** — newsletters, promos. Bulk. Unsubscribe required (CAN-SPAM, GDPR).
+
+Use **separate sending domains** (e.g., `noreply@app.atlas.dev` for transactional, `news@news.atlas.dev` for marketing). A bad marketing reputation won't tank your transactional delivery.
+
+## Building an email
+
+```tsx
+// React Email
+import { Html, Button } from '@react-email/components';
+
+export default function Welcome({ name }: { name: string }) {
+  return (
+    <Html>
+      <h1>Welcome, {name}</h1>
+      <Button href="https://atlas.dev/start">Get started</Button>
+    </Html>
+  );
+}
+```
+
+Renders to compatible HTML for old email clients.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/storage-email-payments/email"
+  questions={[
+    {
+      id: 'em-1',
+      type: 'single',
+      prompt: 'For password reset emails, the right kind is…',
+      options: [
+        { value: 'a', label: 'Transactional (separate sending domain ideally)' },
+        { value: 'b', label: 'Marketing' },
+        { value: 'c', label: 'Newsletter' },
+        { value: 'd', label: 'Bulk' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/storage-email-payments/email"
+  lessonHref="/paths/full-stack/storage-email-payments/email/"
+  lessonTitle="Email"
+  nextHref="/paths/full-stack/storage-email-payments/payments/"
+  nextTitle="Payments — Stripe Checkout primer"
+/>

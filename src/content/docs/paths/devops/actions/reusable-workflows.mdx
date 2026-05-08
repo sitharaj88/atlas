@@ -1,0 +1,93 @@
+---
+title: Reusable workflows and composite actions
+description: DRY your CI without copy-pasting YAML.
+sidebar:
+  order: 3
+pathSlug: devops
+module: actions
+lessonNumber: 3
+difficulty: intermediate
+duration: 5 min
+tags: [github-actions]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Reusable workflow
+
+A whole workflow you can call from another:
+
+```yaml
+# .github/workflows/test.yml
+on: workflow_call
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps: [...]
+```
+
+```yaml
+# called from another workflow
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+```
+
+## Composite action
+
+A reusable set of steps:
+
+```yaml
+# .github/actions/setup/action.yml
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@v4
+    - uses: actions/setup-node@v4
+      with: { node-version: 20, cache: pnpm }
+    - run: pnpm install --frozen-lockfile
+      shell: bash
+```
+
+Used as:
+
+```yaml
+- uses: ./.github/actions/setup
+```
+
+## Pick the right level
+
+- **Composite action** — small reusable steps (setup, lint, smoke).
+- **Reusable workflow** — larger complete jobs (test, deploy).
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="devops/actions/reusable-workflows"
+  questions={[
+    {
+      id: 'rw-1',
+      type: 'single',
+      prompt: 'You have repeating "install + cache" steps in many workflows. Best fix?',
+      options: [
+        { value: 'a', label: 'Copy and paste' },
+        { value: 'b', label: 'Composite action' },
+        { value: 'c', label: 'Bash script' },
+        { value: 'd', label: 'External tool' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="devops/actions/reusable-workflows"
+  lessonHref="/paths/devops/actions/reusable-workflows/"
+  lessonTitle="Reusable workflows"
+  nextHref="/paths/devops/actions/secrets/"
+  nextTitle="Secrets management"
+/>

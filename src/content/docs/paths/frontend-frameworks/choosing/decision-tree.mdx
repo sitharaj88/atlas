@@ -1,0 +1,74 @@
+---
+title: 'A decision tree for picking a framework'
+description: Match framework to project — content, app, or dashboard.
+sidebar:
+  order: 1
+pathSlug: frontend-frameworks
+module: choosing
+lessonNumber: 1
+difficulty: intermediate
+duration: 5 min
+tags: [frameworks, choosing]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The tree
+
+```text
+Is the project mostly content (blog, docs, marketing)?
+  → Astro
+
+Is it server-rendered (Rails/Django/Laravel) with sprinkles of JS?
+  → HTMX + Alpine
+
+Is the team React-shop?
+  → Next.js (full-stack) or Remix/RR7 (web-platform first)
+
+Is it a SPA dashboard / editor / IDE?
+  → Solid (perf) or React + TanStack Start (TS-first)
+
+Is the team Vue-shop?
+  → Nuxt
+
+Is the team Svelte-curious?
+  → SvelteKit
+
+Will the components ship across teams/frameworks?
+  → Lit / Web Components
+```
+
+## Don't overthink it
+
+Most teams ship fine on any of these. The wrong "framework choice" is rarely what kills a project. Skill, design, deploy reliability, and product clarity matter more.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/choosing/decision-tree"
+  questions={[
+    {
+      id: 'dt-1',
+      type: 'single',
+      prompt: 'A docs site for a library — which framework wins?',
+      options: [
+        { value: 'a', label: 'Next.js' },
+        { value: 'b', label: 'Astro (or Starlight if you want docs-specific batteries)' },
+        { value: 'c', label: 'React (CSR)' },
+        { value: 'd', label: 'Remix' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/choosing/decision-tree"
+  lessonHref="/paths/frontend-frameworks/choosing/decision-tree/"
+  lessonTitle="Decision tree"
+  nextHref="/paths/frontend-frameworks/choosing/migration-patterns/"
+  nextTitle="Migration patterns"
+/>

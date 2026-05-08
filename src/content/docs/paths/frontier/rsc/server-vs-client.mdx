@@ -1,0 +1,70 @@
+---
+title: 'Server vs. client components — the rules'
+description: What you can and can't do in each, and how to compose them.
+sidebar:
+  order: 2
+pathSlug: frontier
+module: rsc
+lessonNumber: 2
+difficulty: advanced
+duration: 5 min
+tags: [react, rsc]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Server components (default)
+
+✅ Can: be `async`, `await` data, use server-only modules (`fs`, DB clients), read secrets, read request headers.
+
+❌ Can't: use `useState`, `useEffect`, browser APIs, attach `onClick`.
+
+## Client components (`'use client'` at top of file)
+
+✅ Can: useState/useEffect, browser APIs, event handlers, interactive logic.
+
+❌ Can't: import server components directly, access server-only modules.
+
+## Composition rule
+
+Server components can render client components and pass props. Client components **can't import server components** — but can receive them as `children`:
+
+```tsx
+// Server (parent)
+<ClientShell>
+  <ServerOnlyChart data={await getData()} />
+</ClientShell>
+```
+
+The server renders `ServerOnlyChart` first, then hands its rendered output to `ClientShell` as a prop. The client never sees the chart's source.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/rsc/server-vs-client"
+  questions={[
+    {
+      id: 'svc-1',
+      type: 'single',
+      prompt: 'A server component can…',
+      options: [
+        { value: 'a', label: 'Use useState' },
+        { value: 'b', label: 'Be async, await data, import server-only modules' },
+        { value: 'c', label: 'Attach onClick' },
+        { value: 'd', label: 'Run in the browser' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/rsc/server-vs-client"
+  lessonHref="/paths/frontier/rsc/server-vs-client/"
+  lessonTitle="Server vs client components"
+  nextHref="/paths/frontier/rsc/streaming-suspense/"
+  nextTitle="Streaming and Suspense"
+/>

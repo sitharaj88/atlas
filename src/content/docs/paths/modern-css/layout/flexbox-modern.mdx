@@ -1,0 +1,140 @@
+---
+title: Flexbox you actually understand
+description: Modern flex idioms — gap, min-width 0, intrinsic sizing — beyond the introductory recipes.
+sidebar:
+  order: 2
+pathSlug: modern-css
+module: layout
+lessonNumber: 1
+difficulty: intermediate
+duration: 10 min
+prerequisites:
+  - You've completed Foundations CSS module
+objectives:
+  - 'Apply flex: 1, flex: auto, and flex: 0 0 X correctly'
+  - Use intrinsic sizing keywords (min-content, max-content)
+  - 'Avoid the common overflow trap with min-width: 0'
+tags: [css, flexbox]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Flexbox beyond the basics — the patterns that come up in real apps, not in tutorials.
+
+## The `flex` shorthand decoded
+
+```css
+flex: 1;          /* = 1 1 0   — equal share, ignore content */
+flex: auto;       /* = 1 1 auto — content sized first, then grow */
+flex: none;       /* = 0 0 auto — content sized, no grow/shrink */
+flex: 0 0 16rem;  /* fixed 16rem */
+```
+
+The `0` basis is what makes equal columns equal. With `auto` basis, a longer item starts wider and stays wider.
+
+## Holy grail: sidebar + flexible main
+
+```css
+.layout { display: flex; gap: 1rem; min-height: 100dvh; }
+.sidebar { flex: 0 0 16rem; }
+.main { flex: 1; min-width: 0; }
+```
+
+`min-width: 0` on `main` is the magic. Without it, long unbreakable content (URLs, code blocks) can push past the parent.
+
+## Push one item to the end
+
+```css
+.nav { display: flex; gap: 1rem; }
+.spacer { margin-inline-start: auto; }
+```
+
+Margin auto on a flex child eats remaining space — the rest gets pushed.
+
+## Intrinsic sizing
+
+```css
+.col { flex: 0 1 max-content; }    /* size to longest line, can shrink */
+.col { flex: 1 1 min-content; }    /* size to longest word */
+```
+
+Useful for tag lists, breadcrumbs, anything where "fit content" matters.
+
+## Wrapping cards (when grid would also work)
+
+```css
+.cards { display: flex; flex-wrap: wrap; gap: 1rem; }
+.card { flex: 1 1 16rem; }
+```
+
+When wrapping kicks in, `flex: 1 1 16rem` makes each item at least 16rem and stretch to fill the row. Cleaner than media queries.
+
+## Common pitfalls
+
+- `align-items: stretch` (default) makes items equal height. Set to `flex-start` or others to opt out.
+- `justify-self` doesn't work in flex. Use `margin: auto` to push.
+- Reordering with `order` or `flex-direction: *-reverse` only changes visual order — DOM, tab, and screen reader order stay.
+
+<Callout variant="tip" title="Reach for grid when alignment crosses rows">
+If items in row 1 should align with items in row 2 (column 1 stays the same width), Flexbox can\'t — it sees each row independently. That\'s when you grab Grid.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/layout/flexbox-modern"
+  questions={[
+    {
+      id: 'fxm-1',
+      type: 'single',
+      prompt: '`flex: 1` is shorthand for…',
+      options: [
+        { value: 'a', label: '1 1 auto' },
+        { value: 'b', label: '1 1 0%' },
+        { value: 'c', label: '1 0 0' },
+        { value: 'd', label: '0 1 auto' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'fxm-2',
+      type: 'single',
+      prompt: 'Long URLs overflow your flex child. Add…',
+      options: [
+        { value: 'a', label: 'overflow: hidden on the parent' },
+        { value: 'b', label: 'min-width: 0 on the child' },
+        { value: 'c', label: 'flex-shrink: 1 on the child' },
+        { value: 'd', label: 'word-break: normal' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'fxm-3',
+      type: 'single',
+      prompt: 'Push the last item of a flex row to the right edge. Cleanest pattern?',
+      options: [
+        { value: 'a', label: 'margin-inline-start: auto on that item' },
+        { value: 'b', label: 'flex-grow: 999' },
+        { value: 'c', label: 'position: absolute' },
+        { value: 'd', label: 'order: 999' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+## What's next
+
+**Grid: subgrid, named lines, dense packing** — Grid features beyond the basics.
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/layout/flexbox-modern"
+  lessonHref="/paths/modern-css/layout/flexbox-modern/"
+  lessonTitle="Flexbox you actually understand"
+  nextHref="/paths/modern-css/layout/grid-modern/"
+  nextTitle="Grid: subgrid, named lines, dense packing"
+/>

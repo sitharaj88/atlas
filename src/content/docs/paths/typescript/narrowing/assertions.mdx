@@ -1,0 +1,80 @@
+---
+title: 'Assertion functions and `asserts x is T`'
+description: Functions that throw if the type is wrong, and narrow the variable for the rest of the scope.
+sidebar:
+  order: 4
+pathSlug: typescript
+module: narrowing
+lessonNumber: 4
+difficulty: intermediate
+duration: 5 min
+prerequisites:
+  - User-defined type guards
+objectives:
+  - Write an assertion function
+tags: [typescript, narrowing]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The shape
+
+```ts
+function assert(condition: unknown, message: string): asserts condition {
+  if (!condition) throw new Error(message);
+}
+
+function f(x: unknown) {
+  assert(typeof x === 'string', 'expected string');
+  x.toUpperCase(); // ✓ TS narrowed
+}
+```
+
+Note: `asserts condition` (no `is`) just propagates a boolean check. Use `asserts x is T` to narrow the type:
+
+```ts
+function assertString(x: unknown): asserts x is string {
+  if (typeof x !== 'string') throw new Error('not a string');
+}
+```
+
+## When to reach for them
+
+- Validating inputs at the top of a function.
+- Custom invariants that can't be inferred.
+- Migrating from `as` casts to safer code.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/narrowing/assertions"
+  questions={[
+    {
+      id: 'asr-1',
+      type: 'single',
+      prompt: 'Difference between `x is T` and `asserts x is T`?',
+      options: [
+        { value: 'a', label: 'No difference' },
+        { value: 'b', label: '`x is T` returns boolean; `asserts x is T` throws if not T and narrows for the rest of the scope' },
+        { value: 'c', label: '`asserts` runs at compile time' },
+        { value: 'd', label: '`asserts` requires a class' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+The Narrowing module wraps. Final TypeScript module: **Practical TypeScript.**
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/narrowing/assertions"
+  lessonHref="/paths/typescript/narrowing/assertions/"
+  lessonTitle="Assertion functions"
+  nextHref="/paths/typescript/practical/type-safe-apis/"
+  nextTitle="Designing type-safe APIs"
+/>

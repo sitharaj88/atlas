@@ -1,0 +1,81 @@
+---
+title: 'Network mocking, visual snapshots'
+description: Stub APIs and verify pixels for E2E tests.
+sidebar:
+  order: 3
+pathSlug: testing
+module: e2e
+lessonNumber: 3
+difficulty: intermediate
+duration: 5 min
+tags: [playwright, testing]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Network mocking
+
+```ts
+test('shows fallback on API failure', async ({ page }) => {
+  await page.route('**/api/posts', (route) =>
+    route.fulfill({ status: 500, body: '{"error":"oops"}' })
+  );
+  await page.goto('/blog');
+  await expect(page.getByText(/couldn't load posts/i)).toBeVisible();
+});
+```
+
+`page.route` intercepts. Decide: `fulfill` (mock), `abort` (block), `continue` (pass through).
+
+## Visual snapshots
+
+```ts
+test('home looks right', async ({ page }) => {
+  await page.goto('/');
+  await expect(page).toHaveScreenshot('home.png', { maxDiffPixels: 50 });
+});
+```
+
+First run records the baseline. Subsequent runs diff against it. Updates: `pnpm exec playwright test --update-snapshots`.
+
+## When to snapshot
+
+- Stable, design-system-driven pages.
+- After verifying a critical interaction.
+
+## When NOT
+
+- Pages with timestamps or live data.
+- Animations (use `animations: 'disabled'`).
+- Localized layouts unless you stable the locale.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="testing/e2e/network-mocking"
+  questions={[
+    {
+      id: 'nm-1',
+      type: 'single',
+      prompt: 'Best way to test the "API failure" UI state in Playwright?',
+      options: [
+        { value: 'a', label: 'Take down the staging API' },
+        { value: 'b', label: 'page.route to fulfill the request with a 500 response' },
+        { value: 'c', label: 'Wait for it to happen naturally' },
+        { value: 'd', label: 'Mock at the component level' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="testing/e2e/network-mocking"
+  lessonHref="/paths/testing/e2e/network-mocking/"
+  lessonTitle="Network mocking and snapshots"
+  nextHref="/paths/testing/e2e/ci-e2e/"
+  nextTitle="Running E2E in CI without flake"
+/>

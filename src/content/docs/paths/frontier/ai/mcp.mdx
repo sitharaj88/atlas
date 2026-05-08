@@ -1,0 +1,72 @@
+---
+title: 'The Model Context Protocol (MCP) primer'
+description: A standard way for LLMs to talk to tools and data sources. Like LSP, but for AI.
+sidebar:
+  order: 3
+pathSlug: frontier
+module: ai
+lessonNumber: 3
+difficulty: advanced
+duration: 5 min
+tags: [ai, mcp]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The pitch
+
+Instead of every AI app reinventing how to call your DB, file system, or API, MCP defines a protocol. An MCP server exposes tools/resources; any MCP-aware client (Claude Desktop, Cursor, your app) can use them.
+
+## Server side (in TypeScript)
+
+```ts
+import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
+
+const server = new McpServer({ name: 'atlas-tools', version: '1.0.0' });
+
+server.tool('search_lessons', 'Search Atlas lessons', { query: z.string() }, async ({ query }) => {
+  const results = await searchLessons(query);
+  return { content: [{ type: 'text', text: JSON.stringify(results) }] };
+});
+```
+
+## Client side
+
+The LLM client (Claude Desktop, Cursor, etc.) sees the available tools and can call them during a conversation. **Your code doesn't change** — you just register the tool and the model decides when to use it.
+
+## Why MCP matters
+
+- **Reusability** — write a tool once, use it from any MCP-aware AI.
+- **Standardization** — tool discovery, auth, schemas all defined.
+- **Local-first** — MCP servers can run on your machine, exposing local files/DB without uploading.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/ai/mcp"
+  questions={[
+    {
+      id: 'mcp-1',
+      type: 'single',
+      prompt: 'MCP is best understood as…',
+      options: [
+        { value: 'a', label: 'A new programming language' },
+        { value: 'b', label: 'A standard protocol so any AI client can call your custom tools (like LSP for AI)' },
+        { value: 'c', label: 'A model architecture' },
+        { value: 'd', label: 'A vector DB' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/ai/mcp"
+  lessonHref="/paths/frontier/ai/mcp/"
+  lessonTitle="MCP primer"
+  nextHref="/paths/frontier/ai/streaming-caching/"
+  nextTitle="Streaming responses, prompt caching, cost control"
+/>

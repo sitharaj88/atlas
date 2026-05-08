@@ -1,0 +1,82 @@
+---
+title: 'Page Object Model — when it helps'
+description: A pattern for sharing test code across many tests. Useful when, harmful when over-applied.
+sidebar:
+  order: 2
+pathSlug: testing
+module: e2e
+lessonNumber: 2
+difficulty: intermediate
+duration: 5 min
+tags: [playwright, testing]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What it is
+
+Encapsulate page-specific logic in a class:
+
+```ts
+export class LoginPage {
+  constructor(private page: Page) {}
+  async goto() { await this.page.goto('/login'); }
+  async login(email: string, password: string) {
+    await this.page.getByLabel('Email').fill(email);
+    await this.page.getByLabel('Password').fill(password);
+    await this.page.getByRole('button', { name: 'Sign in' }).click();
+  }
+}
+```
+
+```ts
+test('login', async ({ page }) => {
+  const login = new LoginPage(page);
+  await login.goto();
+  await login.login('a@b.com', 'pw');
+  await expect(page).toHaveURL('/dashboard');
+});
+```
+
+## When POM helps
+
+- Many tests share the same flows (login, navigation, complex forms).
+- A team where a few people maintain test infrastructure.
+
+## When POM is overkill
+
+- A handful of tests with unique flows.
+- Simple apps where the page methods are barely more than the inline calls.
+
+A "fixtures" approach (`test.extend({ login: ...async... })`) often beats classes for Playwright specifically.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="testing/e2e/page-object-model"
+  questions={[
+    {
+      id: 'pom-1',
+      type: 'single',
+      prompt: 'POM is most valuable when…',
+      options: [
+        { value: 'a', label: 'You have a single test' },
+        { value: 'b', label: 'Many tests share the same complex flows (login, multi-step forms)' },
+        { value: 'c', label: 'TypeScript is enabled' },
+        { value: 'd', label: 'Tests run in CI' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="testing/e2e/page-object-model"
+  lessonHref="/paths/testing/e2e/page-object-model/"
+  lessonTitle="Page Object Model"
+  nextHref="/paths/testing/e2e/network-mocking/"
+  nextTitle="Network mocking and visual snapshots"
+/>

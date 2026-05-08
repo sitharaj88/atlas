@@ -1,0 +1,121 @@
+---
+title: 'Todo app — vanilla JS, no framework'
+description: A working todo app in 100 lines of HTML/CSS/JS. Localhost-only, localStorage-persistent, accessible.
+sidebar:
+  order: 2
+difficulty: beginner
+duration: 1 hour
+tags: [todo, vanilla-js, project]
+---
+
+import Callout from '~/components/Callout.astro';
+
+> A complete app in one file. No build tools. Save and double-click to run.
+
+## What you'll build
+
+- Add tasks. Mark complete. Delete.
+- Persists across reloads (localStorage).
+- Keyboard accessible.
+- ~100 lines of code.
+
+## The whole thing
+
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Todo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: system-ui; max-width: 28rem; margin: 4rem auto; padding: 0 1rem; }
+    h1 { font-size: 2rem; }
+    form { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+    input[type=text] { flex: 1; padding: 0.6rem; border: 1px solid #ddd; border-radius: 6px; }
+    button { padding: 0.6rem 1rem; border: 0; background: navy; color: white; border-radius: 6px; cursor: pointer; }
+    ul { list-style: none; padding: 0; }
+    li { display: flex; gap: 0.6rem; align-items: center; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
+    li.done span { text-decoration: line-through; color: #888; }
+    li button { background: transparent; color: #c00; border: 0; cursor: pointer; }
+    :focus-visible { outline: 2px solid orange; outline-offset: 2px; border-radius: 4px; }
+  </style>
+</head>
+<body>
+  <h1>Todos</h1>
+  <form id="form">
+    <label for="newTask" class="visually-hidden">New task</label>
+    <input id="newTask" type="text" placeholder="What needs doing?" autocomplete="off" required>
+    <button>Add</button>
+  </form>
+  <ul id="list" aria-live="polite"></ul>
+
+  <script>
+    const STORAGE_KEY = 'atlas-todos';
+    let todos = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '[]');
+
+    const list = document.getElementById('list');
+    const form = document.getElementById('form');
+    const input = document.getElementById('newTask');
+
+    function save() { localStorage.setItem(STORAGE_KEY, JSON.stringify(todos)); }
+
+    function render() {
+      list.innerHTML = '';
+      for (const todo of todos) {
+        const li = document.createElement('li');
+        li.className = todo.done ? 'done' : '';
+        li.innerHTML = `
+          <input type="checkbox" ${todo.done ? 'checked' : ''} aria-label="Mark complete">
+          <span>${todo.text.replace(/[<>&]/g, c => ({ '<':'&lt;','>':'&gt;','&':'&amp;' }[c]))}</span>
+          <button aria-label="Delete">×</button>
+        `;
+        li.querySelector('input').addEventListener('change', e => {
+          todo.done = e.target.checked;
+          save();
+          render();
+        });
+        li.querySelector('button').addEventListener('click', () => {
+          todos = todos.filter(t => t !== todo);
+          save();
+          render();
+        });
+        list.append(li);
+      }
+    }
+
+    form.addEventListener('submit', e => {
+      e.preventDefault();
+      const text = input.value.trim();
+      if (!text) return;
+      todos.push({ id: crypto.randomUUID(), text, done: false });
+      save();
+      render();
+      input.value = '';
+      input.focus();
+    });
+
+    render();
+  </script>
+</body>
+</html>
+```
+
+## What you learned
+
+- DOM manipulation, event delegation.
+- localStorage persistence with JSON.
+- Sanitizing user input before innerHTML (XSS defense).
+- ARIA live regions for screen readers.
+- Accessible `<label>` + visible focus.
+
+## Where to go from here
+
+- Add filters (all / active / completed).
+- Add drag-to-reorder.
+- Move to React or Svelte for state management.
+- Sync to a server via fetch.
+
+<Callout variant="success" title="Ship it">
+Save as `index.html`. Double-click to run. Add to your portfolio. Even tiny apps demonstrate the basics employers care about.
+</Callout>

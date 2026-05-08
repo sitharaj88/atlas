@@ -1,0 +1,225 @@
+---
+title: Callbacks → Promises → async/await
+description: The evolution of asynchronous JavaScript — from callback hell to ergonomic await.
+sidebar:
+  order: 1
+pathSlug: foundations
+module: async
+lessonNumber: 1
+difficulty: beginner
+duration: 12 min
+prerequisites:
+  - You\'ve completed the Web APIs module (you used fetch)
+objectives:
+  - 'Trace a Promise''s life: pending, fulfilled, rejected'
+  - Convert callback APIs to Promises
+  - Use async/await idiomatically
+tags: [javascript, async, promises]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Three eras of async JS: the callback era (hard), the Promise era (better), and the async/await era (where we live now). All three still appear in real code.
+
+## The callback era
+
+```js
+fs.readFile('a.txt', (err, a) => {
+  if (err) return done(err);
+  fs.readFile('b.txt', (err, b) => {
+    if (err) return done(err);
+    fs.readFile('c.txt', (err, c) => {
+      if (err) return done(err);
+      done(null, a + b + c);
+    });
+  });
+});
+```
+
+This is "callback hell." Errors propagate manually. Branching gets messy. Modern code avoids this — but you'll meet it in old libraries.
+
+## Promises
+
+A **Promise** is an object that represents a future value. It's in one of three states:
+
+- **Pending** — not yet settled.
+- **Fulfilled** — completed successfully, has a value.
+- **Rejected** — failed, has an error.
+
+```js
+const p = fetch('/api');
+p.then(res => res.json())
+ .then(data => console.log(data))
+ .catch(err => console.error(err))
+ .finally(() => console.log('done'));
+```
+
+A Promise can settle exactly once. Once settled, it stays settled.
+
+## Creating a Promise
+
+You almost never write `new Promise` directly — you call APIs that return Promises. But when wrapping a callback API:
+
+```js
+function readFile(path) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(path, (err, data) => {
+      if (err) reject(err);
+      else resolve(data);
+    });
+  });
+}
+```
+
+`util.promisify(fs.readFile)` (in Node) does this automatically.
+
+## async / await
+
+Syntactic sugar over Promises:
+
+```js
+async function loadAll() {
+  try {
+    const a = await readFile('a.txt');
+    const b = await readFile('b.txt');
+    const c = await readFile('c.txt');
+    return a + b + c;
+  } catch (err) {
+    console.error(err);
+  }
+}
+```
+
+Reads top-to-bottom, error handling is `try/catch`. `await` only works inside `async` functions (and at module top level).
+
+**Every async function returns a Promise.** Calling `loadAll()` gives you a Promise that resolves with `a + b + c`.
+
+## Sequential vs. parallel
+
+The above runs sequentially — one file at a time. To go in parallel:
+
+```js
+const [a, b, c] = await Promise.all([
+  readFile('a.txt'),
+  readFile('b.txt'),
+  readFile('c.txt'),
+]);
+```
+
+`Promise.all` rejects fast if any input rejects. Use **`Promise.allSettled`** when you want every result, success or failure.
+
+## The combinators
+
+```js
+Promise.all([p1, p2, p3])         // resolves with array; rejects if any reject
+Promise.allSettled([p1, p2, p3])  // resolves with array of {status, value/reason}
+Promise.race([p1, p2, p3])        // resolves/rejects with the FIRST to settle
+Promise.any([p1, p2, p3])         // resolves with the first to FULFILL; rejects only if all reject
+```
+
+`Promise.any` is great for "try several services, take whichever responds first."
+
+## await is one expression
+
+You can `await` anywhere an expression is allowed:
+
+```js
+const total = (await fetchA()) + (await fetchB());
+const items = (await fetch('/api/items')).map(transform);
+const ok = list.some(async (x) => await check(x)); // ❌ this is wrong! .some passes a function; await inside doesn't help
+```
+
+The last one is a classic trap. Array methods like `.some`, `.every`, `.filter` don't await. Use `for…of` or `Promise.all(list.map(...))`.
+
+## Top-level await
+
+In ES modules:
+
+```js
+// data.js (an ES module)
+export const data = await fetch('/api/data').then(r => r.json());
+```
+
+Modules that use top-level await delay their importers. Use sparingly; it can serialize startup.
+
+## Common pitfalls
+
+```js
+// ❌ Forgetting await — Promise leaks through
+async function getData() {
+  return fetch('/api').then(r => r.json()); // works (return is implicit await on return)
+}
+
+// ❌ Awaiting in a forEach
+arr.forEach(async (x) => await process(x)); // does NOT wait — forEach ignores the returned Promise
+
+// ✓ Await with for…of (sequential)
+for (const x of arr) await process(x);
+
+// ✓ Await with Promise.all (parallel)
+await Promise.all(arr.map(process));
+```
+
+<Callout variant="tip" title="Convert callbacks to Promises early">
+Whenever you start to nest more than two callbacks, stop and wrap them in `new Promise` (or use `util.promisify`). Linear async/await code is easier to read and easier to debug.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/async/callbacks-to-async-await"
+  questions={[
+    {
+      id: 'as-1',
+      type: 'single',
+      prompt: 'Three independent fetches; you want all results, fastest. Use…',
+      options: [
+        { value: 'a', label: 'Three sequential awaits' },
+        { value: 'b', label: 'Promise.all([fetchA(), fetchB(), fetchC()])' },
+        { value: 'c', label: 'A for loop with await inside' },
+        { value: 'd', label: 'Promise.race' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'as-2',
+      type: 'single',
+      prompt: 'Why doesn\'t `arr.forEach(async x => await foo(x))` actually wait?',
+      options: [
+        { value: 'a', label: 'forEach ignores the returned Promise; it returns void' },
+        { value: 'b', label: 'foo isn\'t async' },
+        { value: 'c', label: 'It does wait — this works fine' },
+        { value: 'd', label: 'forEach is synchronous so it can\'t use await' },
+      ],
+      answer: 'a',
+    },
+    {
+      id: 'as-3',
+      type: 'single',
+      prompt: 'When does Promise.all reject?',
+      options: [
+        { value: 'a', label: 'Only when all inputs reject' },
+        { value: 'b', label: 'When any input rejects (rejects fast with that error)' },
+        { value: 'c', label: 'Only after a timeout' },
+        { value: 'd', label: 'Never — it always resolves' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Error handling that doesn't bury bugs** — try/catch, error chains, and not silently swallowing.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/async/callbacks-to-async-await"
+  lessonHref="/paths/foundations/async/callbacks-to-async-await/"
+  lessonTitle="Callbacks → Promises → async/await"
+  nextHref="/paths/foundations/async/error-handling/"
+  nextTitle="Error handling that doesn't bury bugs"
+/>

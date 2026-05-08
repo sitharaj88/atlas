@@ -1,0 +1,91 @@
+---
+title: 'Payments — Stripe Checkout primer'
+description: Take payments without becoming a payment processor. The fastest path with Stripe.
+sidebar:
+  order: 3
+pathSlug: full-stack
+module: storage-email-payments
+lessonNumber: 3
+difficulty: intermediate
+duration: 6 min
+tags: [payments, stripe]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The architecture
+
+```text
+Browser → your server: "Start checkout for product X"
+Server → Stripe API: create Checkout Session, get URL
+Server → browser: redirect to Stripe-hosted checkout
+User pays on stripe.com
+Stripe → your server (webhook): "session.completed" — fulfill the order
+```
+
+You never touch card numbers. Stripe is PCI-compliant; you don't need to be.
+
+## A Checkout Session
+
+```ts
+const session = await stripe.checkout.sessions.create({
+  mode: 'payment',
+  line_items: [{ price: 'price_abc', quantity: 1 }],
+  success_url: 'https://atlas.dev/thanks?session_id={CHECKOUT_SESSION_ID}',
+  cancel_url: 'https://atlas.dev/cancelled',
+});
+return c.redirect(session.url);
+```
+
+## Webhooks are the source of truth
+
+The user might close the tab before redirecting back. Always listen for `checkout.session.completed`:
+
+```ts
+app.post('/webhook', async (c) => {
+  const sig = c.req.header('stripe-signature')!;
+  const event = stripe.webhooks.constructEvent(await c.req.text(), sig, secret);
+  if (event.type === 'checkout.session.completed') {
+    const session = event.data.object;
+    await fulfillOrder(session.client_reference_id);
+  }
+  return c.text('ok');
+});
+```
+
+Verify the signature. Always. Otherwise anyone can post fake fulfillment events.
+
+## Subscriptions
+
+Same pattern, `mode: 'subscription'`. Listen for `invoice.paid` to extend access; `customer.subscription.deleted` to revoke.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/storage-email-payments/payments"
+  questions={[
+    {
+      id: 'pa-1',
+      type: 'single',
+      prompt: 'You take payment via Stripe Checkout. The source of truth that the user paid is…',
+      options: [
+        { value: 'a', label: 'The success_url redirect' },
+        { value: 'b', label: 'The webhook event verified by signature' },
+        { value: 'c', label: 'The Stripe dashboard' },
+        { value: 'd', label: 'Browser localStorage' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/storage-email-payments/payments"
+  lessonHref="/paths/full-stack/storage-email-payments/payments/"
+  lessonTitle="Stripe Checkout"
+  nextHref="/paths/full-stack/background/queues/"
+  nextTitle="Background queues"
+/>

@@ -1,0 +1,83 @@
+---
+title: Lists, keys, controlled vs uncontrolled inputs
+description: The two questions that confuse every React beginner — what are keys, and which kind of input?
+sidebar:
+  order: 4
+pathSlug: frontend-frameworks
+module: react
+lessonNumber: 4
+difficulty: intermediate
+duration: 7 min
+tags: [react, lists, forms]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Keys
+
+```jsx
+{items.map(i => <Item key={i.id} {...i} />)}
+```
+
+Keys help React match elements between renders. **Always use a stable, unique ID** — the database id, a slug, a UUID. Never the array index unless the list never reorders.
+
+Bad keys cause:
+- State leaking between items (focus, internal state).
+- Re-renders that should have been no-ops.
+- Animations that confuse "old" and "new" items.
+
+## Controlled inputs
+
+State lives in React; input shows it:
+
+```jsx
+const [name, setName] = useState('');
+return <input value={name} onChange={e => setName(e.target.value)} />;
+```
+
+Pros: full control, validation while typing, derived state. Cons: every keystroke re-renders.
+
+## Uncontrolled inputs
+
+State lives in the DOM; React reads it on submit:
+
+```jsx
+const ref = useRef();
+return <input ref={ref} defaultValue="" />;
+// later: ref.current.value
+```
+
+Pros: no per-keystroke render. Cons: harder to validate live.
+
+For most forms in React 19+, **controlled** is fine. Performance is rarely the bottleneck. Reach for uncontrolled (or `useFormStatus`) when typing feels laggy.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/react/lists-keys-inputs"
+  questions={[
+    {
+      id: 'lki-1',
+      type: 'single',
+      prompt: 'Why never use array index as a key on a reorderable list?',
+      options: [
+        { value: 'a', label: 'It\'s slower' },
+        { value: 'b', label: 'When items reorder, React thinks the wrong items changed — state and focus leak between rows' },
+        { value: 'c', label: 'It\'s deprecated' },
+        { value: 'd', label: 'TypeScript forbids it' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/react/lists-keys-inputs"
+  lessonHref="/paths/frontend-frameworks/react/lists-keys-inputs/"
+  lessonTitle="Lists, keys, inputs"
+  nextHref="/paths/frontend-frameworks/react/memo-callback/"
+  nextTitle="useMemo, useCallback — when they help"
+/>

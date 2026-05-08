@@ -1,0 +1,100 @@
+---
+title: The narrowing flowchart
+description: TypeScript's narrowing rules in one chart. typeof, instanceof, in, equality.
+sidebar:
+  order: 1
+pathSlug: typescript
+module: narrowing
+lessonNumber: 1
+difficulty: intermediate
+duration: 7 min
+prerequisites:
+  - You've completed Generics
+objectives:
+  - Apply each narrowing technique in the right context
+tags: [typescript, narrowing]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Tools at your disposal
+
+```ts
+function f(x: string | number | Date | null) {
+  if (x === null) return;                // equality
+  if (typeof x === 'number') /* number */;
+  if (typeof x === 'string') /* string */;
+  if (x instanceof Date) /* Date */;
+}
+
+function g(x: { kind: 'a'; a: string } | { kind: 'b'; b: number }) {
+  if (x.kind === 'a') /* x is the 'a' variant */;
+  // discriminated union
+}
+
+function h(x: object) {
+  if ('foo' in x) /* x has 'foo' */;
+}
+
+function i(x: unknown) {
+  if (Array.isArray(x)) /* x is unknown[] */;
+}
+```
+
+## Truthiness
+
+```ts
+function j(x: string | undefined) {
+  if (x) /* x is string (and not '') */;
+  if (x !== undefined) /* x is string (including '') */;
+}
+```
+
+`if (x)` excludes empty string AND undefined. Sometimes you want only undefined excluded.
+
+## After narrowing
+
+Once narrowed, the type sticks until the next branch:
+
+```ts
+function k(x: string | null) {
+  if (x === null) return;
+  // here, x is string
+  x.toUpperCase(); // ✓
+}
+```
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/narrowing/narrowing-flowchart"
+  questions={[
+    {
+      id: 'nf-1',
+      type: 'single',
+      prompt: 'Which is the right way to narrow `unknown` to an array?',
+      options: [
+        { value: 'a', label: 'typeof x === "array"' },
+        { value: 'b', label: 'Array.isArray(x)' },
+        { value: 'c', label: 'x instanceof Array' },
+        { value: 'd', label: 'Both b and c work; b is preferred' },
+      ],
+      answer: 'd',
+    },
+  ]}
+/>
+
+## What's next
+
+**User-defined type guards (`x is T`).**
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/narrowing/narrowing-flowchart"
+  lessonHref="/paths/typescript/narrowing/narrowing-flowchart/"
+  lessonTitle="The narrowing flowchart"
+  nextHref="/paths/typescript/narrowing/type-guards/"
+  nextTitle="User-defined type guards"
+/>

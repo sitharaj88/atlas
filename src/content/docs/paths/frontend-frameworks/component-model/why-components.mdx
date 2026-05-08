@@ -1,0 +1,79 @@
+---
+title: Why components? The shift from DOM-first to data-first
+description: The mental shift that frameworks deliver — describe state, let the framework reconcile.
+sidebar:
+  order: 1
+pathSlug: frontend-frameworks
+module: component-model
+lessonNumber: 1
+difficulty: intermediate
+duration: 6 min
+prerequisites:
+  - Foundations DOM module
+objectives:
+  - Articulate the imperative-vs-declarative split
+tags: [components, frameworks]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Imperative DOM
+
+```js
+const list = document.getElementById('list');
+list.innerHTML = '';
+for (const item of items) {
+  const li = document.createElement('li');
+  li.textContent = item.name;
+  list.append(li);
+}
+```
+
+You tell the browser **what to do**, step by step. Easy at small scale; nightmare at any scale.
+
+## Declarative components
+
+```jsx
+function List({ items }) {
+  return <ul>{items.map(i => <li key={i.id}>{i.name}</li>)}</ul>;
+}
+```
+
+You describe **what the UI should look like for this state**. The framework figures out the DOM operations.
+
+When `items` changes, you don't update DOM — you re-run the function. The framework reconciles the result with what's already on screen.
+
+## The big win
+
+The mental load drops by an order of magnitude. You think about *data*; the framework handles the DOM.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/component-model/why-components"
+  questions={[
+    {
+      id: 'wc-1',
+      type: 'single',
+      prompt: 'Components are mostly about…',
+      options: [
+        { value: 'a', label: 'Performance' },
+        { value: 'b', label: 'Declarative UI — describing state, letting the framework manage DOM' },
+        { value: 'c', label: 'Bundle size' },
+        { value: 'd', label: 'Replacing CSS' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/component-model/why-components"
+  lessonHref="/paths/frontend-frameworks/component-model/why-components/"
+  lessonTitle="Why components"
+  nextHref="/paths/frontend-frameworks/component-model/reactivity/"
+  nextTitle="Reactivity: VDOM, signals, compilers"
+/>

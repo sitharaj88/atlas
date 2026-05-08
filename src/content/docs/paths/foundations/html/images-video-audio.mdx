@@ -1,0 +1,207 @@
+---
+title: Images, video, audio, and the picture element
+description: Modern media embedding — responsive images, modern formats, lazy loading, and accessible media.
+sidebar:
+  order: 4
+pathSlug: foundations
+module: html
+lessonNumber: 4
+difficulty: beginner
+duration: 12 min
+prerequisites:
+  - HTML basics
+objectives:
+  - Embed images responsively with <picture> and srcset
+  - Add video and audio with the right captions and fallbacks
+  - Avoid the most common performance pitfalls (CLS, missing alt, no lazy-load)
+tags: [html, images, performance, media]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** How to embed images and media correctly so they load fast, don't shift layout, and work on every screen — using only HTML.
+
+## The simplest image
+
+```html
+<img src="/photo.avif" alt="A red panda eating bamboo" width="800" height="600" />
+```
+
+Three non-negotiables:
+
+1. **`alt`** — describe the image for screen readers. Empty (`alt=""`) for purely decorative.
+2. **`width` and `height`** — match the image's intrinsic dimensions. The browser uses them to compute `aspect-ratio` and **reserve space before the image loads**, preventing layout shift.
+3. **Modern format** — AVIF (smallest), WebP (broad support), JPEG/PNG (fallback).
+
+## Responsive images with srcset
+
+Don't ship a 4K hero image to a phone screen.
+
+```html
+<img
+  src="/hero-800.jpg"
+  srcset="
+    /hero-400.jpg 400w,
+    /hero-800.jpg 800w,
+    /hero-1600.jpg 1600w
+  "
+  sizes="(min-width: 60rem) 50vw, 100vw"
+  alt="..."
+  width="1600"
+  height="900"
+/>
+```
+
+- **`srcset`** lists candidates with their pixel widths.
+- **`sizes`** tells the browser how big the image will *display* in different viewports.
+- The browser picks the smallest source that's at least as big as the rendered size × DPR.
+
+Result: a Retina phone gets a 800w image, a 4K monitor gets the 1600w, no one downloads more bytes than they need.
+
+## `<picture>` for art direction or format choice
+
+When you want **different crops** at different sizes (art direction) or **different formats**:
+
+```html
+<picture>
+  <!-- Modern format first -->
+  <source type="image/avif" srcset="/hero.avif" />
+  <source type="image/webp" srcset="/hero.webp" />
+  <!-- Fallback -->
+  <img src="/hero.jpg" alt="..." width="1600" height="900" />
+</picture>
+```
+
+Browser walks the sources top-to-bottom and picks the first it can use.
+
+```html
+<!-- Different crop on mobile -->
+<picture>
+  <source media="(max-width: 40rem)" srcset="/hero-portrait.jpg" />
+  <img src="/hero-landscape.jpg" alt="..." />
+</picture>
+```
+
+## Lazy loading and decode hints
+
+```html
+<img
+  src="/big.jpg"
+  alt="..."
+  loading="lazy"     <!-- defer download until scrolled near -->
+  decoding="async"   <!-- decode off the main thread -->
+/>
+```
+
+Use `loading="lazy"` for everything below the fold. **Don't** use it on the LCP image — that's the one you want loading first. For LCP images, add `fetchpriority="high"` instead.
+
+## Video
+
+```html
+<video controls width="800" preload="metadata" poster="/cover.jpg">
+  <source src="/intro.av1.mp4" type="video/mp4; codecs=av01" />
+  <source src="/intro.h264.mp4" type="video/mp4" />
+  <track kind="captions" src="/captions.vtt" srclang="en" label="English" default />
+  Sorry, your browser doesn't support embedded video.
+</video>
+```
+
+- **`preload="metadata"`** — fetch just enough to know duration. `none` saves more. `auto` is what you usually want for autoplaying media.
+- **`<source>`** — multiple formats; browser picks the first it understands.
+- **`<track>`** — captions, subtitles, descriptions. Captions are required for accessibility.
+- **`poster`** — the still image shown before play.
+
+Autoplay rules: most browsers only allow autoplay if `muted` is set. Add `playsinline` so iOS doesn't go full-screen.
+
+## Audio
+
+```html
+<audio controls preload="metadata">
+  <source src="/podcast.opus" type="audio/ogg" />
+  <source src="/podcast.mp3" type="audio/mpeg" />
+</audio>
+```
+
+For long podcasts, `preload="metadata"` is the right default. Provide a transcript in HTML for accessibility — captions on audio are uncommon, transcripts are easy and indexable.
+
+## Accessible alt text
+
+| Image kind | `alt` |
+|---|---|
+| Informative photo | Describe what's in it: `alt="Two engineers at a whiteboard"` |
+| Decorative | Empty: `alt=""` (do not omit — empty alt skips it from screen readers) |
+| Functional (inside a link or button) | Describe the action: `alt="Open menu"` |
+| Image of text | Repeat the text: `alt="Atlas — your map to modern web development"` |
+| Complex chart | Short alt + long description below or via `aria-describedby` |
+
+<Callout variant="warn" title='Never write `alt="image of …"`'>
+Screen readers already announce "graphic" or "image." `alt="Image of a sunset"` becomes "graphic, image of a sunset" — redundant. Just say "Sunset over the Pacific."
+</Callout>
+
+## Common pitfalls
+
+- **No width/height** → layout shift (bad CLS).
+- **Big PNG when JPG would do** → wasted bytes. PNG is for transparency or pixel-art; JPEG/WebP/AVIF for photos.
+- **Lazy-loading the LCP image** → slow first paint. Use `fetchpriority="high"` instead.
+- **`decoding="async"` everywhere** → fine for most images; for the LCP image, omit or set `sync` to ensure it's decoded before paint.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/html/images-video-audio"
+  questions={[
+    {
+      id: 'media-1',
+      type: 'multi',
+      prompt: 'Which attributes prevent layout shift when an image loads?',
+      options: [
+        { value: 'a', label: '`width` and `height` set to the intrinsic dimensions' },
+        { value: 'b', label: '`aspect-ratio` set in CSS' },
+        { value: 'c', label: '`loading="lazy"`' },
+        { value: 'd', label: '`alt`' },
+      ],
+      answer: ['a', 'b'],
+    },
+    {
+      id: 'media-2',
+      type: 'single',
+      prompt: 'You want the browser to pick the right image based on viewport width. The simplest tool is…',
+      options: [
+        { value: 'a', label: '`<picture>` with `media` queries' },
+        { value: 'b', label: '`<img srcset sizes>`' },
+        { value: 'c', label: 'JavaScript that swaps `src`' },
+        { value: 'd', label: 'CSS background-image' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'media-3',
+      type: 'single',
+      prompt: 'A purely decorative icon image. Correct `alt`?',
+      options: [
+        { value: 'a', label: '`alt="decorative icon"`' },
+        { value: 'b', label: 'No `alt` attribute at all' },
+        { value: 'c', label: 'Empty: `alt=""`' },
+        { value: 'd', label: '`role="presentation"` and any alt' },
+      ],
+      answer: 'c',
+      explanation: 'Empty alt explicitly hides it from screen readers. Missing alt makes them read the file name.',
+    },
+  ]}
+/>
+
+## What's next
+
+**Accessibility primer: ARIA without the footguns.** ARIA can fix or break a page. Learn when to use it and when to delete it.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/html/images-video-audio"
+  lessonHref="/paths/foundations/html/images-video-audio/"
+  lessonTitle="Images, video, audio, and the picture element"
+  nextHref="/paths/foundations/html/aria-primer/"
+  nextTitle="Accessibility primer: ARIA without the footguns"
+/>

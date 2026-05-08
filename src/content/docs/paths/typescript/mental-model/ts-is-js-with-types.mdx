@@ -1,0 +1,136 @@
+---
+title: TypeScript is JavaScript with types — and a build step
+description: The mental model that demystifies TypeScript. Why types are erased at runtime, and what that means for you.
+sidebar:
+  order: 1
+pathSlug: typescript
+module: mental-model
+lessonNumber: 1
+difficulty: beginner
+duration: 8 min
+prerequisites:
+  - You\'re comfortable with modern JavaScript
+objectives:
+  - Explain what TypeScript adds (and doesn\'t)
+  - Recognize that types vanish at runtime
+tags: [typescript, fundamentals]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** TypeScript ≈ JavaScript + a static type checker that runs at build time. Once you internalize "types are erased," everything else makes sense.
+
+## The compilation step
+
+```ts
+// app.ts
+const greet = (name: string): string => `Hello, ${name}`;
+greet('Atlas');
+```
+
+Compiles (essentially) to:
+
+```js
+// app.js
+const greet = (name) => `Hello, ${name}`;
+greet('Atlas');
+```
+
+Types are gone. They were a build-time check — runtime sees plain JS. **You cannot test for types at runtime.** No `if (x is User)` magic.
+
+## What you do at runtime
+
+For runtime checks, validate the shape:
+
+```ts
+function isUser(x: unknown): x is User {
+  return typeof x === 'object' && x !== null && 'id' in x;
+}
+
+if (isUser(data)) {
+  data.id; // ✓ TS knows it's a User now
+}
+```
+
+Or use **Zod / Valibot** to validate data from external sources (HTTP responses, localStorage, environment variables).
+
+## What TypeScript catches
+
+- Spelling: `obj.userid` when the field is `userId` → error.
+- Missing args, wrong arg types.
+- Null/undefined access.
+- Unreachable code.
+- Most refactoring mistakes.
+
+**It doesn't catch:**
+
+- Logic bugs (`return a - b` instead of `+`).
+- Network or DB shapes you don't validate.
+- Side-effect ordering.
+
+## tsc is a type checker; it doesn't run code
+
+Common confusion: people think `tsc` runs their app. It compiles `.ts` to `.js` (and reports type errors). To run, use Node, Bun, or a bundler.
+
+`ts-node`, `tsx`, and Bun run TS directly — they compile on the fly. For dev that's the easy path.
+
+## strict mode
+
+```json
+// tsconfig.json
+{ "compilerOptions": { "strict": true } }
+```
+
+Turns on a bundle of safety flags. **Always start with `strict: true`.** Without it, TS is mostly a fancy linter; with it, it actually catches bugs.
+
+<Callout variant="tip" title="Trust the compiler">
+If TS says something is wrong, it usually is — even when the runtime "would have been fine." Fight the temptation to use `any` or `as` to silence errors. Either fix the type or fix the code.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/mental-model/ts-is-js-with-types"
+  questions={[
+    {
+      id: 'tm-1',
+      type: 'single',
+      prompt: 'What happens to TypeScript types at runtime?',
+      options: [
+        { value: 'a', label: 'They\'re available via reflection' },
+        { value: 'b', label: 'They\'re erased — compiled JS has no type info' },
+        { value: 'c', label: 'They\'re embedded as comments' },
+        { value: 'd', label: 'tsc keeps them around for debugging' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'tm-2',
+      type: 'single',
+      prompt: 'You receive JSON from an API. Best way to enforce its shape?',
+      options: [
+        { value: 'a', label: 'Cast with `as User`' },
+        { value: 'b', label: 'Validate at runtime with Zod or a type guard, then narrow' },
+        { value: 'c', label: 'Trust the type annotation' },
+        { value: 'd', label: 'Use any' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**The structural type system in plain English.**
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/mental-model/ts-is-js-with-types"
+  lessonHref="/paths/typescript/mental-model/ts-is-js-with-types/"
+  lessonTitle="TypeScript is JavaScript with types"
+  nextHref="/paths/typescript/mental-model/structural-types/"
+  nextTitle="The structural type system"
+/>

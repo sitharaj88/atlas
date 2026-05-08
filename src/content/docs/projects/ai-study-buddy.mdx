@@ -1,0 +1,133 @@
+---
+title: 'AI study buddy — RAG + streaming with Anthropic API'
+description: Build a study tool that answers questions from your own notes using RAG.
+sidebar:
+  order: 5
+difficulty: advanced
+duration: 6 hours
+tags: [ai, rag, llm, project]
+---
+
+import Callout from '~/components/Callout.astro';
+
+## What you'll build
+
+- Upload notes (Markdown files).
+- Ask questions → answers grounded in your notes.
+- Streaming responses (tokens render as they arrive).
+- Per-question source citations.
+- Stays within budget via prompt caching.
+
+## Stack
+
+- **Hono** — HTTP + streaming.
+- **Postgres + pgvector** — embeddings store.
+- **Anthropic SDK** — Claude.
+- **React** — UI.
+
+## Step 1 — Indexing pipeline
+
+```ts
+import { embed } from './embed';   // wraps an embedding model
+import { db, chunks } from './db';
+
+async function indexFile(path: string) {
+  const text = await readFile(path, 'utf-8');
+  const pieces = chunk(text, { tokens: 400, overlap: 50 });
+  for (const piece of pieces) {
+    const vector = await embed(piece);
+    await db.insert(chunks).values({ source: path, text: piece, embedding: vector });
+  }
+}
+```
+
+## Step 2 — Retrieval
+
+```ts
+import { sql, desc } from 'drizzle-orm';
+
+async function retrieve(question: string, k = 5) {
+  const v = await embed(question);
+  return db
+    .select({
+      text: chunks.text,
+      source: chunks.source,
+      similarity: sql<number>`1 - (${chunks.embedding} <=> ${v}::vector)`,
+    })
+    .from(chunks)
+    .orderBy(desc(sql`1 - (${chunks.embedding} <=> ${v}::vector)`))
+    .limit(k);
+}
+```
+
+## Step 3 — Streaming endpoint
+
+```ts
+import Anthropic from '@anthropic-ai/sdk';
+import { streamText } from 'hono/streaming';
+
+const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY! });
+
+app.post('/api/chat', async (c) => {
+  const { question } = await c.req.json();
+  const ctx = await retrieve(question);
+
+  return streamText(c, async (stream) => {
+    const llmStream = client.messages.stream({
+      model: 'claude-sonnet-4-6',
+      max_tokens: 1024,
+      system: [
+        {
+          type: 'text',
+          text: `Answer using ONLY the context below. Cite sources by filename.\n\n` +
+                ctx.map(c => `[${c.source}]\n${c.text}`).join('\n---\n'),
+          cache_control: { type: 'ephemeral' },
+        },
+      ],
+      messages: [{ role: 'user', content: question }],
+    });
+
+    for await (const event of llmStream) {
+      if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
+        await stream.write(event.delta.text);
+      }
+    }
+  });
+});
+```
+
+`cache_control: 'ephemeral'` lets repeated questions on the same docs reuse the system-prompt processing — major cost saver.
+
+## Step 4 — Streaming client
+
+```tsx
+async function ask(question: string) {
+  const res = await fetch('/api/chat', { method: 'POST', body: JSON.stringify({ question }) });
+  const reader = res.body!.pipeThrough(new TextDecoderStream()).getReader();
+  let answer = '';
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    answer += value;
+    setAnswer(answer);   // re-render
+  }
+}
+```
+
+## Cost control
+
+- Cache the system prompt — lets repeated docs run at fraction of cost.
+- Use Haiku for simple questions, Sonnet for tough ones.
+- Rate limit per user.
+
+## What you learned
+
+- Embeddings + cosine similarity for retrieval.
+- pgvector for production-grade vector search.
+- Streaming responses end-to-end.
+- Prompt caching for cost.
+- Always grounding LLM responses in your own data.
+
+<Callout variant="success" title="Make it yours">
+Swap notes for: lecture transcripts, internal docs, customer support tickets, Slack history. Same architecture, very different products.
+</Callout>

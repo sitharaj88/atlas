@@ -1,0 +1,177 @@
+---
+title: Flexbox, the friendly version
+description: One-dimensional layout that respects content. The five recipes that solve 95% of real-world flex problems.
+sidebar:
+  order: 3
+pathSlug: foundations
+module: css
+lessonNumber: 3
+difficulty: beginner
+duration: 12 min
+prerequisites:
+  - You\'ve written some CSS
+objectives:
+  - Lay out items in a row or column with controlled alignment
+  - Make items grow, shrink, and wrap predictably
+  - Recognize when Grid is the better tool
+tags: [css, flexbox, layout]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Flexbox without the headache. The mental model, the half-dozen properties that matter, and the recipes you'll use forever.
+
+## The mental model
+
+Flex makes a container that lays out its **direct children** along one axis.
+
+```text
+flex-direction: row    (default) →   main axis →
+                                     cross axis ↓
+
+flex-direction: column            →   main axis ↓
+                                      cross axis →
+```
+
+Two properties drive everything:
+
+- **`justify-content`** — alignment on the **main** axis.
+- **`align-items`** — alignment on the **cross** axis.
+
+Memorize the axes once. The rest is small.
+
+## Five recipes
+
+**1. Center one thing both ways**
+
+```css
+.parent { display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+```
+
+**2. Spread items, leave space between**
+
+```css
+.parent { display: flex; justify-content: space-between; }
+```
+
+`space-around` (equal space around each), `space-evenly` (equal space everywhere) are siblings.
+
+**3. Sidebar + flexible main**
+
+```css
+.parent  { display: flex; gap: 1rem; }
+.sidebar { flex: 0 0 16rem; }   /* fixed 16rem; don't grow, don't shrink */
+.main    { flex: 1; }            /* take all remaining space */
+```
+
+`flex: 1` is shorthand for `flex: 1 1 0%`. The `0%` basis is what makes equal columns equal.
+
+**4. Equal-width columns**
+
+```css
+.parent { display: flex; gap: 1rem; }
+.col    { flex: 1; }
+```
+
+**5. Wrapping cards**
+
+```css
+.parent { display: flex; flex-wrap: wrap; gap: 1rem; }
+.card   { flex: 1 1 16rem; }   /* min 16rem; grow to fill row */
+```
+
+`auto-fit`'s easier in Grid, but this works.
+
+## The flex shorthand
+
+```css
+flex: <grow> <shrink> <basis>;
+flex: 1;            /* = 1 1 0% — equal share, ignore content */
+flex: auto;         /* = 1 1 auto — content sized first, then grow */
+flex: none;         /* = 0 0 auto — content sized, no grow/shrink */
+flex: 0 0 16rem;    /* fixed 16rem */
+```
+
+90% of the time you want `flex: 1`, `flex: auto`, or `flex: 0 0 <size>`.
+
+## Things that bite
+
+- **`align-items: stretch` (default)** makes children equal height. If you don't want that, set `align-items: flex-start`.
+- **`min-width: auto`** on flex children prevents them from shrinking below content size. If long text overflows, add `min-width: 0`.
+- **`order` and `flex-direction: *-reverse`** only change *visual* order. DOM order (and tab order, and screen reader order) stays the same. Be careful.
+- **`justify-self`** does **not** work in flex. Use `margin-left: auto` to push one item right.
+
+## Flex vs. Grid
+
+| Use Flex when… | Use Grid when… |
+|---|---|
+| One axis (row OR column) | Two axes (rows AND columns) |
+| Items are unequal sizes | Items align across rows AND columns |
+| Order matters but layout is loose | Layout is structural |
+| You're laying out a navbar, breadcrumb, button group | You're laying out a page or a card grid |
+
+In practice you use both. Flex inside a card; Grid for the page.
+
+<Callout variant="tip" title='Reach for `gap` first'>
+Modern flex supports `gap`. Use it for spacing between children — not margins. `gap` doesn\'t collapse, doesn\'t need "first-child / last-child" rules, and survives reordering.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/css/flexbox"
+  questions={[
+    {
+      id: 'flex-1',
+      type: 'single',
+      prompt: 'Which property aligns items along the MAIN axis?',
+      options: [
+        { value: 'a', label: 'align-items' },
+        { value: 'b', label: 'justify-content' },
+        { value: 'c', label: 'place-items' },
+        { value: 'd', label: 'align-content' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'flex-2',
+      type: 'single',
+      prompt: 'You want sidebar (16rem fixed) + main (fills rest). The right CSS for the sidebar is…',
+      options: [
+        { value: 'a', label: 'flex: 1; width: 16rem;' },
+        { value: 'b', label: 'flex: 0 0 16rem;' },
+        { value: 'c', label: 'width: 16rem; (no flex needed)' },
+        { value: 'd', label: 'flex: auto; width: 16rem;' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'flex-3',
+      type: 'single',
+      prompt: 'A long word in a flex child overflows the container. Common fix?',
+      options: [
+        { value: 'a', label: 'overflow: hidden on the parent' },
+        { value: 'b', label: 'min-width: 0 on the child' },
+        { value: 'c', label: 'flex-shrink: 0 on the child' },
+        { value: 'd', label: 'word-break: break-word on the parent' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Grid, the powerful version** — when one axis isn't enough.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/css/flexbox"
+  lessonHref="/paths/foundations/css/flexbox/"
+  lessonTitle="Flexbox, the friendly version"
+  nextHref="/paths/foundations/css/grid/"
+  nextTitle="Grid, the powerful version"
+/>

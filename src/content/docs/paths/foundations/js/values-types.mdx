@@ -1,0 +1,199 @@
+---
+title: Values, types, and operators
+description: The eight types of value in JavaScript, what `==` actually does, and how to avoid the gotchas everyone falls into.
+sidebar:
+  order: 1
+pathSlug: foundations
+module: js
+lessonNumber: 1
+difficulty: beginner
+duration: 12 min
+prerequisites:
+  - You\'ve read at least one HTML page in your life
+objectives:
+  - Distinguish JavaScript\'s eight types
+  - Use ===, never ==
+  - Predict the result of common operator coercions
+tags: [javascript, fundamentals]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** What kinds of values exist in JS, how operators handle them, and why `===` is your friend.
+
+## The eight types
+
+JS has 7 **primitive** types and 1 **object** type:
+
+```js
+typeof 'hello';     // 'string'
+typeof 42;          // 'number'
+typeof 9007199254740993n; // 'bigint' (arbitrarily large integers)
+typeof true;        // 'boolean'
+typeof undefined;   // 'undefined'
+typeof null;        // 'object'  ← historical bug; null is its own type
+typeof Symbol();    // 'symbol'
+typeof {};          // 'object'
+typeof [];          // 'object'  (arrays are objects)
+typeof function(){}; // 'function' (functions are objects with a special tag)
+```
+
+Primitives are **immutable and compared by value**. Objects are **mutable and compared by reference**.
+
+```js
+'a' === 'a';            // true
+[] === [];              // false — different objects
+const a = []; const b = a; a === b; // true — same reference
+```
+
+## Numbers, the IEEE 754 trap
+
+```js
+0.1 + 0.2 === 0.3;      // false
+0.1 + 0.2;              // 0.30000000000000004
+```
+
+JavaScript numbers are 64-bit floats (with one weird exception: bitwise operators treat them as 32-bit ints). For money, use `bigint` cents (`299n` for $2.99) or a decimal library.
+
+`Number.MAX_SAFE_INTEGER` is `2^53 - 1`. Past that, precision drops:
+
+```js
+Number.MAX_SAFE_INTEGER + 1 === Number.MAX_SAFE_INTEGER + 2; // true (!)
+```
+
+Use `bigint` (`123n`) for IDs from large databases, big counters, anything past 2^53.
+
+## `==` vs `===`
+
+Never use `==`. It does **type coercion**:
+
+```js
+'' == false;        // true
+0 == false;         // true
+null == undefined;  // true
+[] == 0;            // true (!)
+[1] == 1;           // true (!)
+```
+
+Always use `===`. It compares without coercion:
+
+```js
+'' === false;       // false
+0 === false;        // false
+null === undefined; // false
+```
+
+The one acceptable use of `==`: `value == null` to test for either `null` or `undefined`. Some teams forbid it anyway.
+
+## Truthy and falsy
+
+In a boolean context (`if`, `&&`, `||`), values coerce to `true` or `false`. The **falsy** ones:
+
+- `false`
+- `0`, `-0`, `0n`
+- `''` (empty string)
+- `null`
+- `undefined`
+- `NaN`
+
+Everything else is truthy — including `'0'`, `'false'`, `[]`, `{}`. **Empty array is truthy.** New developers trip on that one.
+
+```js
+if ([]) console.log('truthy');   // logs!
+if ([].length) console.log('falsy'); // doesn't log; length === 0
+```
+
+## Logical operators (with the modern shortcuts)
+
+```js
+a || b              // a if truthy, else b
+a && b              // a if falsy, else b
+a ?? b              // a if not null/undefined, else b — ignores falsy 0/'' /false
+a?.b                // a.b if a is not null/undefined, else undefined
+a?.()               // call a if defined, else undefined
+a?.[b]              // index a if defined, else undefined
+```
+
+`??` is what you usually want, not `||`. Defaulting `count || 10` turns `0` into `10`. Defaulting `count ?? 10` keeps `0`.
+
+## Type conversions worth knowing
+
+```js
+Number('42');       // 42
+Number('42abc');    // NaN
+Number('');         // 0    ← surprise
+parseInt('42abc');  // 42   ← reads until non-digit
+String(42);         // '42'
+Boolean('');        // false
+Boolean('false');   // true ← non-empty string is truthy
+
+// Quick conversions
++'42';              // 42 (unary +)
+'' + 42;            // '42'
+!!'';               // false
+```
+
+<Callout variant="warn" title='`NaN !== NaN`'>
+`NaN` is the only value that doesn\'t equal itself. Use `Number.isNaN(x)` to check, never `x === NaN`.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/js/values-types"
+  questions={[
+    {
+      id: 'val-1',
+      type: 'single',
+      prompt: 'What does `0.1 + 0.2 === 0.3` evaluate to?',
+      options: [
+        { value: 'a', label: 'true' },
+        { value: 'b', label: 'false (floating-point precision)' },
+        { value: 'c', label: 'NaN' },
+        { value: 'd', label: 'undefined' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'val-2',
+      type: 'single',
+      prompt: 'You want to default `count` to 10 ONLY if it\'s null or undefined (preserving 0). Use…',
+      options: [
+        { value: 'a', label: 'count || 10' },
+        { value: 'b', label: 'count ?? 10' },
+        { value: 'c', label: 'count && 10' },
+        { value: 'd', label: 'count == undefined ? 10 : count' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'val-3',
+      type: 'single',
+      prompt: 'Which is truthy?',
+      options: [
+        { value: 'a', label: '0' },
+        { value: 'b', label: '\'\'' },
+        { value: 'c', label: '[]' },
+        { value: 'd', label: 'NaN' },
+      ],
+      answer: 'c',
+      explanation: 'Empty arrays and empty objects are truthy. Empty strings and 0 are falsy.',
+    },
+  ]}
+/>
+
+## What's next
+
+**Variables, scope, hoisting** — `let`, `const`, and what `var` actually does.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/js/values-types"
+  lessonHref="/paths/foundations/js/values-types/"
+  lessonTitle="Values, types, and operators"
+  nextHref="/paths/foundations/js/variables-scope/"
+  nextTitle="Variables, scope, hoisting"
+/>

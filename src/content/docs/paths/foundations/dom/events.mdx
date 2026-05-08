@@ -1,0 +1,220 @@
+---
+title: Events, delegation, and bubbling
+description: How clicks, keys, and scrolls flow through the DOM — and the delegation pattern that scales to thousands of elements.
+sidebar:
+  order: 3
+pathSlug: foundations
+module: dom
+lessonNumber: 3
+difficulty: beginner
+duration: 12 min
+prerequisites:
+  - You\'ve completed *Mutating the DOM*
+objectives:
+  - Add and remove event listeners correctly
+  - Use event delegation for lists and dynamic content
+  - Stop propagation and prevent defaults — when each is right
+tags: [javascript, dom, events]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** How events propagate, how to listen for them, and the **delegation** pattern that turns "1,000 listeners" into one.
+
+## addEventListener basics
+
+```js
+button.addEventListener('click', handle);
+button.removeEventListener('click', handle); // same function reference
+
+// Inline handler — easier but harder to remove
+button.addEventListener('click', e => {
+  console.log('clicked', e);
+});
+
+// One-time listener
+button.addEventListener('click', handle, { once: true });
+```
+
+Options:
+
+```js
+{
+  once: true,        // remove after first invocation
+  passive: true,     // promises NOT to call preventDefault — improves scroll perf
+  capture: true,     // run on the way DOWN the tree, not up
+  signal: ctrl.signal // remove via AbortController.abort()
+}
+```
+
+The `signal` option is modern and excellent for cleanup:
+
+```js
+const ctrl = new AbortController();
+window.addEventListener('keydown', handle, { signal: ctrl.signal });
+window.addEventListener('resize', handle, { signal: ctrl.signal });
+ctrl.abort(); // removes both at once
+```
+
+## The event object
+
+```js
+button.addEventListener('click', e => {
+  e.target;          // the actual clicked element (could be a child of button)
+  e.currentTarget;   // the element the listener is bound to (= button)
+  e.type;            // 'click'
+  e.preventDefault(); // cancel the default action (form submit, link nav)
+  e.stopPropagation(); // stop bubbling
+  e.stopImmediatePropagation(); // also skip remaining handlers on this element
+});
+```
+
+`target` vs `currentTarget` is critical. If you bind to a list and click an `<li>`, `target` is the `<li>`, `currentTarget` is the `<ul>`.
+
+## Bubbling and capture
+
+Events fire in three phases:
+
+1. **Capture** — from `window` down to the target's parent.
+2. **Target** — on the target element itself.
+3. **Bubble** — back up from target to `window`.
+
+By default, `addEventListener` runs in the bubble phase. Pass `capture: true` for the down phase. Most events bubble; some (`focus`, `blur`, `mouseenter`, `mouseleave`) don't.
+
+## Delegation — one listener for many elements
+
+Bind to a parent, react based on `target`:
+
+```js
+list.addEventListener('click', e => {
+  const item = e.target.closest('li');
+  if (!item || !list.contains(item)) return;
+  console.log('clicked', item.dataset.id);
+});
+```
+
+Why?
+
+- **Cheap** — one listener instead of one per `<li>`.
+- **Future-proof** — works for items added after the listener was bound.
+- **Consistent** — handles dynamic state without re-binding.
+
+This is the single most-useful pattern in vanilla DOM code.
+
+## Common events
+
+```text
+Mouse:    click, dblclick, mousedown/up, mouseenter/leave, mousemove
+Pointer:  pointerdown/up, pointermove (preferred over mouse + touch)
+Keyboard: keydown, keyup (forget keypress — deprecated)
+Form:     submit, change, input, focus, blur
+Window:   load, DOMContentLoaded, scroll, resize, beforeunload
+Misc:     copy, paste, drag, drop, wheel, contextmenu
+```
+
+For touch + mouse + pen unified handling, use **pointer events**.
+
+## preventDefault
+
+Cancels the browser's default action:
+
+```js
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  // handle in JS
+});
+
+document.addEventListener('keydown', e => {
+  if (e.key === '/' && !isTyping(e.target)) {
+    e.preventDefault();
+    focusSearch();
+  }
+});
+```
+
+Use it for: forms (handle in JS), `Enter` in textareas, default link nav, drag/drop default.
+
+## stopPropagation
+
+Stops bubbling so ancestor listeners don't fire:
+
+```js
+modal.addEventListener('click', e => {
+  e.stopPropagation(); // clicks inside the modal don't reach the backdrop
+});
+```
+
+Use it sparingly — it can break delegation that relies on bubbling.
+
+## Custom events
+
+```js
+el.dispatchEvent(new CustomEvent('atlas:save', { detail: { id: 42 }, bubbles: true }));
+parent.addEventListener('atlas:save', e => console.log(e.detail.id));
+```
+
+Useful for component-to-component communication without a framework.
+
+<Callout variant="tip" title="passive: true on scroll/touchmove">
+On mobile, scroll handlers can\'t call `preventDefault` if you mark them passive — and the browser knows it can scroll without waiting for your handler. Massive scroll-perf win.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/dom/events"
+  questions={[
+    {
+      id: 'ev-1',
+      type: 'single',
+      prompt: 'You have a list with 1,000 items. The cleanest way to handle clicks on any item is…',
+      options: [
+        { value: 'a', label: 'Add a click listener to each <li>' },
+        { value: 'b', label: 'Add one click listener to the parent <ul> and use event.target.closest(\'li\')' },
+        { value: 'c', label: 'Use mutation observers' },
+        { value: 'd', label: 'Use innerHTML with onclick attributes' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'ev-2',
+      type: 'single',
+      prompt: 'Inside a click handler, `event.target` and `event.currentTarget` differ when…',
+      options: [
+        { value: 'a', label: 'Always — they\'re different things' },
+        { value: 'b', label: 'The actual clicked element is a descendant of the element the listener is bound to' },
+        { value: 'c', label: 'preventDefault is called' },
+        { value: 'd', label: 'Capture phase' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'ev-3',
+      type: 'single',
+      prompt: 'You want to remove three listeners at once when a component unmounts. Modern way?',
+      options: [
+        { value: 'a', label: 'Call removeEventListener three times' },
+        { value: 'b', label: 'Use an AbortController and pass its signal to all three addEventListener calls; then call ctrl.abort()' },
+        { value: 'c', label: 'Reload the page' },
+        { value: 'd', label: 'Set the listeners to null' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+The DOM module wraps. Next: **Web APIs** — what the browser hands you for free. Starting with `fetch`.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/dom/events"
+  lessonHref="/paths/foundations/dom/events/"
+  lessonTitle="Events, delegation, and bubbling"
+  nextHref="/paths/foundations/web-apis/fetch/"
+  nextTitle="fetch — the modern HTTP client"
+/>

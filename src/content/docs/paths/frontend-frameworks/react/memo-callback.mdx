@@ -1,0 +1,62 @@
+---
+title: 'useMemo, useCallback — when they help (and when they don''t)'
+description: Memoization in React. Less often useful than people think.
+sidebar:
+  order: 5
+pathSlug: frontend-frameworks
+module: react
+lessonNumber: 5
+difficulty: intermediate
+duration: 6 min
+tags: [react, performance]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## When they help
+
+- Expensive computation that runs on every render: `useMemo(() => sortBy(items, key), [items, key])`.
+- A function passed to a memoized child: `useCallback(handle, [deps])`.
+
+## When they don't
+
+- Cheap computations. The bookkeeping costs more.
+- Functions that aren't passed down. No referential equality needed.
+- "Just in case" — premature optimization.
+
+## React Compiler changes the math
+
+React 19 ships an experimental compiler that auto-memoizes. With it on, you write plain code and the compiler decides what to memoize. Many `useMemo`/`useCallback` calls become unnecessary.
+
+If you're not using the compiler, profile first, then memoize.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/react/memo-callback"
+  questions={[
+    {
+      id: 'mc-1',
+      type: 'single',
+      prompt: 'When does `useMemo` reliably help performance?',
+      options: [
+        { value: 'a', label: 'Always — wrap every variable' },
+        { value: 'b', label: 'When the computation is genuinely expensive AND its inputs don\'t change every render' },
+        { value: 'c', label: 'Only with TypeScript' },
+        { value: 'd', label: 'Never' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/react/memo-callback"
+  lessonHref="/paths/frontend-frameworks/react/memo-callback/"
+  lessonTitle="useMemo, useCallback"
+  nextHref="/paths/frontend-frameworks/react/use-ref/"
+  nextTitle="useRef and imperative escape hatches"
+/>

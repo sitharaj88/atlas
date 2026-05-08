@@ -1,0 +1,76 @@
+---
+title: JSX is just function calls
+description: Demystifying JSX — what it actually compiles to.
+sidebar:
+  order: 1
+pathSlug: frontend-frameworks
+module: react
+lessonNumber: 1
+difficulty: intermediate
+duration: 5 min
+tags: [react, jsx]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The transformation
+
+```jsx
+const ui = <h1 className="title">Hello, {name}</h1>;
+```
+
+Compiles to:
+
+```js
+const ui = jsx('h1', { className: 'title', children: ['Hello, ', name] });
+```
+
+`jsx()` returns a plain JS object (a "React element" — a description of UI). React renders elements into real DOM.
+
+## Implications
+
+- **JSX is JS.** You can put any JS expression in `{}`.
+- **Children are just data.** `<Foo>` followed by `</Foo>` becomes `Foo({ children: ... })`.
+- **`className` not `class`** — `class` is a JS reserved word. Same for `htmlFor` not `for`.
+- **Attributes are camelCase.** `tabIndex`, `onClick`, `ariaLabel`.
+
+## Conditionals and lists
+
+```jsx
+{isLoggedIn && <Logout />}
+{user ? <Hello /> : <SignIn />}
+{items.map(i => <Item key={i.id} {...i} />)}
+```
+
+Just JS expressions. No special syntax.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/react/jsx"
+  questions={[
+    {
+      id: 'jsx-1',
+      type: 'single',
+      prompt: '`<div className="x" />` compiles to roughly…',
+      options: [
+        { value: 'a', label: 'A DOM node' },
+        { value: 'b', label: 'A `jsx("div", { className: "x" })` call returning a description object' },
+        { value: 'c', label: 'A string' },
+        { value: 'd', label: 'A class instance' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/react/jsx"
+  lessonHref="/paths/frontend-frameworks/react/jsx/"
+  lessonTitle="JSX is function calls"
+  nextHref="/paths/frontend-frameworks/react/hooks-trio/"
+  nextTitle="useState, useEffect, useReducer"
+/>

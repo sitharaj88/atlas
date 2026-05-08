@@ -1,0 +1,135 @@
+---
+title: Building a token pipeline (Style Dictionary)
+description: One token source → CSS, Sass, JS, iOS, Android, Figma. The build tool design systems use.
+sidebar:
+  order: 3
+pathSlug: modern-css
+module: tokens
+lessonNumber: 3
+difficulty: intermediate
+duration: 8 min
+prerequisites:
+  - You\'ve completed the previous tokens lessons
+objectives:
+  - Define tokens in JSON
+  - Build CSS variables and JS exports from one source
+  - Recognize when a pipeline is overkill
+tags: [css, tokens, design-systems]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Style Dictionary lets you define tokens once and produce them in any format — CSS variables, Sass, JS, iOS, Android, Figma sync.
+
+## When you need a pipeline
+
+You probably **don't** for a single web app. CSS variables in a stylesheet are enough.
+
+You **do** when:
+- Multiple platforms (web + mobile + native) share tokens.
+- Designers maintain tokens in Figma; engineers consume in code.
+- You need typed JS exports of color values for inline styles.
+
+## A minimal Style Dictionary setup
+
+```json
+// tokens/colors.json
+{
+  "color": {
+    "blue": {
+      "500": { "value": "#1c3963", "type": "color" }
+    },
+    "brand": {
+      "value": "{color.blue.500}",
+      "type": "color"
+    }
+  }
+}
+```
+
+```js
+// build.mjs
+import StyleDictionary from 'style-dictionary';
+
+StyleDictionary.extend({
+  source: ['tokens/**/*.json'],
+  platforms: {
+    css: { transformGroup: 'css', files: [{ destination: 'dist/tokens.css', format: 'css/variables' }] },
+    js:  { transformGroup: 'js',  files: [{ destination: 'dist/tokens.js',  format: 'javascript/es6' }] },
+  },
+}).buildAllPlatforms();
+```
+
+Run `node build.mjs` and you get:
+
+```css
+/* dist/tokens.css */
+:root {
+  --color-blue-500: #1c3963;
+  --color-brand: #1c3963;
+}
+```
+
+```js
+// dist/tokens.js
+export const ColorBlue500 = '#1c3963';
+export const ColorBrand = '#1c3963';
+```
+
+## Themes
+
+```json
+// tokens/light.json — overrides defaults
+{ "color": { "bg": { "value": "#fff" }, "text": { "value": "#0b1b2b" } } }
+
+// tokens/dark.json
+{ "color": { "bg": { "value": "#0b1b2b" }, "text": { "value": "#ecf0f7" } } }
+```
+
+Build separate outputs and switch by class or attribute.
+
+## Alternatives
+
+- **`design-tokens-format`** (W3C draft) — emerging standard.
+- **Tokens Studio** — Figma plugin → JSON.
+- **`@tokens/dx`**, **`tokami`** — newer builders.
+
+<Callout variant="tip" title="Start small">
+For most projects, hand-written CSS variables are fine. Reach for Style Dictionary when you have two or more consumers (web + mobile) or a design-source-of-truth in Figma.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/tokens/style-dictionary"
+  questions={[
+    {
+      id: 'sd-1',
+      type: 'single',
+      prompt: 'When does Style Dictionary pay off?',
+      options: [
+        { value: 'a', label: 'Always — every project needs it' },
+        { value: 'b', label: 'When tokens need to flow to multiple platforms (web, iOS, Android, Figma)' },
+        { value: 'c', label: 'Only with Tailwind' },
+        { value: 'd', label: 'Never — CSS variables are always enough' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+The Tokens module wraps. Next: **CSS Architecture** — Tailwind, CSS Modules, Vanilla Extract.
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/tokens/style-dictionary"
+  lessonHref="/paths/modern-css/tokens/style-dictionary/"
+  lessonTitle="Building a token pipeline"
+  nextHref="/paths/modern-css/architecture/tailwind/"
+  nextTitle="Tailwind CSS — utility-first"
+/>

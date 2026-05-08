@@ -1,0 +1,106 @@
+---
+title: Versioning and consuming a design system across apps
+description: SemVer, changesets, and the workflow that lets multiple apps upgrade safely.
+sidebar:
+  order: 3
+pathSlug: modern-css
+module: design-system
+lessonNumber: 3
+difficulty: intermediate
+duration: 7 min
+prerequisites:
+  - You've built or used a shared package
+objectives:
+  - Apply SemVer to a design-system package
+  - Use changesets to coordinate releases
+  - Plan deprecations
+tags: [design-systems, versioning]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** How to ship a design system as a package without breaking the apps that consume it.
+
+## SemVer rules of thumb
+
+- **Patch (1.2.X)** — bug fixes, no API changes.
+- **Minor (1.X.0)** — new features, no breaking changes.
+- **Major (X.0.0)** — breaking changes (renamed/removed component or prop, changed default behavior).
+
+For design systems specifically, **visual changes** are tricky. A subtle padding adjustment isn't breaking by SemVer, but it can cause layout regressions in apps. Document major visual changes as breaking, even if the API is unchanged.
+
+## Changesets — the workflow
+
+```bash
+pnpm dlx changeset init
+pnpm changeset      # describe the change, pick severity
+git commit -am 'add changeset'
+```
+
+On merge, a bot opens a PR that bumps versions and updates a CHANGELOG. Merge → publish.
+
+Several apps, one monorepo? Changesets handles that too — version each package independently.
+
+## Consuming versioned tokens
+
+Apps pin a version:
+
+```json
+{ "dependencies": { "@my/design-system": "^2.4.0" } }
+```
+
+Major-version upgrades require a coordinated PR. Patch and minor are safe.
+
+## Deprecation playbook
+
+When removing a component:
+
+1. **Mark deprecated** in JSDoc / TS deprecation tag — TS warns at usage sites.
+2. **Add a console.warn** in dev (not prod).
+3. **Wait at least one minor release** — give consumers time to migrate.
+4. **Provide a codemod** — a script that rewrites consumers' imports.
+5. **Remove in the next major.**
+
+## Themes and tokens
+
+Token changes are spookier than component changes — every app picks them up automatically. Treat changes to **semantic** tokens like API changes; **primitives** can adjust more freely if semantics stay stable.
+
+<Callout variant="tip" title="Visual regression catches what SemVer misses">
+A visual-regression test harness (Chromatic, Percy, or Playwright + screenshot diffs) catches "the padding shifted 2px" before consumers do. The single most-valuable safety net for a design system.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/design-system/versioning"
+  questions={[
+    {
+      id: 'vs-1',
+      type: 'single',
+      prompt: 'You renamed a component prop. What\'s the right SemVer bump?',
+      options: [
+        { value: 'a', label: 'patch' },
+        { value: 'b', label: 'minor' },
+        { value: 'c', label: 'major (breaking change)' },
+        { value: 'd', label: 'No bump needed' },
+      ],
+      answer: 'c',
+    },
+  ]}
+/>
+
+## Path complete
+
+You've finished **Modern CSS & Design Systems**. Combine with [Frontend Frameworks](/paths/frontend-frameworks/) and [Performance, A11y & SEO](/paths/performance-a11y-seo/) for a complete UI engineering toolkit.
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/design-system/versioning"
+  lessonHref="/paths/modern-css/design-system/versioning/"
+  lessonTitle="Versioning a design system"
+  nextHref="/paths/typescript/"
+  nextTitle="TypeScript Mastery"
+/>

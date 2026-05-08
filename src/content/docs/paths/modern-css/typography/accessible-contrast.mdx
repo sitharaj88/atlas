@@ -1,0 +1,130 @@
+---
+title: Accessible contrast in practice
+description: Hitting WCAG AA without sacrificing brand. Tools, automation, and the perceptual contrast model (APCA).
+sidebar:
+  order: 4
+pathSlug: modern-css
+module: typography
+lessonNumber: 4
+difficulty: intermediate
+duration: 8 min
+prerequisites:
+  - Foundations a11y module
+objectives:
+  - Pick brand colors that hit AA from the start
+  - Automate contrast checks
+  - Understand APCA, the modern alternative to ratio-based contrast
+tags: [css, color, accessibility]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Designing palettes that hit WCAG AA, the tools that catch failures fast, and the new APCA model that fixes WCAG 2.x's blind spots.
+
+## Two systems
+
+**WCAG 2.x ratios** — the legal standard. 4.5:1 for normal text, 3:1 for large text and non-text UI. Computed from luminance.
+
+**APCA (Accessible Perceptual Contrast Algorithm)** — the proposed WCAG 3 model. Better matches human perception, especially for thin text and dark mode.
+
+Tools using either:
+- **DevTools** color picker — shows ratio plus AA/AAA labels.
+- **WebAIM Contrast Checker** — quick verification.
+- **APCA Contrast Calculator** — for the new model.
+- **Sim Daltonism** (macOS) — color-blindness preview.
+
+## Designing for contrast from day one
+
+Pick brand colors with contrast in mind. Use oklch and pick L values you know will work:
+
+```css
+:root {
+  --brand:        oklch(58% 0.18 70);   /* mid-tone */
+  --brand-text:   oklch(28% 0.10 70);   /* dark — for text on light bg */
+  --brand-bg:     oklch(95% 0.04 70);   /* very light — for bg on light theme */
+}
+```
+
+A rule of thumb: text needs L < 35% on white bg, L > 75% on dark bg, for AA.
+
+## Automating in CI
+
+```bash
+pnpm dlx pa11y https://atlas.dev
+pnpm dlx axe-cli https://atlas.dev
+```
+
+Or add **`@axe-core/playwright`** to your test suite and fail the build on regressions.
+
+## Common contrast failures
+
+- Light gray placeholder text (`#aaa` on white = 2.3:1).
+- Brand color buttons with white text — depends on brand L.
+- Disabled buttons that look "too disabled" (sub-3:1 against background).
+- Dark-mode error red that looks pink and washed out.
+
+## APCA mental model
+
+WCAG 2.x undervalues contrast for very dark text (often passes when it shouldn't) and overstates for thin text (passes when it shouldn't visually). APCA scores positive (light on dark) or negative (dark on light) on a scale; absolute value is the contrast.
+
+Targets:
+
+| Use | APCA |
+|---|---|
+| Body text | 75+ |
+| Large text | 60+ |
+| Non-essential | 45+ |
+
+In practice, designing for **either** WCAG AA or APCA 60+ tends to satisfy both. APCA is stricter for tiny weights.
+
+<Callout variant="tip" title="Test with grayscale">
+Open DevTools → Rendering → Emulate vision deficiencies → "Achromatopsia." If your UI still works in grayscale, your contrast is good for color-blind users too.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/typography/accessible-contrast"
+  questions={[
+    {
+      id: 'cont-1',
+      type: 'single',
+      prompt: 'WCAG AA minimum contrast ratio for normal text on background?',
+      options: [
+        { value: 'a', label: '3:1' },
+        { value: 'b', label: '4.5:1' },
+        { value: 'c', label: '7:1' },
+        { value: 'd', label: 'No minimum' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'cont-2',
+      type: 'single',
+      prompt: 'APCA improves on WCAG 2.x by…',
+      options: [
+        { value: 'a', label: 'Being purely subjective' },
+        { value: 'b', label: 'Better matching human perception, especially for thin text and dark mode' },
+        { value: 'c', label: 'Removing the contrast requirement' },
+        { value: 'd', label: 'Being a wider gamut' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+The Typography & Color module wraps. Next: **Motion & View Transitions.**
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/typography/accessible-contrast"
+  lessonHref="/paths/modern-css/typography/accessible-contrast/"
+  lessonTitle="Accessible contrast in practice"
+  nextHref="/paths/modern-css/motion/reduced-motion/"
+  nextTitle="prefers-reduced-motion from day one"
+/>

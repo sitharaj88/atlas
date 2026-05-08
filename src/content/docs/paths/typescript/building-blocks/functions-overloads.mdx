@@ -1,0 +1,121 @@
+---
+title: Functions and overloads
+description: Function types, parameter variance, and the rare cases where overload signatures still matter.
+sidebar:
+  order: 4
+pathSlug: typescript
+module: building-blocks
+lessonNumber: 4
+difficulty: beginner
+duration: 8 min
+prerequisites:
+  - Previous building-blocks lesson
+objectives:
+  - Type a function precisely
+  - Use overload signatures sparingly
+tags: [typescript, functions]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Typing functions
+
+```ts
+function add(a: number, b: number): number { return a + b; }
+const add: (a: number, b: number) => number = (a, b) => a + b;
+
+type Add = (a: number, b: number) => number;
+const add: Add = (a, b) => a + b;
+```
+
+Three equivalent ways. Use the type alias when the same signature appears in multiple places.
+
+## Optional and default params
+
+```ts
+function greet(name: string, loud = false) {
+  return loud ? `HI ${name}` : `hi ${name}`;
+}
+function visit(url: string, query?: Record<string, string>) {}
+```
+
+`loud = false` infers `boolean`. `query?` is `Record<string, string> | undefined`.
+
+## Rest parameters
+
+```ts
+function sum(...nums: number[]) { return nums.reduce((a,b)=>a+b, 0); }
+function logAll(prefix: string, ...rest: unknown[]) {}
+```
+
+## Overloads — rare and explicit
+
+For functions whose return type depends on input type:
+
+```ts
+function parse(input: string): string[];
+function parse(input: number): number[];
+function parse(input: string | number): unknown[] {
+  // implementation
+  return [];
+}
+
+parse('a,b,c'); // string[]
+parse(42);      // number[]
+```
+
+Three signatures: two overloads + one implementation. Callers see only the overloads.
+
+**Often a generic is cleaner:**
+
+```ts
+function first<T>(arr: T[]): T | undefined { return arr[0]; }
+```
+
+Reach for overloads only when generics can't express the relationship.
+
+## Function type compatibility
+
+A function with **fewer parameters** is assignable to one expecting more (you can always ignore extras):
+
+```ts
+const handlers: ((x: number, y: number) => void)[] = [];
+handlers.push((x) => console.log(x));    // ✓ ignores y
+```
+
+This is why `arr.map((x) => x*2)` works — `map` provides `(item, index, array)` but you only declare `item`.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/building-blocks/functions-overloads"
+  questions={[
+    {
+      id: 'fnov-1',
+      type: 'single',
+      prompt: 'Most of the time, instead of overloads, reach for…',
+      options: [
+        { value: 'a', label: 'Generics' },
+        { value: 'b', label: '`any`' },
+        { value: 'c', label: 'Type assertions' },
+        { value: 'd', label: 'Multiple separate functions' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+## What's next
+
+The Building Blocks module is complete. Next: **Generics** (you've already done the intro lesson).
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/building-blocks/functions-overloads"
+  lessonHref="/paths/typescript/building-blocks/functions-overloads/"
+  lessonTitle="Functions and overloads"
+  nextHref="/paths/typescript/generics/constraints/"
+  nextTitle="Constraints with extends"
+/>

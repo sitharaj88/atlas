@@ -1,0 +1,71 @@
+---
+title: 'Alpine.js — sprinkling JS on server-rendered pages'
+description: Inline-attribute reactivity for the JS-light parts of your server-rendered app.
+sidebar:
+  order: 2
+pathSlug: frontend-frameworks
+module: html-first
+lessonNumber: 2
+difficulty: beginner
+duration: 5 min
+tags: [alpine, html-first]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The pitch
+
+```html
+<div x-data="{ open: false }">
+  <button @click="open = !open">Toggle</button>
+  <div x-show="open">Hello</div>
+</div>
+```
+
+15 KB minified. Reactivity inline in HTML. No build step required.
+
+## Common directives
+
+- `x-data` — local state.
+- `x-show` / `x-if` — conditional render.
+- `x-for` — loops.
+- `x-on:click` (or `@click`) — events.
+- `x-model` — two-way binding.
+- `x-bind:class` (or `:class`) — dynamic attrs.
+
+## When Alpine
+
+- Server-rendered pages with small interactive bits.
+- You want a sprinkle of JS, not a framework.
+- Pairs nicely with HTMX.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/html-first/alpine"
+  questions={[
+    {
+      id: 'aln-1',
+      type: 'single',
+      prompt: 'Alpine\'s niche is…',
+      options: [
+        { value: 'a', label: 'Replacement for React' },
+        { value: 'b', label: 'Small interactive bits in mostly server-rendered HTML' },
+        { value: 'c', label: 'Build tool' },
+        { value: 'd', label: 'CSS framework' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/html-first/alpine"
+  lessonHref="/paths/frontend-frameworks/html-first/alpine/"
+  lessonTitle="Alpine.js"
+  nextHref="/paths/frontend-frameworks/html-first/web-components-lit/"
+  nextTitle="Web Components and Lit"
+/>

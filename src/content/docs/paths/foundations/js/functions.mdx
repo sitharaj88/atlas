@@ -1,0 +1,206 @@
+---
+title: Functions, including arrow and rest/spread
+description: Function declarations, expressions, arrows, this binding, default values, rest/spread, and the patterns you'll use every day.
+sidebar:
+  order: 3
+pathSlug: foundations
+module: js
+lessonNumber: 3
+difficulty: beginner
+duration: 14 min
+prerequisites:
+  - You've completed *Variables, scope, hoisting*
+objectives:
+  - Use function declarations, expressions, and arrows correctly
+  - Predict this in each form
+  - Apply rest/spread and default parameters
+tags: [javascript, functions]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Three ways to write a function, what `this` does in each, and the half-dozen syntax features that make modern JS code clean.
+
+## Three forms
+
+```js
+// 1. Declaration — hoisted with body, has its own `this`
+function add(a, b) { return a + b; }
+
+// 2. Expression — created at the line, can be named or anonymous
+const add = function(a, b) { return a + b; };
+
+// 3. Arrow — concise, NO own `this`/`arguments`/`super`
+const add = (a, b) => a + b;
+```
+
+Default to **arrows** in modern code. Use **declarations** at the top level of files and modules; the hoisting helps with co-location.
+
+## Arrow vs. regular: the `this` rule
+
+```js
+const obj = {
+  name: 'Atlas',
+  regular: function() { console.log(this.name); }, // 'Atlas'
+  arrow:   () =>     { console.log(this.name); }, //  undefined
+};
+obj.regular(); // 'Atlas' — `this` = obj
+obj.arrow();   // undefined — arrow doesn't bind `this`
+```
+
+Arrows take `this` from the **lexical** scope (the place where they're defined). That's why they're great for callbacks:
+
+```js
+class Counter {
+  constructor() { this.n = 0; }
+  // ✓ arrow keeps `this` pointing at the Counter
+  tick = () => { this.n++; }
+}
+const c = new Counter();
+setTimeout(c.tick, 100); // works: `this` is still `c`
+```
+
+With a regular function, `setTimeout(c.tick, 100)` would lose `this` and `this.n++` would crash.
+
+## Default parameters
+
+```js
+function greet(name = 'friend', loud = false) {
+  return loud ? `HI ${name.toUpperCase()}!` : `hi ${name}`;
+}
+greet();          // 'hi friend'
+greet('Ada');     // 'hi Ada'
+greet('Ada', true); // 'HI ADA!'
+```
+
+Defaults run on every call when the arg is `undefined` (not `null`).
+
+## Rest parameters and spread
+
+`...rest` collects extras into an array:
+
+```js
+function sum(...nums) { return nums.reduce((a, b) => a + b, 0); }
+sum(1, 2, 3);     // 6
+sum(...[1, 2, 3]); // also 6 — spreading the array as args
+```
+
+Spread expands an iterable:
+
+```js
+const a = [1, 2, 3];
+const b = [0, ...a, 4];      // [0, 1, 2, 3, 4]
+const obj = { x: 1, y: 2 };
+const obj2 = { ...obj, z: 3 }; // { x: 1, y: 2, z: 3 }
+```
+
+The single most-useful feature in modern JS. Most "merge" / "copy" / "append" tasks become one line.
+
+## Destructuring
+
+```js
+const [first, second, ...rest] = [1, 2, 3, 4, 5];
+const { name, age } = { name: 'Ada', age: 36 };
+const { name: n, age: a = 0 } = { name: 'Ada' };  // rename + default
+
+// In parameters:
+function greet({ name, loud = false }) { /* ... */ }
+greet({ name: 'Ada' });
+```
+
+This is how every modern API expects you to consume objects/options.
+
+## Function methods you'll meet
+
+```js
+fn.bind(thisArg, ...args);   // returns a new function with `this` and partial args bound
+fn.call(thisArg, arg1, arg2); // invoke with explicit `this`
+fn.apply(thisArg, [args]);    // invoke with `this` and an array of args
+fn.length;                    // number of declared parameters
+fn.name;                      // string name
+```
+
+`bind` is the one you'll occasionally need. `call`/`apply` are mostly historical (spread + arrows replaced them).
+
+## A few more
+
+**IIFE — Immediately Invoked Function Expression** (legacy, now rare):
+```js
+(function() { /* ... */ })();
+```
+
+**Generator functions** (yields multiple values):
+```js
+function* range(n) { for (let i = 0; i < n; i++) yield i; }
+[...range(3)]; // [0, 1, 2]
+```
+
+**Async functions** (a whole module ahead):
+```js
+async function getUser(id) { return await fetch(`/users/${id}`); }
+```
+
+<Callout variant="tip" title="Arrow functions don't have arguments">
+Inside a regular function, `arguments` is an array-like of all args. Arrows don\'t have it — use `...args` instead.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/js/functions"
+  questions={[
+    {
+      id: 'fn-1',
+      type: 'single',
+      prompt: 'In `obj.method()`, what is `this` inside `method` if `method` is an arrow function?',
+      options: [
+        { value: 'a', label: 'obj' },
+        { value: 'b', label: 'undefined (or whatever `this` was in the surrounding scope)' },
+        { value: 'c', label: 'globalThis' },
+        { value: 'd', label: 'method itself' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'fn-2',
+      type: 'single',
+      prompt: 'You want to merge two objects, with the second one\'s keys winning. Cleanest syntax?',
+      options: [
+        { value: 'a', label: 'Object.assign({}, a, b)' },
+        { value: 'b', label: '{ ...a, ...b }' },
+        { value: 'c', label: 'a.merge(b)' },
+        { value: 'd', label: 'Object.merge(a, b)' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'fn-3',
+      type: 'single',
+      prompt: 'Default parameter behavior: `function f(x = 10) {}; f(undefined)` — what is x?',
+      options: [
+        { value: 'a', label: 'undefined' },
+        { value: 'b', label: '10' },
+        { value: 'c', label: 'null' },
+        { value: 'd', label: 'TypeError' },
+      ],
+      answer: 'b',
+      explanation: 'Defaults trigger on undefined. They don\'t trigger on null.',
+    },
+  ]}
+/>
+
+## What's next
+
+**Arrays and objects (and destructuring)** — the workhorse data structures of any JS program.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/js/functions"
+  lessonHref="/paths/foundations/js/functions/"
+  lessonTitle="Functions, including arrow and rest/spread"
+  nextHref="/paths/foundations/js/arrays-objects/"
+  nextTitle="Arrays and objects (and destructuring)"
+/>

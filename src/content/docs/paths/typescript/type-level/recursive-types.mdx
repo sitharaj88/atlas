@@ -1,0 +1,92 @@
+---
+title: Recursive types (with the right guardrails)
+description: Types that reference themselves — useful, dangerous, sometimes both.
+sidebar:
+  order: 4
+pathSlug: typescript
+module: type-level
+lessonNumber: 4
+difficulty: advanced
+duration: 7 min
+prerequisites:
+  - Conditional and mapped types
+objectives:
+  - Write a recursive conditional type
+  - Avoid recursion-depth errors
+tags: [typescript, type-level]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## A simple recursion
+
+```ts
+type DeepReadonly<T> = {
+  readonly [K in keyof T]: T[K] extends object ? DeepReadonly<T[K]> : T[K];
+};
+```
+
+Walks every property; if it's an object, recurse; otherwise leave alone.
+
+## Guardrails
+
+TypeScript caps recursion depth (~100 for most cases, 1000 with `tail-recursive` patterns). For deeply nested types, structure as **tail-recursive** when possible:
+
+```ts
+type Reverse<L extends unknown[], A extends unknown[] = []> =
+  L extends [infer H, ...infer T] ? Reverse<T, [H, ...A]> : A;
+
+type R = Reverse<[1, 2, 3]>; // [3, 2, 1]
+```
+
+Accumulator pattern → tail recursion → bigger inputs work.
+
+## Common uses
+
+- **`Awaited<T>`** — unwrap nested promises.
+- **`DeepPartial<T>`** — make every nested field optional.
+- **JSON / form schema types** — recursive shape definitions.
+
+## When NOT to recurse
+
+If your type compiles slowly, IDE feels sluggish, or you hit "Type instantiation is excessively deep" — back off. Sometimes a non-generic explicit shape is more readable AND faster.
+
+<Callout variant="warn" title="Type-level recursion is fun and addictive">
+Resist the temptation to type-level-program everything. The point of types is to help maintainers. Clever recursive types that nobody on the team understands hurt more than they help.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/type-level/recursive-types"
+  questions={[
+    {
+      id: 'rec-1',
+      type: 'single',
+      prompt: 'Why use the accumulator pattern in recursive types?',
+      options: [
+        { value: 'a', label: 'It\'s shorter' },
+        { value: 'b', label: 'Tail-recursion lets TS handle larger inputs without depth errors' },
+        { value: 'c', label: 'It\'s required' },
+        { value: 'd', label: 'No reason' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+The Type-Level module wraps. Next: **Narrowing & Type Guards.**
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/type-level/recursive-types"
+  lessonHref="/paths/typescript/type-level/recursive-types/"
+  lessonTitle="Recursive types"
+  nextHref="/paths/typescript/narrowing/narrowing-flowchart/"
+  nextTitle="The narrowing flowchart"
+/>

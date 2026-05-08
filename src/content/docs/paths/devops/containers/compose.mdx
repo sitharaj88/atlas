@@ -1,0 +1,88 @@
+---
+title: '`docker compose` for local dev'
+description: Spin up Postgres, Redis, your app — and a working dev environment — in one file.
+sidebar:
+  order: 3
+pathSlug: devops
+module: containers
+lessonNumber: 3
+difficulty: intermediate
+duration: 4 min
+tags: [docker, compose]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## A typical compose file
+
+```yaml
+# compose.yml
+services:
+  app:
+    build: .
+    ports: ['3000:3000']
+    environment:
+      DATABASE_URL: postgres://atlas:atlas@db:5432/atlas
+    depends_on: { db: { condition: service_healthy } }
+
+  db:
+    image: postgres:17
+    environment: { POSTGRES_USER: atlas, POSTGRES_PASSWORD: atlas, POSTGRES_DB: atlas }
+    ports: ['5432:5432']
+    volumes: ['db-data:/var/lib/postgresql/data']
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U atlas']
+      interval: 2s
+
+  redis:
+    image: redis:7
+    ports: ['6379:6379']
+
+volumes:
+  db-data:
+```
+
+```bash
+docker compose up -d        # start in background
+docker compose logs -f app
+docker compose down         # stop
+```
+
+## Patterns
+
+- **Per-service `Dockerfile.dev`** for hot-reload during dev.
+- **Volumes** for DB persistence and source mounting.
+- **`depends_on` with `condition: service_healthy`** so app waits for DB.
+
+For production, prefer your platform (Fly, Railway, k8s) — compose is a dev tool.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="devops/containers/compose"
+  questions={[
+    {
+      id: 'dc-1',
+      type: 'single',
+      prompt: 'docker compose is best for…',
+      options: [
+        { value: 'a', label: 'Production multi-region deploys' },
+        { value: 'b', label: 'Local development with multiple services (DB, Redis, app)' },
+        { value: 'c', label: 'CI only' },
+        { value: 'd', label: 'Replacing Kubernetes at scale' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="devops/containers/compose"
+  lessonHref="/paths/devops/containers/compose/"
+  lessonTitle="docker compose"
+  nextHref="/paths/devops/deploy/vercel-netlify-cf/"
+  nextTitle="Vercel, Netlify, Cloudflare Pages"
+/>

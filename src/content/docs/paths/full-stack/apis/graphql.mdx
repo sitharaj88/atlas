@@ -1,0 +1,94 @@
+---
+title: "GraphQL — when it pays off, when it doesn't"
+description: A query language for APIs. Powerful but not free.
+sidebar:
+  order: 2
+pathSlug: full-stack
+module: apis
+lessonNumber: 2
+difficulty: intermediate
+duration: 6 min
+tags: [graphql, api]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What it is
+
+```graphql
+type User {
+  id: ID!
+  name: String!
+  posts: [Post!]!
+}
+type Query {
+  user(id: ID!): User
+}
+```
+
+```graphql
+query {
+  user(id: "1") {
+    name
+    posts { title }
+  }
+}
+```
+
+Clients ask for exactly the fields they need. Server resolves the graph.
+
+## Pros
+
+- One endpoint. One round-trip per page.
+- Strongly typed schema (introspection, codegen, IDE help).
+- Efficient over slow networks (just the fields you need).
+
+## Cons
+
+- Caching is hard (no URLs to cache).
+- N+1 query problem in resolvers (DataLoader is mandatory).
+- More server complexity vs REST.
+- Browser DevTools don't help as much.
+
+## When GraphQL pays
+
+- **Many client teams** querying the same data shape, all wanting different fields.
+- **Mobile apps** on slow networks.
+- Public APIs serving heterogeneous consumers.
+
+## When REST is better
+
+- Simple CRUD.
+- Small team.
+- Public read-heavy API where HTTP caching matters.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/apis/graphql"
+  questions={[
+    {
+      id: 'gq-1',
+      type: 'single',
+      prompt: 'Which problem does GraphQL specifically solve?',
+      options: [
+        { value: 'a', label: 'Caching at CDN edges' },
+        { value: 'b', label: 'Over- and under-fetching when many clients want different fields from the same data' },
+        { value: 'c', label: 'Database schema migrations' },
+        { value: 'd', label: 'Real-time updates' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/apis/graphql"
+  lessonHref="/paths/full-stack/apis/graphql/"
+  lessonTitle="GraphQL"
+  nextHref="/paths/full-stack/apis/trpc/"
+  nextTitle="tRPC — types over the wire"
+/>

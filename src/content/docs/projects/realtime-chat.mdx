@@ -1,0 +1,115 @@
+---
+title: 'Real-time chat with WebSockets + Postgres'
+description: A multi-room chat — Hono on the server, React on the client, WebSockets for messaging, Postgres for persistence.
+sidebar:
+  order: 4
+difficulty: intermediate
+duration: 6 hours
+tags: [realtime, websockets, postgres, project]
+---
+
+import Callout from '~/components/Callout.astro';
+
+## What you'll build
+
+- Multiple chat rooms.
+- Real-time message broadcast.
+- Persistent messages in Postgres.
+- Presence indicators ("who's online").
+- Auth via session cookie.
+
+## Stack
+
+- **Hono** on Bun (or Node) — HTTP + WebSockets.
+- **Postgres + Drizzle** — persistence.
+- **React** (Vite) — UI.
+- **Lucia Auth** — sessions.
+
+## Server (Hono on Bun)
+
+```ts
+import { Hono } from 'hono';
+import { upgradeWebSocket } from 'hono/bun';
+import { db, messages } from './db';
+
+const app = new Hono();
+
+const rooms = new Map<string, Set<WebSocket>>();
+
+app.get('/ws/:room', upgradeWebSocket((c) => {
+  const room = c.req.param('room');
+  return {
+    onOpen(_e, ws) {
+      if (!rooms.has(room)) rooms.set(room, new Set());
+      rooms.get(room)!.add(ws.raw as WebSocket);
+    },
+    async onMessage(e, ws) {
+      const text = String(e.data);
+      const msg = await db.insert(messages).values({ room, text }).returning();
+      const payload = JSON.stringify({ type: 'message', text, at: Date.now() });
+      for (const peer of rooms.get(room) ?? []) peer.send(payload);
+    },
+    onClose(_e, ws) {
+      rooms.get(room)?.delete(ws.raw as WebSocket);
+    },
+  };
+}));
+
+app.get('/api/rooms/:room/messages', async (c) => {
+  const room = c.req.param('room');
+  const recent = await db.select().from(messages).where(eq(messages.room, room)).limit(50);
+  return c.json(recent);
+});
+
+Bun.serve({ port: 3001, fetch: app.fetch, websocket });
+```
+
+## Client (React)
+
+```tsx
+function ChatRoom({ room }: { room: string }) {
+  const [messages, setMessages] = useState<Message[]>([]);
+  const wsRef = useRef<WebSocket>();
+
+  useEffect(() => {
+    fetch(`/api/rooms/${room}/messages`).then(r => r.json()).then(setMessages);
+
+    const ws = new WebSocket(`ws://localhost:3001/ws/${room}`);
+    ws.addEventListener('message', e => {
+      const msg = JSON.parse(e.data);
+      setMessages(m => [...m, msg]);
+    });
+    wsRef.current = ws;
+    return () => ws.close();
+  }, [room]);
+
+  function send(text: string) {
+    wsRef.current?.send(text);
+  }
+
+  return (
+    <div>
+      <ul>{messages.map((m, i) => <li key={i}>{m.text}</li>)}</ul>
+      <ChatInput onSubmit={send} />
+    </div>
+  );
+}
+```
+
+## Step extensions
+
+- **Auth** — wrap routes with session check. WebSocket auth via the upgrade request's cookies.
+- **Presence** — track open WebSockets per user; broadcast joins/leaves.
+- **Reconnect logic** — exponential backoff.
+- **Pagination** — load older messages on scroll.
+- **Markdown / mentions / typing indicators** — incremental wins.
+
+## Production notes
+
+WebSocket state is per-server. To scale horizontally:
+- Use Redis pub/sub to fan out across instances.
+- Or use a managed service (Pusher, Ably, Liveblocks).
+
+<Callout variant="success" title="Ship it">
+Fly.io is great for WebSocket apps — `fly launch` from a Hono+Bun app and you have a persistent server worldwide. Add Fly Postgres in one command.
+</Callout>

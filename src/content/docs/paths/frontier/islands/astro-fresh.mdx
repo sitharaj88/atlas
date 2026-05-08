@@ -1,0 +1,71 @@
+---
+title: 'Astro and Fresh — server-rendered, JS-light'
+description: Two frameworks built on the islands principle.
+sidebar:
+  order: 1
+pathSlug: frontier
+module: islands
+lessonNumber: 1
+difficulty: intermediate
+duration: 5 min
+tags: [islands, astro, fresh]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Astro
+
+Components render to static HTML at build (or request) time. Zero JS by default. Add interactive components ("islands") with `client:` directives:
+
+```astro
+<Counter client:visible />     <!-- hydrates when scrolled into view -->
+<Modal client:idle />           <!-- hydrates after the browser is idle -->
+<Critical client:load />        <!-- hydrates immediately -->
+```
+
+Astro is what powers this Atlas site (via Starlight).
+
+## Fresh
+
+Deno-native islands framework. Same idea — server renders by default, sprinkle interactive bits. Pairs with Deno Deploy for global edge serving.
+
+## When islands beat full-SPA
+
+- Content sites — docs, blogs, marketing.
+- Sites where most pages are static and a few bits are interactive.
+
+## When full-SPA wins
+
+- Apps where most of the page is interactive (dashboards, editors).
+- State-heavy interactions across many components.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/islands/astro-fresh"
+  questions={[
+    {
+      id: 'af-1',
+      type: 'single',
+      prompt: 'Astro\'s default JS shipping is…',
+      options: [
+        { value: 'a', label: 'Hydrate everything' },
+        { value: 'b', label: 'Zero JS — only opt-in islands hydrate' },
+        { value: 'c', label: 'Server-only, no JS allowed' },
+        { value: 'd', label: 'Same as Next.js' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/islands/astro-fresh"
+  lessonHref="/paths/frontier/islands/astro-fresh/"
+  lessonTitle="Astro and Fresh"
+  nextHref="/paths/frontier/islands/qwik-resumability/"
+  nextTitle="Resumability (Qwik) vs. hydration"
+/>

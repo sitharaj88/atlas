@@ -1,0 +1,203 @@
+---
+title: 'Storage — localStorage, sessionStorage, IndexedDB'
+description: Saving data on the device — when each storage tier is right, and the gotchas that bite.
+sidebar:
+  order: 2
+pathSlug: foundations
+module: web-apis
+lessonNumber: 2
+difficulty: beginner
+duration: 10 min
+prerequisites:
+  - You've completed the *fetch* lesson
+objectives:
+  - Pick the right storage tier (localStorage, session, IndexedDB, Cookies)
+  - Read and write safely with JSON.parse / JSON.stringify
+  - Handle quota and parse errors
+tags: [javascript, web-apis, storage]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** The four ways the browser lets you persist data — when to use each, and what *not* to put in any of them.
+
+## The four tiers
+
+| Tier | Capacity | Sync? | Use for |
+|---|---|---|---|
+| **localStorage** | ~5–10 MB | sync | Small key/value: theme, draft text, progress |
+| **sessionStorage** | ~5 MB | sync | Same API, cleared when the tab closes |
+| **IndexedDB** | hundreds of MB | async | Structured data, large blobs, offline apps |
+| **Cookies** | 4 KB | sync | Server-readable session/auth tokens |
+
+## localStorage — start here
+
+```js
+localStorage.setItem('theme', 'dark');
+localStorage.getItem('theme');     // 'dark'
+localStorage.removeItem('theme');
+localStorage.clear();               // wipe everything
+localStorage.length;
+localStorage.key(0);
+
+// Short syntax (treats keys as properties):
+localStorage.theme = 'dark';
+```
+
+**Strings only.** For anything else, JSON-encode:
+
+```js
+localStorage.setItem('user', JSON.stringify({ id: 1, name: 'Ada' }));
+const user = JSON.parse(localStorage.getItem('user') ?? 'null');
+```
+
+Wrap in try/catch for safety: `JSON.parse` throws on garbage data:
+
+```js
+function readJSON(key, fallback) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : fallback;
+  } catch {
+    return fallback;
+  }
+}
+```
+
+## sessionStorage — same API, tab-scoped
+
+Identical to localStorage but cleared when the tab closes. Useful for: form drafts, multi-step wizards, anything the user shouldn't see on next visit.
+
+## IndexedDB — for real data
+
+Asynchronous, transactional, can store thousands of objects. The native API is famously verbose; reach for **`idb`** (a tiny wrapper):
+
+```js
+import { openDB } from 'idb';
+
+const db = await openDB('atlas', 1, {
+  upgrade(db) {
+    db.createObjectStore('lessons', { keyPath: 'id' });
+  },
+});
+
+await db.put('lessons', { id: 'foundations/web', completed: true });
+const lesson = await db.get('lessons', 'foundations/web');
+const all = await db.getAll('lessons');
+```
+
+Use IndexedDB when:
+
+- The data is **structured** (objects with relationships).
+- You need **search** beyond a single key.
+- You're storing **blobs/files** (images, PDFs).
+- You need **offline-first** capabilities.
+
+## Cookies — server-readable
+
+Cookies are sent to the server on every request to that origin (within size limits). That makes them useful for sessions:
+
+```js
+document.cookie = 'session=abc123; path=/; max-age=3600; secure; samesite=lax';
+```
+
+For HTTP-only sessions (more secure), the **server** sets the cookie via a `Set-Cookie` header. JS can't read those — that's the point.
+
+Modern alternative: the **`cookieStore`** API (Chromium for now):
+
+```js
+await cookieStore.set('theme', 'dark');
+const c = await cookieStore.get('theme');
+```
+
+## What NOT to put in localStorage
+
+- **Auth tokens** — vulnerable to XSS. Use HTTP-only cookies.
+- **Passwords / credit cards** — anything sensitive. Storage is per-origin, but XSS makes it readable.
+- **Large blobs** — use IndexedDB or Cache API.
+- **State that drives critical UI** — sync localStorage works, but on slow devices it can stall.
+
+## Quota errors
+
+Storage isn't unlimited. `setItem` throws `QuotaExceededError` if you exceed the limit:
+
+```js
+try {
+  localStorage.setItem('big', longString);
+} catch (e) {
+  if (e.name === 'QuotaExceededError') {
+    // free up old data, or warn the user
+  }
+}
+```
+
+Check usage:
+
+```js
+const { usage, quota } = await navigator.storage.estimate();
+console.log(`${usage} / ${quota} bytes used`);
+```
+
+<Callout variant="tip" title="Persistent storage">
+By default, the browser may evict storage under disk pressure. Request persistent: `await navigator.storage.persist()`. Granted only if your site is "important" (installed PWA, frequent visits).
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/web-apis/storage"
+  questions={[
+    {
+      id: 'sto-1',
+      type: 'single',
+      prompt: 'You want to save a small user preference (dark/light mode). Best fit?',
+      options: [
+        { value: 'a', label: 'IndexedDB' },
+        { value: 'b', label: 'localStorage' },
+        { value: 'c', label: 'Cookie' },
+        { value: 'd', label: 'sessionStorage' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'sto-2',
+      type: 'single',
+      prompt: 'Why is localStorage a poor place for auth tokens?',
+      options: [
+        { value: 'a', label: 'It\'s too small' },
+        { value: 'b', label: 'It\'s readable by any JS on the page — XSS exposes the token' },
+        { value: 'c', label: 'It expires too quickly' },
+        { value: 'd', label: 'The browser doesn\'t allow it' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'sto-3',
+      type: 'single',
+      prompt: 'You\'re storing a few hundred MB of structured data with offline access. Right tool?',
+      options: [
+        { value: 'a', label: 'localStorage' },
+        { value: 'b', label: 'IndexedDB (or a wrapper like idb)' },
+        { value: 'c', label: 'Cookies' },
+        { value: 'd', label: 'A JSON file in /public' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Geolocation, clipboard, Web Share — practical APIs** that round out the browser's offerings.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/web-apis/storage"
+  lessonHref="/paths/foundations/web-apis/storage/"
+  lessonTitle="Storage — localStorage, sessionStorage, IndexedDB"
+  nextHref="/paths/foundations/web-apis/practical-apis/"
+  nextTitle="Geolocation, clipboard, Web Share — practical APIs"
+/>

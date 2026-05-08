@@ -1,0 +1,74 @@
+---
+title: Color contrast and motion
+description: Meet WCAG AA contrast and respect prefers-reduced-motion.
+sidebar:
+  order: 5
+pathSlug: performance-a11y-seo
+module: a11y
+lessonNumber: 5
+difficulty: intermediate
+duration: 4 min
+tags: [a11y, color, motion]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Contrast targets (WCAG 2.2 AA)
+
+- **Normal text** — 4.5:1
+- **Large text** (≥18.66px bold or ≥24px) — 3:1
+- **Non-text UI** — 3:1
+
+Tools: DevTools color picker, WebAIM Contrast Checker, axe.
+
+## Don't rely on color alone
+
+Pair red errors with an icon, label, or aria-live region. ~8% of men are red/green color-blind.
+
+## Reduced motion
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```
+
+## Don'ts
+
+- Auto-playing video on load.
+- Heavy parallax.
+- Flashing > 3 Hz (epilepsy risk).
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/a11y/color-motion"
+  questions={[
+    {
+      id: 'cm-1',
+      type: 'single',
+      prompt: 'WCAG AA minimum contrast ratio for body text?',
+      options: [
+        { value: 'a', label: '3:1' },
+        { value: 'b', label: '4.5:1' },
+        { value: 'c', label: '7:1' },
+        { value: 'd', label: 'No minimum' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/a11y/color-motion"
+  lessonHref="/paths/performance-a11y-seo/a11y/color-motion/"
+  lessonTitle="Color and motion"
+  nextHref="/paths/performance-a11y-seo/seo/crawl-index-render/"
+  nextTitle="Crawling, indexing, rendering"
+/>

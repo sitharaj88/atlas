@@ -1,0 +1,87 @@
+---
+title: WCAG accessibility checklist
+description: A pre-flight checklist for shipping accessible pages. Hit every line.
+sidebar:
+  order: 6
+tags: [accessibility, wcag, cheatsheet]
+---
+
+> Print-friendly. Walk through every page before shipping.
+
+## Structure
+
+- [ ] One `<h1>` per page; headings in order (no skipping levels).
+- [ ] Page has `<main>` (one), `<nav>`, `<header>`, `<footer>` as appropriate.
+- [ ] `<html lang="en">` (or correct locale).
+- [ ] Skip-to-main link at the top.
+
+## Images and media
+
+- [ ] Every `<img>` has `alt` (empty for decorative).
+- [ ] No `alt="image of …"` (redundant).
+- [ ] Videos have captions; audio has transcripts.
+- [ ] Auto-play disabled (or muted + clear pause).
+
+## Forms
+
+- [ ] Every input has a `<label>` (wrapped or via `for`/`id`).
+- [ ] Errors announced (`aria-live` or `role="alert"`).
+- [ ] Required fields indicated (not just visually).
+- [ ] Submit button has clear text.
+- [ ] Autocomplete attributes set where applicable.
+
+## Interactive
+
+- [ ] Clickable things are `<button>` or `<a href>` (not `<div onclick>`).
+- [ ] Every interactive control reachable by keyboard.
+- [ ] Visible focus indicator (`:focus-visible` styled).
+- [ ] Modals manage focus (move into, restore on close).
+- [ ] Esc closes modals.
+
+## Color & motion
+
+- [ ] Body text contrast ≥ 4.5:1 (AA).
+- [ ] Large text contrast ≥ 3:1.
+- [ ] Non-text UI contrast ≥ 3:1.
+- [ ] No info conveyed by color alone (pair with icon/label).
+- [ ] `prefers-reduced-motion` respected.
+
+## ARIA (use sparingly)
+
+- [ ] No `<a role="button">` or other native-semantic overrides.
+- [ ] No focusable elements with `aria-hidden="true"`.
+- [ ] Icon-only buttons have `aria-label`.
+- [ ] `aria-expanded` on disclosure / dropdown triggers.
+
+## Tools
+
+- [ ] axe DevTools passed.
+- [ ] Lighthouse a11y score ≥ 90.
+- [ ] Tabbed through page with keyboard only — no traps.
+- [ ] VoiceOver / NVDA — heading order makes sense; controls announced.
+
+## Common fails
+
+- "Click here" / "Read more" link text out of context.
+- Form errors that show but don't announce.
+- Buttons named "+" or "×" without `aria-label`.
+- Dialogs where focus stays behind on the trigger.
+- Toasts that vanish before screen reader gets them.
+
+## Quick wins
+
+```html
+<!-- Skip link -->
+<a href="#main" class="skip-link">Skip to main content</a>
+
+<!-- Visible focus ring -->
+<style>:focus-visible { outline: 3px solid var(--brand); outline-offset: 2px; }</style>
+
+<!-- Reduced motion -->
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+```

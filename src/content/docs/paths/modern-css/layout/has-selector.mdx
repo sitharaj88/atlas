@@ -1,0 +1,170 @@
+---
+title: ':has() — the parent selector we waited a decade for'
+description: Style a parent based on its children. The single most-requested CSS feature, finally available.
+sidebar:
+  order: 4
+pathSlug: modern-css
+module: layout
+lessonNumber: 3
+difficulty: intermediate
+duration: 10 min
+prerequisites:
+  - You\'ve seen container queries
+objectives:
+  - Use :has() to style based on descendants
+  - Combine :has() with form states for dynamic UIs
+  - Recognize the patterns where it shines
+tags: [css, selectors, has]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** `:has()` lets you style an element based on what's *inside* it. Patterns that previously required JavaScript become single-line CSS.
+
+## The basics
+
+```css
+/* A card that contains an image gets a different layout */
+.card:has(img) {
+  display: grid;
+  grid-template-columns: 8rem 1fr;
+}
+
+/* A figure with a caption */
+figure:has(figcaption) { margin-bottom: 2rem; }
+
+/* A form with errors */
+form:has(:invalid) button[type=submit] { opacity: 0.5; pointer-events: none; }
+```
+
+Read it as: "select X that has Y inside."
+
+## Combining with sibling selectors
+
+`:has()` accepts complex selectors including siblings and chains:
+
+```css
+/* Article that has any heading */
+article:has(:is(h1, h2, h3)) {}
+
+/* Card that has BOTH an image AND a button */
+.card:has(img):has(button) {}
+
+/* Label whose checkbox is checked */
+label:has(input:checked) { color: green; }
+
+/* Section followed by an empty paragraph (yes, sibling combinators work) */
+section:has(+ p:empty) { margin-bottom: 0; }
+```
+
+## Real-world patterns
+
+**Dropdown that styles its trigger:**
+
+```css
+.dropdown:has(:focus-visible) .trigger { background: var(--brand); }
+```
+
+**Layout that responds to children:**
+
+```css
+.toolbar:has(button.primary) {
+  /* a primary action exists; lay out differently */
+}
+```
+
+**Form-state-driven UI:**
+
+```css
+form:has(input:user-invalid) .summary { display: block; }
+```
+
+## Specificity
+
+`:has(...)` takes the specificity of its **most specific argument**.
+
+```css
+:has(.btn)        /* 0,1,0 */
+:has(#submit)     /* 1,0,0 */
+:has(.btn, #x)    /* 1,0,0 — most specific arg */
+```
+
+Use `:has(:where(...))` to opt out of specificity in arguments.
+
+## Performance note
+
+`:has()` is more expensive than other selectors. Browsers optimize it, but **avoid `*:has(...)`** at root level — that asks the browser to test every element on every change.
+
+Scope when you can:
+
+```css
+/* ❌ root-level wildcard — slow */
+:has(input:invalid) {}
+
+/* ✓ scoped */
+form:has(input:invalid) {}
+```
+
+<Callout variant="tip" title="The bridge to JS-free interactivity">
+Combined with `:checked`, `:focus-within`, `:hover`, `:has()` enables a surprising amount of "react to state" UI without any JavaScript. Tabs, accordions, modals — many become CSS-only.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/layout/has-selector"
+  questions={[
+    {
+      id: 'has-1',
+      type: 'single',
+      prompt: '`:has(.icon)` matches what?',
+      options: [
+        { value: 'a', label: 'An element with class .icon' },
+        { value: 'b', label: 'An element that contains a descendant with class .icon' },
+        { value: 'c', label: 'An element preceded by .icon' },
+        { value: 'd', label: 'It\'s not valid' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'has-2',
+      type: 'single',
+      prompt: 'Specificity of `:has(.btn, #x)`?',
+      options: [
+        { value: 'a', label: '0,1,0' },
+        { value: 'b', label: '1,0,0 (highest argument)' },
+        { value: 'c', label: '1,1,0 (sum)' },
+        { value: 'd', label: '0,0,0 (zero, like :where)' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'has-3',
+      type: 'single',
+      prompt: 'Which is a perf-aware use of :has?',
+      options: [
+        { value: 'a', label: ':has(input:invalid) at the document root' },
+        { value: 'b', label: 'form:has(input:invalid)' },
+        { value: 'c', label: '*:has(.foo)' },
+        { value: 'd', label: 'html:has(:focus)' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+The Layout module is complete. Next: **Typography & Color** — fluid type, variable fonts, modern color.
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/layout/has-selector"
+  lessonHref="/paths/modern-css/layout/has-selector/"
+  lessonTitle=":has() — the parent selector"
+  nextHref="/paths/modern-css/typography/fluid-typography/"
+  nextTitle="Fluid typography with clamp()"
+/>

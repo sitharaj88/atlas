@@ -1,0 +1,177 @@
+---
+title: Variables, scope, hoisting
+description: let, const, var — what each one does, where you can use it, and what happens before its declaration.
+sidebar:
+  order: 2
+pathSlug: foundations
+module: js
+lessonNumber: 2
+difficulty: beginner
+duration: 10 min
+prerequisites:
+  - You\'ve completed *Values, types, and operators*
+objectives:
+  - Choose between let, const, and var
+  - Predict scope at function and block boundaries
+  - Recognize the temporal dead zone
+tags: [javascript, scope, hoisting]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** The three variable keywords and when each one applies. The "hoisting" question that comes up in every interview, and what the **temporal dead zone** is.
+
+## The three keywords
+
+```js
+const name = 'Atlas';   // can't be reassigned
+let count = 0;          // can be reassigned
+var legacy = 'avoid';   // function-scoped; surprises
+```
+
+**Default to `const`.** Use `let` when you need to reassign. Don't use `var`.
+
+## Const doesn't mean immutable
+
+`const` prevents **reassignment** of the binding, not mutation of the value:
+
+```js
+const list = [];
+list.push(1);          // ✓ mutating; not reassigning
+list = [1, 2];         // ✗ TypeError — reassignment
+```
+
+For real immutability use `Object.freeze(obj)` or a library like Immer.
+
+## Block scope vs. function scope
+
+`let` and `const` are **block-scoped**: they live inside the nearest `{}`.
+
+```js
+if (true) {
+  const x = 1;
+}
+console.log(x); // ReferenceError — not defined here
+```
+
+`var` is **function-scoped** (or global if outside any function):
+
+```js
+function f() {
+  if (true) { var x = 1; }
+  console.log(x); // 1 — `var` ignores the if-block
+}
+```
+
+## Hoisting
+
+JS engines, before running a function/block, scan it and "hoist" declarations to the top:
+
+```js
+console.log(x);   // undefined  (var x is hoisted as `undefined`)
+var x = 5;
+
+console.log(y);   // ReferenceError (let exists but unaccessible)
+let y = 5;
+
+f();              // ✓ works — function declarations are fully hoisted
+function f() {}
+
+g();              // TypeError — g is undefined here
+var g = function() {};
+```
+
+`function` declarations are hoisted with their bodies. `var` declarations are hoisted but initialized to `undefined`. `let`/`const` are hoisted but **not initialized** — accessing them before the declaration throws.
+
+## The temporal dead zone (TDZ)
+
+The window between entering a block and reaching a `let`/`const` declaration:
+
+```js
+{
+  console.log(name);   // ReferenceError — TDZ
+  let name = 'Atlas';
+}
+```
+
+This is by design — it surfaces bugs that `var` would silently allow.
+
+<Callout variant="tip" title="Just declare at the top">
+The simplest rule: declare variables before you use them, in roughly the order of use. TDZ becomes invisible. Modern linters flag use-before-declaration so you don\'t even have to remember.
+</Callout>
+
+## Closures (preview)
+
+A function "closes over" the variables in scope when it was defined:
+
+```js
+function counter() {
+  let n = 0;
+  return () => ++n;
+}
+const next = counter();
+next(); // 1
+next(); // 2
+```
+
+The inner arrow function still has access to `n`, even though `counter()` has returned. This is how event handlers, timeouts, and React hooks all carry data forward.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/js/variables-scope"
+  questions={[
+    {
+      id: 'sc-1',
+      type: 'single',
+      prompt: 'What\'s the right default keyword?',
+      options: [
+        { value: 'a', label: 'var' },
+        { value: 'b', label: 'let' },
+        { value: 'c', label: 'const' },
+        { value: 'd', label: 'No keyword (implicit global)' },
+      ],
+      answer: 'c',
+    },
+    {
+      id: 'sc-2',
+      type: 'single',
+      prompt: 'What does `console.log(x); let x = 1;` do?',
+      options: [
+        { value: 'a', label: 'Logs undefined' },
+        { value: 'b', label: 'Logs 1' },
+        { value: 'c', label: 'ReferenceError (temporal dead zone)' },
+        { value: 'd', label: 'SyntaxError' },
+      ],
+      answer: 'c',
+    },
+    {
+      id: 'sc-3',
+      type: 'single',
+      prompt: '`const list = []; list.push(1);` — does this throw?',
+      options: [
+        { value: 'a', label: 'Yes — const is immutable' },
+        { value: 'b', label: 'No — `const` only prevents reassignment of the variable, not mutation of the value' },
+        { value: 'c', label: 'Only in strict mode' },
+        { value: 'd', label: 'Only for arrays, not objects' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Functions, including arrow and rest/spread** — the building block of every JS program.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/js/variables-scope"
+  lessonHref="/paths/foundations/js/variables-scope/"
+  lessonTitle="Variables, scope, hoisting"
+  nextHref="/paths/foundations/js/functions/"
+  nextTitle="Functions, including arrow and rest/spread"
+/>

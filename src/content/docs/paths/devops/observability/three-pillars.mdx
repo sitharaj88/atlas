@@ -1,0 +1,63 @@
+---
+title: 'Logs, metrics, traces — the three pillars'
+description: Three signals, three uses. Use all three.
+sidebar:
+  order: 1
+pathSlug: devops
+module: observability
+lessonNumber: 1
+difficulty: intermediate
+duration: 5 min
+tags: [observability]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The three
+
+- **Logs** — discrete events. "User signed up." "Payment failed."
+- **Metrics** — numerical aggregates over time. "p95 latency: 320ms."
+- **Traces** — the path of a single request through services.
+
+## When to reach for each
+
+| Question | Pillar |
+|---|---|
+| "Why did THIS request fail?" | Trace |
+| "How is the system doing overall?" | Metrics |
+| "What happened when?" | Logs |
+
+## Cardinality
+
+High-cardinality data (user IDs, request IDs) belongs in logs and traces, not in metrics — adding millions of distinct labels blows up your metric store.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="devops/observability/three-pillars"
+  questions={[
+    {
+      id: 'tp-1',
+      type: 'single',
+      prompt: 'Which is the right tool for "what is the p95 latency for the past hour?"',
+      options: [
+        { value: 'a', label: 'Logs' },
+        { value: 'b', label: 'Metrics (aggregates over time)' },
+        { value: 'c', label: 'Traces' },
+        { value: 'd', label: 'Random sampling' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="devops/observability/three-pillars"
+  lessonHref="/paths/devops/observability/three-pillars/"
+  lessonTitle="The three pillars"
+  nextHref="/paths/devops/observability/opentelemetry/"
+  nextTitle="OpenTelemetry — the vendor-neutral standard"
+/>

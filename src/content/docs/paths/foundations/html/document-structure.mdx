@@ -1,0 +1,199 @@
+---
+title: Document structure and semantics
+description: Sectioning a page into header, nav, main, article, aside, footer — the elements that map your design to a screen reader's outline.
+sidebar:
+  order: 2
+pathSlug: foundations
+module: html
+lessonNumber: 2
+difficulty: beginner
+duration: 10 min
+prerequisites:
+  - You've completed *HTML, the contract you sign with the browser*
+objectives:
+  - Apply HTML5 sectioning elements to real layouts
+  - Decide between section, article, and div
+  - Build a logical heading outline
+tags: [html, semantics, accessibility]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** How to slice a page into the right HTML5 sections so a screen reader can announce its structure and a designer can lay it out without a forest of `<div>`s.
+
+## The page skeleton
+
+```html
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Atlas — your map to modern web development</title>
+    <meta name="description" content="..." />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <header>
+      <a href="/">Atlas</a>
+      <nav aria-label="Primary">
+        <ul>
+          <li><a href="/paths/">Paths</a></li>
+          <li><a href="/cheatsheets/">Cheatsheets</a></li>
+        </ul>
+      </nav>
+    </header>
+
+    <main>
+      <article>
+        <h1>How the web works</h1>
+        <p>...</p>
+        <section>
+          <h2>The big picture</h2>
+          <p>...</p>
+        </section>
+        <aside aria-label="Related">
+          <h2>See also</h2>
+          <ul>...</ul>
+        </aside>
+      </article>
+    </main>
+
+    <footer>
+      <p>© 2026 Atlas</p>
+    </footer>
+  </body>
+</html>
+```
+
+## What each sectioning element means
+
+- **`<header>`** — introductory content for the **nearest sectioning element**. A page header at the top, an article header inside an article. Often contains the heading + meta info.
+- **`<nav>`** — major navigation block. Use `aria-label` to distinguish (e.g., "Primary," "Footer," "In this article").
+- **`<main>`** — the main content of *this page*. Exactly one per document. Skip-to-main links target this.
+- **`<article>`** — self-contained content that could stand alone (a blog post, a product listing, a comment). If you could syndicate it elsewhere, it's an article.
+- **`<section>`** — a thematic grouping with its own heading. If you wouldn't give it a heading, it's probably a `<div>`.
+- **`<aside>`** — tangentially related content. Sidebar callouts, related links, ads.
+- **`<footer>`** — concluding content for the nearest sectioning element. A page footer or an article footer.
+
+## When to use `<section>` vs `<article>` vs `<div>`
+
+```text
+Could it stand on its own? (e.g., a blog post)
+  → <article>
+
+Otherwise: does it have a heading and a clear theme?
+  → <section>
+
+Otherwise (just a layout/styling container)?
+  → <div>
+```
+
+`<div>` is fine. It's not a defeat. Reach for it when there's no semantic meaning to communicate.
+
+## The heading outline
+
+Headings establish a hierarchy:
+
+```html
+<main>
+  <h1>How the web works</h1>           <!-- the page topic -->
+  <section>
+    <h2>The big picture</h2>            <!-- a major section -->
+    <h3>What each piece does</h3>       <!-- a subsection -->
+  </section>
+  <section>
+    <h2>A request, in real bytes</h2>
+  </section>
+</main>
+```
+
+Rules:
+
+1. **One `<h1>` per page.** It's the page's topic.
+2. **Don't skip levels.** Don't go `<h1>` → `<h3>`. Use CSS for size, headings for meaning.
+3. **Every `<section>` should have a heading.** That's how the outline gets built.
+
+Run the **WebAIM heading outline** browser extension on any site — you'll instantly see who got this right and who didn't.
+
+<Callout variant="tip" title='Use `aria-label` to distinguish multiple elements of the same kind'>
+A page often has two `<nav>` regions (top and footer) and several `<aside>` blocks. Without labels, a screen reader user can\'t tell them apart. `aria-label="Primary"` and `aria-label="Footer"` solve it.
+</Callout>
+
+## Other top-level meta you'll use
+
+```html
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="description" content="One-sentence summary for search results." />
+<meta name="theme-color" content="#0B1B2B" />
+<link rel="canonical" href="https://atlas.dev/path/" />
+<link rel="alternate" type="application/rss+xml" href="/rss.xml" />
+
+<!-- Open Graph for social previews -->
+<meta property="og:title" content="..." />
+<meta property="og:description" content="..." />
+<meta property="og:image" content="https://atlas.dev/og-default.png" />
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image" />
+```
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/html/document-structure"
+  questions={[
+    {
+      id: 'doc-1',
+      type: 'single',
+      prompt: 'Where does `<main>` go and how many of them?',
+      options: [
+        { value: 'a', label: 'Inside `<header>`, multiple per page' },
+        { value: 'b', label: 'Direct child of `<body>`, exactly one per page' },
+        { value: 'c', label: 'Inside `<article>`, one per article' },
+        { value: 'd', label: 'Anywhere, any number' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'doc-2',
+      type: 'single',
+      prompt: 'You have a blog post. Is it a `<section>` or an `<article>`?',
+      options: [
+        { value: 'a', label: '<section> — it\'s thematic content' },
+        { value: 'b', label: '<article> — it could stand on its own and be syndicated' },
+        { value: 'c', label: '<div> — neither tag fits' },
+        { value: 'd', label: '<main> — it\'s the main content' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'doc-3',
+      type: 'single',
+      prompt: 'You want to skip from `<h2>` to a heading that\'s visually smaller. What should you do?',
+      options: [
+        { value: 'a', label: 'Use `<h4>` and live with the gap in levels' },
+        { value: 'b', label: 'Use `<h3>` and style it with CSS to look smaller' },
+        { value: 'c', label: 'Use `<div class="heading">`' },
+        { value: 'd', label: 'Use `<h2>` again and rely on context' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+Forms — the most-shipped, most-bugged piece of any web app. **Forms — inputs, validation, submission.**
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/html/document-structure"
+  lessonHref="/paths/foundations/html/document-structure/"
+  lessonTitle="Document structure and semantics"
+  nextHref="/paths/foundations/html/forms/"
+  nextTitle="Forms — inputs, validation, submission"
+/>

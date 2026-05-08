@@ -1,0 +1,84 @@
+---
+title: Mocks, spies, and fakes — the differences
+description: Three test doubles, three uses. Pick the right one.
+sidebar:
+  order: 2
+pathSlug: testing
+module: vitest
+lessonNumber: 2
+difficulty: intermediate
+duration: 5 min
+tags: [testing, mocks]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The three
+
+- **Spy** — wraps a real function, records calls, behavior unchanged.
+- **Mock** — replaces a function with a controllable double.
+- **Fake** — a working alternative implementation (e.g., in-memory DB).
+
+## Vitest
+
+```ts
+import { vi, expect, it } from 'vitest';
+
+// Spy
+const spy = vi.spyOn(obj, 'method');
+obj.method('hello');
+expect(spy).toHaveBeenCalledWith('hello');
+
+// Mock function
+const mock = vi.fn(() => 42);
+mock();
+expect(mock).toHaveReturnedWith(42);
+
+// Mock module
+vi.mock('./db', () => ({ getUser: vi.fn(() => ({ id: 1 })) }));
+```
+
+## Faking time
+
+```ts
+vi.useFakeTimers();
+setTimeout(callback, 1000);
+vi.advanceTimersByTime(1000);
+expect(callback).toHaveBeenCalled();
+vi.useRealTimers();
+```
+
+## Don't over-mock
+
+Mock the **boundary**, not your own code. Mock the network (MSW), the clock, the file system. Don't mock your own modules — that tests the mock, not the code.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="testing/vitest/mocks-spies-fakes"
+  questions={[
+    {
+      id: 'msf-1',
+      type: 'single',
+      prompt: 'What\'s the right thing to mock in tests?',
+      options: [
+        { value: 'a', label: 'Every function in your codebase' },
+        { value: 'b', label: 'External boundaries — network, clock, file system' },
+        { value: 'c', label: 'Other tests' },
+        { value: 'd', label: 'Nothing ever' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="testing/vitest/mocks-spies-fakes"
+  lessonHref="/paths/testing/vitest/mocks-spies-fakes/"
+  lessonTitle="Mocks, spies, fakes"
+  nextHref="/paths/testing/vitest/async-tests/"
+  nextTitle="Testing async code"
+/>

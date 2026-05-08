@@ -1,0 +1,137 @@
+---
+title: Light/dark/high-contrast theming with CSS variables
+description: One palette source, three (or more) themes. The pattern that scales.
+sidebar:
+  order: 2
+pathSlug: modern-css
+module: tokens
+lessonNumber: 2
+difficulty: intermediate
+duration: 8 min
+prerequisites:
+  - You\'ve completed *Tokens vs. utilities*
+objectives:
+  - Toggle themes with a single attribute
+  - Respect system preference with prefers-color-scheme
+  - Add a high-contrast theme variant
+tags: [css, theming, dark-mode]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** The standard CSS pattern for theming — one source of truth, fast switching, system-respecting.
+
+## The pattern
+
+```css
+:root {
+  /* default (light) — semantic tokens */
+  --bg: #fff;
+  --text: #0b1b2b;
+  --link: #1c3963;
+  --hairline: rgba(11,27,43,0.1);
+}
+
+:root[data-theme='dark'] {
+  --bg: #0b1b2b;
+  --text: #ecf0f7;
+  --link: #f5b14a;
+  --hairline: rgba(255,255,255,0.1);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --bg: #0b1b2b;
+    --text: #ecf0f7;
+    /* ... */
+  }
+}
+```
+
+Three layers of preference:
+
+1. Default = light.
+2. System dark? Use dark (unless explicit override).
+3. User clicked the toggle (`[data-theme='dark']`)? Use that.
+
+## The toggle
+
+```js
+const root = document.documentElement;
+const stored = localStorage.getItem('theme');
+if (stored) root.dataset.theme = stored;
+
+button.addEventListener('click', () => {
+  const next = root.dataset.theme === 'dark' ? 'light' : 'dark';
+  root.dataset.theme = next;
+  localStorage.setItem('theme', next);
+});
+```
+
+Apply the stored theme **before paint** to avoid flash:
+
+```html
+<script>
+  const t = localStorage.getItem('theme');
+  if (t) document.documentElement.dataset.theme = t;
+</script>
+```
+
+Inline this script at the top of `<head>`.
+
+## High-contrast theme
+
+```css
+:root[data-theme='hc'] {
+  --bg: #000;
+  --text: #fff;
+  --link: #ff0;
+  --hairline: #fff;
+}
+
+@media (prefers-contrast: more) {
+  :root:not([data-theme]) { /* same as hc above */ }
+}
+```
+
+`prefers-contrast: more` is enabled when the user requests increased contrast at the OS level.
+
+<Callout variant="tip" title="Pick semantic tokens carefully">
+The semantic names should describe role, not appearance. `--bg-card` not `--bg-white`. When dark mode flips the value, the role still applies.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/tokens/theming"
+  questions={[
+    {
+      id: 'thm-1',
+      type: 'single',
+      prompt: 'How do you avoid the "flash of light theme on a user who picked dark"?',
+      options: [
+        { value: 'a', label: 'Inline a script at the top of <head> that reads the saved theme and sets data-theme before paint' },
+        { value: 'b', label: 'Wait for DOMContentLoaded and apply' },
+        { value: 'c', label: 'Use only CSS, no JS' },
+        { value: 'd', label: 'It\'s impossible to avoid' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+## What's next
+
+**Building a token pipeline (Style Dictionary).**
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/tokens/theming"
+  lessonHref="/paths/modern-css/tokens/theming/"
+  lessonTitle="Light/dark/high-contrast theming"
+  nextHref="/paths/modern-css/tokens/style-dictionary/"
+  nextTitle="Building a token pipeline"
+/>

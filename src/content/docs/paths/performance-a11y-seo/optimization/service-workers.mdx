@@ -1,0 +1,83 @@
+---
+title: Service Workers and HTTP caching
+description: Two layers of caching — the network's and the browser's. Use both.
+sidebar:
+  order: 4
+pathSlug: performance-a11y-seo
+module: optimization
+lessonNumber: 4
+difficulty: intermediate
+duration: 5 min
+tags: [performance, caching, service-workers]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## HTTP caching
+
+Set the right headers and the browser caches assets for free:
+
+```http
+Cache-Control: public, max-age=31536000, immutable
+```
+
+For HTML you re-deploy often:
+
+```http
+Cache-Control: public, max-age=0, must-revalidate
+ETag: "abc123"
+```
+
+Browser sends `If-None-Match`; server returns `304 Not Modified` if unchanged.
+
+## Service Workers
+
+A script that intercepts every network request from the page. Lets you:
+
+- Serve cached assets when offline.
+- Pre-cache critical resources at install.
+- Update assets in the background.
+
+Use **Workbox** (or Vite's `@vite-pwa/astro`) — don't write SW code by hand:
+
+```js
+// Auto-cache all build assets, serve them stale-while-revalidate
+registerSW({ runtimeCaching: [{ urlPattern: /\.(js|css)$/, handler: 'StaleWhileRevalidate' }] });
+```
+
+## Cache invalidation
+
+Hash file names. `app.abc123.js` is fine to cache forever — when content changes, the file name changes too.
+
+HTML and JSON: short cache, ETag-driven.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/optimization/service-workers"
+  questions={[
+    {
+      id: 'sw-1',
+      type: 'single',
+      prompt: 'You ship `app.abc123.js`. The right Cache-Control?',
+      options: [
+        { value: 'a', label: 'no-store' },
+        { value: 'b', label: 'public, max-age=31536000, immutable' },
+        { value: 'c', label: 'private' },
+        { value: 'd', label: 'must-revalidate' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/optimization/service-workers"
+  lessonHref="/paths/performance-a11y-seo/optimization/service-workers/"
+  lessonTitle="Service Workers"
+  nextHref="/paths/performance-a11y-seo/a11y/semantic-html-a11y/"
+  nextTitle="Semantic HTML is 80% of a11y"
+/>

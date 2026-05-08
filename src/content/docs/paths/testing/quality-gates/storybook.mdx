@@ -1,0 +1,81 @@
+---
+title: 'Storybook — components in isolation'
+description: A sandbox for every component, doubling as a test fixture.
+sidebar:
+  order: 1
+pathSlug: testing
+module: quality-gates
+lessonNumber: 1
+difficulty: intermediate
+duration: 4 min
+tags: [storybook]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Stories as fixtures
+
+```ts
+import type { Meta, StoryObj } from '@storybook/react';
+import { Button } from './Button';
+
+const meta: Meta<typeof Button> = { component: Button };
+export default meta;
+
+export const Primary: StoryObj<typeof Button> = { args: { variant: 'primary', children: 'OK' } };
+export const Disabled: StoryObj<typeof Button> = { args: { disabled: true, children: 'OK' } };
+```
+
+Each export is a state of the component. View in Storybook UI; reuse in tests.
+
+## In tests
+
+```ts
+import { composeStories } from '@storybook/react';
+import * as stories from './Button.stories';
+
+const { Primary, Disabled } = composeStories(stories);
+
+test('disabled button is disabled', () => {
+  render(<Disabled />);
+  expect(screen.getByRole('button')).toBeDisabled();
+});
+```
+
+One source of truth for fixtures.
+
+## When stories pay
+
+- Shared component library across teams.
+- Components with hard-to-reach states.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="testing/quality-gates/storybook"
+  questions={[
+    {
+      id: 'sb-1',
+      type: 'single',
+      prompt: 'A Storybook "story" is…',
+      options: [
+        { value: 'a', label: 'A markdown file' },
+        { value: 'b', label: 'One named state of a component, viewable in isolation and reusable in tests' },
+        { value: 'c', label: 'A Jest matcher' },
+        { value: 'd', label: 'A type alias' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="testing/quality-gates/storybook"
+  lessonHref="/paths/testing/quality-gates/storybook/"
+  lessonTitle="Storybook"
+  nextHref="/paths/testing/quality-gates/visual-regression/"
+  nextTitle="Visual regression testing"
+/>

@@ -1,0 +1,82 @@
+---
+title: 'The browser rendering pipeline (revisited, with hooks)'
+description: A perf-focused look at how the browser turns bytes into pixels.
+sidebar:
+  order: 1
+pathSlug: performance-a11y-seo
+module: fundamentals
+lessonNumber: 1
+difficulty: intermediate
+duration: 6 min
+tags: [performance, browsers]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The pipeline, with timing
+
+```text
+HTML bytes ──► Parse → DOM
+CSS bytes  ──► Parse → CSSOM
+                       │
+                       ▼
+                   Render tree
+                       │
+                       ▼
+                    Layout       ← reflow
+                       │
+                       ▼
+                    Paint        ← repaint
+                       │
+                       ▼
+                  Composite      ← cheap
+```
+
+## What changes what
+
+| Change | Triggers |
+|---|---|
+| `width`, `top`, `font-size`, DOM insertion | Layout → Paint → Composite |
+| `background-color`, `color`, `box-shadow` | Paint → Composite |
+| `transform`, `opacity` | Composite only |
+
+Animate `transform` and `opacity`. Avoid layout-triggering changes in animations.
+
+## DevTools timeline
+
+DevTools → Performance tab → Record. The "Main" track shows tasks. Look for:
+
+- **Long Tasks** (over 50ms) — block input, hurt INP.
+- **Forced reflows** — yellow warnings; reading layout after writing it.
+- **Heavy paint** — large repainted regions on scroll.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/fundamentals/rendering-pipeline"
+  questions={[
+    {
+      id: 'pl-1',
+      type: 'single',
+      prompt: 'Which property change is cheapest to animate?',
+      options: [
+        { value: 'a', label: 'top' },
+        { value: 'b', label: 'transform' },
+        { value: 'c', label: 'width' },
+        { value: 'd', label: 'background-color' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/fundamentals/rendering-pipeline"
+  lessonHref="/paths/performance-a11y-seo/fundamentals/rendering-pipeline/"
+  lessonTitle="Rendering pipeline"
+  nextHref="/paths/performance-a11y-seo/fundamentals/critical-path/"
+  nextTitle="Critical rendering path"
+/>

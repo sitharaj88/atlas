@@ -1,0 +1,77 @@
+---
+title: Multi-stage builds for tiny images
+description: Build in a fat image, copy artifacts to a tiny one. Half the size, all the win.
+sidebar:
+  order: 2
+pathSlug: devops
+module: containers
+lessonNumber: 2
+difficulty: intermediate
+duration: 4 min
+tags: [docker]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The pattern
+
+```dockerfile
+# 1. Build stage — has all build tools
+FROM node:20-alpine AS build
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN corepack enable && pnpm install --frozen-lockfile
+COPY . .
+RUN pnpm build
+
+# 2. Production stage — minimal runtime
+FROM node:20-alpine
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN corepack enable && pnpm install --prod --frozen-lockfile
+COPY --from=build /app/dist ./dist
+CMD ["node", "dist/server.js"]
+```
+
+The final image has only the production dependencies and the built output. No `pnpm`, no source files, no dev tools. Often 5–10× smaller than a single-stage build.
+
+## Distroless (even smaller)
+
+```dockerfile
+FROM gcr.io/distroless/nodejs20
+COPY --from=build /app/dist ./dist
+CMD ["dist/server.js"]
+```
+
+No shell, no package manager — just node + your app. Smaller attack surface, harder to exec into for debugging.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="devops/containers/multi-stage-builds"
+  questions={[
+    {
+      id: 'ms-1',
+      type: 'single',
+      prompt: 'Why use a multi-stage Dockerfile?',
+      options: [
+        { value: 'a', label: 'Required by Docker' },
+        { value: 'b', label: 'Build with full toolchain, ship a tiny runtime image — smaller, fewer attack surfaces' },
+        { value: 'c', label: 'Faster build' },
+        { value: 'd', label: 'Better caching' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="devops/containers/multi-stage-builds"
+  lessonHref="/paths/devops/containers/multi-stage-builds/"
+  lessonTitle="Multi-stage builds"
+  nextHref="/paths/devops/containers/compose/"
+  nextTitle="docker compose for local dev"
+/>

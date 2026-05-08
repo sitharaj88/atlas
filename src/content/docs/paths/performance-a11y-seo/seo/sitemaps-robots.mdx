@@ -1,0 +1,83 @@
+---
+title: 'Sitemaps, robots.txt, canonical URLs'
+description: The three files/headers that control what gets crawled and which version Google sees.
+sidebar:
+  order: 4
+pathSlug: performance-a11y-seo
+module: seo
+lessonNumber: 4
+difficulty: intermediate
+duration: 5 min
+tags: [seo, sitemap, robots]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## sitemap.xml
+
+A list of URLs you want crawled. Reference it from robots.txt and submit in Search Console.
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://atlas.dev/</loc></url>
+  <url><loc>https://atlas.dev/paths/foundations/</loc></url>
+</urlset>
+```
+
+Most frameworks (Astro, Next, Nuxt) generate this for you.
+
+## robots.txt
+
+Allow/disallow crawl paths:
+
+```text
+User-agent: *
+Allow: /
+Disallow: /admin/
+
+Sitemap: https://atlas.dev/sitemap.xml
+```
+
+Use sparingly. `Disallow` is a request, not enforcement.
+
+## Canonical URLs
+
+When the same content is reachable via multiple URLs, declare the canonical:
+
+```html
+<link rel="canonical" href="https://atlas.dev/paths/foundations/">
+```
+
+Prevents duplicate-content penalties. Critical when query strings or trailing slashes vary.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/seo/sitemaps-robots"
+  questions={[
+    {
+      id: 'sr-1',
+      type: 'single',
+      prompt: 'Why use a canonical URL tag?',
+      options: [
+        { value: 'a', label: 'Tell search engines which URL is the authoritative version when duplicates exist' },
+        { value: 'b', label: 'Block crawling' },
+        { value: 'c', label: 'Force HTTPS' },
+        { value: 'd', label: 'Improve performance' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/seo/sitemaps-robots"
+  lessonHref="/paths/performance-a11y-seo/seo/sitemaps-robots/"
+  lessonTitle="Sitemaps, robots, canonical"
+  nextHref="/paths/performance-a11y-seo/seo/og-cards/"
+  nextTitle="Open Graph and social cards"
+/>

@@ -1,0 +1,85 @@
+---
+title: 'Suspense, transitions, deferred values'
+description: Wait for data without locking the UI. The modern React concurrency primitives.
+sidebar:
+  order: 7
+pathSlug: frontend-frameworks
+module: react
+lessonNumber: 7
+difficulty: advanced
+duration: 7 min
+tags: [react, suspense, concurrency]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Suspense
+
+```jsx
+<Suspense fallback={<Spinner />}>
+  <SlowComponent />
+</Suspense>
+```
+
+A boundary that catches "I'm not ready" signals from descendants and shows the fallback instead. With RSC, with TanStack Query, with `use(promise)`, Suspense feels natural.
+
+## Transitions
+
+```jsx
+const [isPending, startTransition] = useTransition();
+
+function handleSearch(q) {
+  setInput(q);                // urgent
+  startTransition(() => {
+    setQuery(q);              // non-urgent — UI can interrupt for typing
+  });
+}
+```
+
+Mark expensive state updates as non-urgent. React keeps the UI responsive; `isPending` lets you show subtle loading.
+
+## useDeferredValue
+
+```jsx
+const deferred = useDeferredValue(query);
+return <Results query={deferred} />;
+```
+
+Same idea, but for derived values. The component renders the **current** input fast, the slow result lags behind.
+
+## When to reach for these
+
+- Big lists that re-filter as you type → `useDeferredValue`.
+- Routing transitions where the new page takes time to render → `startTransition`.
+- Code-split components or async data → `Suspense`.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/react/suspense-transitions"
+  questions={[
+    {
+      id: 'st-1',
+      type: 'single',
+      prompt: 'A transition lets you…',
+      options: [
+        { value: 'a', label: 'Animate state changes' },
+        { value: 'b', label: 'Mark a state update as non-urgent so React can keep the UI responsive' },
+        { value: 'c', label: 'Persist state across reloads' },
+        { value: 'd', label: 'Replace useEffect' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/react/suspense-transitions"
+  lessonHref="/paths/frontend-frameworks/react/suspense-transitions/"
+  lessonTitle="Suspense and transitions"
+  nextHref="/paths/frontend-frameworks/data/router-patterns/"
+  nextTitle="Router patterns — file-based vs code-first"
+/>

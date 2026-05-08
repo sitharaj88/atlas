@@ -1,0 +1,67 @@
+---
+title: 'Deno — TypeScript-native, secure-by-default'
+description: A modern Node alternative — TS out of the box, permissions you opt in to, npm via specifier.
+sidebar:
+  order: 2
+pathSlug: full-stack
+module: runtimes
+lessonNumber: 2
+difficulty: intermediate
+duration: 5 min
+tags: [deno, runtimes]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What's good
+
+- TypeScript runs natively. No build step for dev.
+- Permissions: `deno run --allow-net --allow-read=. server.ts`. Opt in to what the program can access.
+- URL imports + npm specifiers (`import x from 'npm:lodash'`).
+- Built-in fmt, lint, test, bench, doc.
+- Web Standards (Fetch, Streams) at the core.
+
+## What's still rough
+
+- Smaller ecosystem than Node (though npm: makes much of npm work).
+- Some libraries need adapters.
+- Less hiring/community.
+
+## Hello server
+
+```ts
+Deno.serve({ port: 3000 }, (req) => new Response('Hello'));
+```
+
+That's the whole HTTP server.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/runtimes/deno"
+  questions={[
+    {
+      id: 'dn-1',
+      type: 'single',
+      prompt: 'Deno\'s permission model means…',
+      options: [
+        { value: 'a', label: 'Programs can\'t do anything' },
+        { value: 'b', label: 'Programs explicitly opt in to filesystem, network, env access via flags' },
+        { value: 'c', label: 'Permissions are checked at compile time only' },
+        { value: 'd', label: 'It\'s a Node fork' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/runtimes/deno"
+  lessonHref="/paths/full-stack/runtimes/deno/"
+  lessonTitle="Deno"
+  nextHref="/paths/full-stack/runtimes/bun/"
+  nextTitle="Bun — speed and DX"
+/>

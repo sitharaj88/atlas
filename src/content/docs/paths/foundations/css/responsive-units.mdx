@@ -1,0 +1,170 @@
+---
+title: Responsive design with relative units
+description: rem, em, %, vw/vh, dvh, clamp() — pick the right unit for the job and your layouts adapt without media queries.
+sidebar:
+  order: 5
+pathSlug: foundations
+module: css
+lessonNumber: 5
+difficulty: beginner
+duration: 10 min
+prerequisites:
+  - You know flex and grid basics
+objectives:
+  - Distinguish absolute, relative, and viewport units
+  - Apply clamp() for fluid type
+  - Choose the right unit for type, spacing, and layout
+tags: [css, responsive, units]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** The handful of CSS units that cover almost every modern layout — and how `clamp()` replaces a wall of media queries with one line.
+
+## Three families of units
+
+**Absolute** — fixed regardless of context.
+- `px` (the only one you'll see in modern code)
+- `cm`, `mm`, `in` (print stylesheets)
+
+**Relative to font** — scales when font scales.
+- `em` — the **current element's** font size
+- `rem` — the **root** font size (`<html>`)
+- `ex`, `ch` — based on letter metrics; useful for typography
+
+**Relative to viewport / container.**
+- `vw` / `vh` — 1% of viewport width / height
+- `svh` / `lvh` / `dvh` — small / large / dynamic viewport height (handles mobile address bars)
+- `cqw` / `cqh` / `cqi` / `cqb` — container query units (1% of the **container's** dimension)
+- `%` — relative to the parent's same property
+
+## When to use each
+
+| For… | Use | Why |
+|---|---|---|
+| Body text size | `rem` (e.g., `1rem`) | Respects user's browser font-size setting (a11y) |
+| Component-internal sizing (padding, gap) | `rem` | Scales with text, predictable across components |
+| Sub-element scaling (a small icon next to text) | `em` | Tracks the local font size — icon stays proportional |
+| Width of a wide container | `%` or `1fr` | Fills parent or fr-share |
+| Full-screen hero | `100vw` × `100dvh` | Use `dvh` (dynamic) so mobile chrome doesn't break it |
+| Fluid type | `clamp(min, fluid, max)` | Smoothly scales between breakpoints |
+
+<Callout variant="warn" title='`100vh` on mobile is a trap'>
+`100vh` measures the largest viewport, so a "full screen" element scrolls under the iOS Safari address bar. **Use `100dvh`** (or `100svh` for the smallest stable layout). Modern browsers all support these.
+</Callout>
+
+## `clamp()` — the killer
+
+`clamp(MIN, PREFERRED, MAX)` returns whichever of MIN or PREFERRED is in range, capped by MAX.
+
+```css
+h1 { font-size: clamp(2rem, 4vw + 1rem, 3.5rem); }
+```
+
+- At narrow viewports → `2rem` (the floor).
+- In the middle → fluid `4vw + 1rem` (scales with viewport).
+- At wide viewports → `3.5rem` (the ceiling).
+
+No media queries. Type smoothly grows from phone to desktop. Apply the same pattern to spacing:
+
+```css
+section { padding-block: clamp(2rem, 6vw, 6rem); }
+```
+
+## Setting up `rem`
+
+Don't change the root `font-size` from the default 16px (it breaks user preferences). Instead, build your scale on top:
+
+```css
+:root {
+  --fs-base: 1rem;            /* 16px */
+  --fs-sm: 0.875rem;          /* 14px */
+  --fs-lg: 1.125rem;          /* 18px */
+  --fs-xl: clamp(1.25rem, 1.5vw + 1rem, 1.75rem);
+}
+body { font-size: var(--fs-base); line-height: 1.5; }
+```
+
+## `%` percentages — what they're relative to
+
+| Property | `%` is relative to… |
+|---|---|
+| `width`, `min-width`, `max-width`, `padding`, `margin` (left/right) | Parent's **width** |
+| `height`, `top`, `bottom` | Parent's **height** (and parent must have explicit height) |
+| `padding-top`, `padding-bottom`, `margin-top`, `margin-bottom` | Parent's **width** (yes, really) |
+| `font-size` | Parent's font size |
+
+The "padding-top is relative to parent's width" rule is how `padding-top: 56.25%` makes a 16:9 aspect-ratio box. (Now you'd use `aspect-ratio: 16 / 9` instead — much cleaner.)
+
+## Container queries change the game
+
+Inside a container query block, `cqi`/`cqb` resolve to the container's dimensions:
+
+```css
+.cards { container-type: inline-size; }
+@container (min-width: 30rem) {
+  .card h3 { font-size: clamp(1rem, 4cqi, 1.5rem); }
+}
+```
+
+Components that scale to their **container** size, not the viewport. Major upgrade for design systems. (Full lesson: [Container queries](/paths/modern-css/layout/container-queries/).)
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/css/responsive-units"
+  questions={[
+    {
+      id: 'unit-1',
+      type: 'single',
+      prompt: 'For body text size, the most accessible default is…',
+      options: [
+        { value: 'a', label: '14px' },
+        { value: 'b', label: '1rem (= browser default, usually 16px)' },
+        { value: 'c', label: '1em' },
+        { value: 'd', label: '100%' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'unit-2',
+      type: 'single',
+      prompt: 'Why prefer `100dvh` to `100vh` for a full-height hero?',
+      options: [
+        { value: 'a', label: '`dvh` is more compatible' },
+        { value: 'b', label: '`100vh` measures the largest viewport, so it overflows on mobile when the address bar is visible' },
+        { value: 'c', label: '`vh` doesn\'t work in flexbox' },
+        { value: 'd', label: 'No reason — they\'re identical' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'unit-3',
+      type: 'single',
+      prompt: '`clamp(1rem, 4vw, 2rem)` — what does it do?',
+      options: [
+        { value: 'a', label: 'Picks the maximum of the three' },
+        { value: 'b', label: 'Returns 4vw, but never less than 1rem and never more than 2rem' },
+        { value: 'c', label: 'Multiplies the three values' },
+        { value: 'd', label: 'Picks 4vw only when the viewport is wide' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+The CSS Fundamentals module wraps. Next module: **JavaScript Basics** — modern JS through ES2026.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/css/responsive-units"
+  lessonHref="/paths/foundations/css/responsive-units/"
+  lessonTitle="Responsive design with relative units"
+  nextHref="/paths/foundations/js/values-types/"
+  nextTitle="Values, types, and operators"
+/>

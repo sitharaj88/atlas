@@ -1,0 +1,70 @@
+---
+title: Relational vs. document — and when you need both
+description: SQL vs. NoSQL framed for engineers in 2026.
+sidebar:
+  order: 1
+pathSlug: full-stack
+module: databases
+lessonNumber: 1
+difficulty: intermediate
+duration: 5 min
+tags: [databases, sql, nosql]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Relational (SQL)
+
+- Tables, rows, columns. Strong schema.
+- ACID transactions. Joins.
+- Postgres, SQLite, MySQL.
+
+Best for: most apps, especially those with relationships, integrity, and analytics.
+
+## Document (NoSQL)
+
+- Flexible nested documents (JSON).
+- Often eventually-consistent.
+- MongoDB, DynamoDB, Firestore.
+
+Best for: rapid evolution where schema is uncertain, single-document workflows, massive horizontal scale.
+
+## The default in 2026
+
+**Postgres.** It's a great relational DB AND has excellent JSON support (`jsonb`), full-text search, vector indexes (pgvector), and listen/notify. You get document flexibility WITHIN a relational engine.
+
+Pick MongoDB only when:
+- Scale demands it.
+- The data shape is genuinely document-shaped (heavy nesting, varying schemas).
+- Your team already knows it deeply.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/databases/relational-vs-document"
+  questions={[
+    {
+      id: 'rd-1',
+      type: 'single',
+      prompt: 'Best safe default DB for a new app in 2026?',
+      options: [
+        { value: 'a', label: 'MongoDB' },
+        { value: 'b', label: 'Postgres (with jsonb when you need flexibility)' },
+        { value: 'c', label: 'DynamoDB' },
+        { value: 'd', label: 'A flat JSON file' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/databases/relational-vs-document"
+  lessonHref="/paths/full-stack/databases/relational-vs-document/"
+  lessonTitle="Relational vs document"
+  nextHref="/paths/full-stack/databases/sqlite/"
+  nextTitle="SQLite — yes, in production"
+/>

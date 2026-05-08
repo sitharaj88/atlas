@@ -1,0 +1,76 @@
+---
+title: 'HTMX — hypermedia as the engine of state'
+description: Drive your UI with HTML attributes that swap server-rendered fragments. No JS framework needed.
+sidebar:
+  order: 1
+pathSlug: frontend-frameworks
+module: html-first
+lessonNumber: 1
+difficulty: intermediate
+duration: 6 min
+tags: [htmx, html-first]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The pitch
+
+```html
+<button hx-post="/clicked" hx-swap="outerHTML">Click me</button>
+```
+
+Click → POST /clicked → server returns HTML → HTMX swaps it in. No JSON, no client-side state, no framework.
+
+## When HTMX wins
+
+- Server-rendered apps (Rails, Django, Laravel, Phoenix, Spring).
+- Small interactive surfaces.
+- Teams allergic to SPA complexity.
+- Forms, search, dynamic dropdowns, infinite scroll.
+
+## When it loses
+
+- Highly interactive client apps (editors, dashboards).
+- Real-time / collaborative features.
+- Offline-first.
+- When your team is React-shop and the win doesn't justify the second pattern.
+
+## A real interaction
+
+```html
+<input hx-get="/search" hx-trigger="keyup changed delay:300ms" hx-target="#results">
+<ul id="results"></ul>
+```
+
+Type → debounced 300ms → GET /search → HTML inserted into #results. About 5 lines that would be 50 in React.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/html-first/htmx"
+  questions={[
+    {
+      id: 'hx-1',
+      type: 'single',
+      prompt: 'HTMX servers respond with…',
+      options: [
+        { value: 'a', label: 'JSON' },
+        { value: 'b', label: 'HTML fragments' },
+        { value: 'c', label: 'GraphQL' },
+        { value: 'd', label: 'WebSocket frames' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/html-first/htmx"
+  lessonHref="/paths/frontend-frameworks/html-first/htmx/"
+  lessonTitle="HTMX"
+  nextHref="/paths/frontend-frameworks/html-first/alpine/"
+  nextTitle="Alpine.js"
+/>

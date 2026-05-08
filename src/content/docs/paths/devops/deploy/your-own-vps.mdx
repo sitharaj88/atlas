@@ -1,0 +1,84 @@
+---
+title: 'Your own VPS — when (and how)'
+description: $5/month gets you a real Linux server. The minimum viable setup.
+sidebar:
+  order: 4
+pathSlug: devops
+module: deploy
+lessonNumber: 4
+difficulty: intermediate
+duration: 6 min
+tags: [deployment, vps]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## When VPS makes sense
+
+- Cost matters more than convenience.
+- You need full control (custom binaries, kernel modules).
+- A learning project — running prod end-to-end teaches a lot.
+
+## Hosts
+
+- **Hetzner** — best price/performance. EU-based.
+- **Digital Ocean** — solid US options.
+- **Linode (Akamai)** — mature, decent prices.
+- **AWS Lightsail** — simple AWS entry.
+
+## Minimum viable stack
+
+- **Linux** (Ubuntu LTS or Debian).
+- **Caddy** — auto-HTTPS reverse proxy.
+- **Docker / docker compose** — your app + DB.
+- **systemd** — keep things running.
+- **fail2ban** + **UFW** — basic security.
+- **Let's Encrypt** (Caddy handles automatically).
+
+## A working `Caddyfile`
+
+```caddy
+atlas.dev {
+  reverse_proxy localhost:3000
+}
+```
+
+Caddy gets you HTTPS, HTTP/2, and HTTP/3 in three lines.
+
+## Backup strategy
+
+If your DB is on the VPS, backups are your responsibility. **Always**:
+
+- Daily DB dump to an offsite bucket (S3, R2).
+- Test the restore quarterly.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="devops/deploy/your-own-vps"
+  questions={[
+    {
+      id: 'vps-1',
+      type: 'single',
+      prompt: 'Simplest auto-HTTPS reverse proxy on a VPS?',
+      options: [
+        { value: 'a', label: 'Apache' },
+        { value: 'b', label: 'Caddy (auto-renews Let\'s Encrypt with no config)' },
+        { value: 'c', label: 'Nginx with manual certbot' },
+        { value: 'd', label: 'HAProxy' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="devops/deploy/your-own-vps"
+  lessonHref="/paths/devops/deploy/your-own-vps/"
+  lessonTitle="Your own VPS"
+  nextHref="/paths/devops/observability/three-pillars/"
+  nextTitle="Logs, metrics, traces — the three pillars"
+/>

@@ -1,0 +1,67 @@
+---
+title: Compile-time vs. runtime tradeoffs
+description: Svelte does at build time what most frameworks do at runtime — and what you give up.
+sidebar:
+  order: 2
+pathSlug: frontend-frameworks
+module: svelte
+lessonNumber: 2
+difficulty: intermediate
+duration: 5 min
+tags: [svelte, compilation]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What the compiler does
+
+Svelte transforms `.svelte` files into vanilla JS that directly manipulates the DOM. No virtual DOM, no diff. The output is small and fast.
+
+## Trade-offs
+
+**Pros:**
+- Smaller bundles than runtime-heavy frameworks.
+- Faster initial render.
+- Less abstraction in DevTools — you see the actual DOM updates.
+
+**Cons:**
+- Harder to introspect at runtime (no component tree to walk via JS).
+- Some patterns (deeply dynamic component composition) are awkward.
+- Smaller ecosystem than React.
+
+## When Svelte wins
+
+- Performance-sensitive apps.
+- Small teams who like reading clear, top-down code.
+- Sites where bundle size really matters.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/svelte/compile-vs-runtime"
+  questions={[
+    {
+      id: 'cvr-1',
+      type: 'single',
+      prompt: 'Svelte\'s big differentiator is…',
+      options: [
+        { value: 'a', label: 'A virtual DOM faster than React\'s' },
+        { value: 'b', label: 'Compiling components to direct DOM updates — no VDOM at runtime' },
+        { value: 'c', label: 'Server-only rendering' },
+        { value: 'd', label: 'Same architecture as React' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/svelte/compile-vs-runtime"
+  lessonHref="/paths/frontend-frameworks/svelte/compile-vs-runtime/"
+  lessonTitle="Compile vs runtime"
+  nextHref="/paths/frontend-frameworks/svelte/sveltekit/"
+  nextTitle="SvelteKit for full-stack apps"
+/>

@@ -1,0 +1,79 @@
+---
+title: 'Yjs and Liveblocks'
+description: Two production-ready paths to collaborative apps.
+sidebar:
+  order: 2
+pathSlug: frontier
+module: realtime
+lessonNumber: 2
+difficulty: advanced
+duration: 5 min
+tags: [yjs, liveblocks, realtime]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Yjs
+
+Open-source CRDT library. You bring your own transport (WebSocket, WebRTC, Hocuspocus server).
+
+```ts
+import * as Y from 'yjs';
+import { WebsocketProvider } from 'y-websocket';
+
+const doc = new Y.Doc();
+const provider = new WebsocketProvider('wss://api.atlas.dev/yjs', 'room-1', doc);
+const items = doc.getArray('items');
+items.observe(() => render(items.toArray()));
+
+items.push(['hello']);   // syncs to other users in real time
+```
+
+Pairs with editor frameworks (CodeMirror, ProseMirror, Tiptap, Slate) for collaborative editing.
+
+## Liveblocks
+
+Managed CRDT-as-a-service. Pre-built React/Vue/Svelte hooks, presence, comments, threads. You skip the transport layer entirely.
+
+```tsx
+const others = useOthers();         // who else is here
+const [todos, setTodos] = useStorage((root) => root.todos);
+```
+
+Pay-as-you-go pricing.
+
+## Pick
+
+- **Yjs** — full control, self-host, open source.
+- **Liveblocks** — fast to build, pay for the convenience.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/realtime/yjs-liveblocks"
+  questions={[
+    {
+      id: 'yl-1',
+      type: 'single',
+      prompt: 'You want to add presence indicators (cursors, names) to your app fast. Best fit?',
+      options: [
+        { value: 'a', label: 'Build CRDTs by hand' },
+        { value: 'b', label: 'Liveblocks (managed) or Yjs + a presence package' },
+        { value: 'c', label: 'Polling every 100ms' },
+        { value: 'd', label: 'Replace your DB' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/realtime/yjs-liveblocks"
+  lessonHref="/paths/frontier/realtime/yjs-liveblocks/"
+  lessonTitle="Yjs and Liveblocks"
+  nextHref="/paths/frontier/realtime/presence/"
+  nextTitle="Presence, cursors, conflict-free editing"
+/>

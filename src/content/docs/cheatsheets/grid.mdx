@@ -1,0 +1,108 @@
+---
+title: CSS Grid cheatsheet
+description: Every Grid property, with the syntax that works.
+sidebar:
+  order: 4
+tags: [css, grid, cheatsheet]
+---
+
+> Print-friendly. Cmd-P / Ctrl-P.
+
+## Container properties
+
+```css
+.parent {
+  display: grid;                            /* or inline-grid */
+  grid-template-columns: 200px 1fr 100px;   /* track sizes */
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    "header header"
+    "side   main"
+    "footer footer";
+  gap: 1rem;                                 /* row + column */
+  row-gap: 1rem;
+  column-gap: 1rem;
+  justify-items: stretch;                    /* start | center | end | stretch */
+  align-items: stretch;
+  place-items: center;                       /* both */
+  justify-content: start;                    /* if grid is smaller than container */
+  align-content: start;
+  grid-auto-flow: row;                       /* row | column | dense */
+  grid-auto-columns: minmax(0, 1fr);         /* implicit columns */
+  grid-auto-rows: minmax(8rem, auto);
+}
+```
+
+## Track sizing
+
+| Value | Meaning |
+|---|---|
+| `100px` / `1rem` | Fixed |
+| `1fr` | Fractional remaining space |
+| `auto` | Content-sized |
+| `min-content` | Smallest content can be |
+| `max-content` | Longest line |
+| `minmax(min, max)` | Range |
+| `fit-content(N)` | `auto` capped at N |
+| `repeat(3, 1fr)` | Three equal cols |
+| `repeat(auto-fit, minmax(14rem, 1fr))` | Cards that wrap and fill |
+| `repeat(auto-fill, ...)` | Like `auto-fit` but keeps empty tracks |
+
+## Item placement
+
+```css
+.item {
+  grid-column: 1 / 3;       /* lines 1 to 3 */
+  grid-column: span 2;      /* span 2 cols from current */
+  grid-column: 1 / -1;      /* full width */
+  grid-row: 2 / 4;
+  grid-area: header;        /* named area */
+
+  justify-self: start;      /* override container's justify-items for this item */
+  align-self: end;
+  place-self: center end;
+}
+```
+
+## Recipes
+
+**Holy grail layout:**
+```css
+.app {
+  display: grid;
+  grid-template-areas: "h h" "s m" "f f";
+  grid-template-columns: 200px 1fr;
+  grid-template-rows: auto 1fr auto;
+  min-height: 100dvh;
+}
+```
+
+**Responsive cards:**
+```css
+.cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: 1rem; }
+```
+
+**Center one element:**
+```css
+.parent { display: grid; place-items: center; min-height: 100dvh; }
+```
+
+**Equal columns with subgrid:**
+```css
+.parent { display: grid; grid-template-columns: 1fr 2fr 1fr; }
+.child  { grid-column: 1 / -1; display: grid; grid-template-columns: subgrid; }
+```
+
+## Things that bite
+
+- **`min-width: auto` (default)** prevents items from shrinking below content. Override with `min-width: 0`.
+- **`grid-template-areas`** strings must be the same number of cells. Use `.` for empty cells.
+- **Lines are 1-indexed.** Negative numbers count from the end. `1 / -1` = full width.
+- **`fr` doesn't fight padding.** Track sizing and gaps account for full container width.
+
+## Mental shortcuts
+
+- "Want cards that wrap, no media queries?" → `repeat(auto-fit, minmax(<min>, 1fr))`.
+- "Want a structural page layout?" → `grid-template-areas`.
+- "Want one row?" → use Flex.
+- "Want internal alignment of children with parent's grid?" → `subgrid`.

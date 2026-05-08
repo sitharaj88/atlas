@@ -1,0 +1,115 @@
+---
+title: Regex cheatsheet
+description: Patterns, flags, lookarounds. JavaScript regex in one page.
+sidebar:
+  order: 5
+tags: [regex, cheatsheet]
+---
+
+> Print-friendly.
+
+## Character classes
+
+| Pattern | Matches |
+|---|---|
+| `.` | Any character except newline |
+| `\d` | Digit `[0-9]` |
+| `\D` | Non-digit |
+| `\w` | Word character `[A-Za-z0-9_]` |
+| `\W` | Non-word |
+| `\s` | Whitespace |
+| `\S` | Non-whitespace |
+| `[abc]` | a, b, or c |
+| `[^abc]` | NOT a, b, c |
+| `[a-z]` | a to z |
+| `\b` | Word boundary |
+| `\B` | Non-boundary |
+
+## Quantifiers
+
+| Pattern | Meaning |
+|---|---|
+| `*` | 0 or more (greedy) |
+| `+` | 1 or more |
+| `?` | 0 or 1 |
+| `{n}` | Exactly n |
+| `{n,}` | n or more |
+| `{n,m}` | n to m |
+| `*?`, `+?`, `??` | Lazy versions |
+
+## Anchors
+
+| Pattern | Matches |
+|---|---|
+| `^` | Start of string (or line with `m` flag) |
+| `$` | End of string (or line with `m`) |
+| `\b` | Word boundary |
+
+## Groups & alternation
+
+```text
+(abc)            capture group
+(?:abc)          non-capturing
+(?<name>abc)     named group
+abc|def          either
+\1               backreference to group 1
+\k<name>         backreference to named group
+```
+
+## Lookarounds
+
+```text
+foo(?=bar)       foo only if followed by bar
+foo(?!bar)       foo only if NOT followed by bar
+(?<=foo)bar      bar only if preceded by foo
+(?<!foo)bar      bar only if NOT preceded by foo
+```
+
+## Flags (JavaScript)
+
+```text
+/pattern/g       global (find all)
+/pattern/i       case-insensitive
+/pattern/m       multiline (^ $ match line boundaries)
+/pattern/s       dotall (. matches newline)
+/pattern/u       unicode
+/pattern/y       sticky (match from lastIndex)
+/pattern/d       hasIndices (match positions)
+```
+
+## Common patterns
+
+```js
+/^\d+$/                                     // only digits
+/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/   // basic email
+/^https?:\/\//                              // URL starts http/https
+/(\d{4})-(\d{2})-(\d{2})/                   // date YYYY-MM-DD with capture
+/^\s*$/                                      // whitespace-only
+/[一-鿿]/                           // CJK chars
+/[\p{Script=Latin}]+/u                      // unicode property escape
+```
+
+## JavaScript API
+
+```js
+'foo bar'.match(/o(.)/);           // ['oo', 'o', index: 1, ...]
+'foo bar'.matchAll(/o(.)/g);       // iterator
+'foo'.replace(/o/g, 'O');          // 'fOO'
+'foo'.replaceAll('o', 'O');        // 'fOO' (without regex)
+'foo bar'.search(/bar/);            // 4
+/o/.test('foo');                    // true
+/o(.)/.exec('foo bar');             // with sticky/lastIndex
+```
+
+## Tips
+
+- **Use `?:` for grouping you don't capture** — speeds match, simpler results.
+- **Anchor with `^` and `$`** when validating exact format.
+- **Non-greedy (`*?`, `+?`)** when matching between delimiters: `<.+?>` over `<.+>`.
+- **Test in [regex101.com](https://regex101.com)** with explanations before shipping.
+
+## What regex is bad at
+
+- Parsing HTML / XML / JSON / nested anything. Use a parser.
+- Validating "is this a real email?" Just check the format and send a verification email.
+- Detecting natural-language semantics. Use NLP / LLMs.

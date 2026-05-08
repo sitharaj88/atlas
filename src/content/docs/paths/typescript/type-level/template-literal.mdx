@@ -1,0 +1,89 @@
+---
+title: Template literal types — string manipulation in types
+description: Build, parse, and transform string types at compile time.
+sidebar:
+  order: 3
+pathSlug: typescript
+module: type-level
+lessonNumber: 3
+difficulty: advanced
+duration: 7 min
+prerequisites:
+  - Conditional and mapped types
+objectives:
+  - Compose template literal types
+  - Use Capitalize, Uppercase, Lowercase
+tags: [typescript, type-level]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Basics
+
+```ts
+type Greet<N extends string> = `Hello, ${N}!`;
+type X = Greet<'Atlas'>; // "Hello, Atlas!"
+
+type EventName<T extends string> = `on${Capitalize<T>}`;
+type Y = EventName<'click'>; // "onClick"
+```
+
+## Built-in transforms
+
+`Capitalize<S>`, `Uncapitalize<S>`, `Uppercase<S>`, `Lowercase<S>`.
+
+## Distribute over unions
+
+```ts
+type Color = 'red' | 'green' | 'blue';
+type ClassName = `text-${Color}`;
+// "text-red" | "text-green" | "text-blue"
+```
+
+## Parsing strings (advanced)
+
+```ts
+type Split<S extends string, D extends string> =
+  S extends `${infer Head}${D}${infer Tail}`
+    ? [Head, ...Split<Tail, D>]
+    : [S];
+
+type Path = Split<'a/b/c', '/'>; // ['a', 'b', 'c']
+```
+
+This is the trick behind library types like `tRPC`'s path-based routing.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/type-level/template-literal"
+  questions={[
+    {
+      id: 'tlit-1',
+      type: 'single',
+      prompt: '`type X = `prefix-${T}` where T = "a" | "b"`. What is X?',
+      options: [
+        { value: 'a', label: '"prefix-a" | "prefix-b"' },
+        { value: 'b', label: '"prefix-a, prefix-b"' },
+        { value: 'c', label: 'string' },
+        { value: 'd', label: 'never' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+## What's next
+
+**Recursive types (with the right guardrails).**
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/type-level/template-literal"
+  lessonHref="/paths/typescript/type-level/template-literal/"
+  lessonTitle="Template literal types"
+  nextHref="/paths/typescript/type-level/recursive-types/"
+  nextTitle="Recursive types"
+/>

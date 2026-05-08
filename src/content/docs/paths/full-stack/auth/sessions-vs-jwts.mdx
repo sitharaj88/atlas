@@ -1,0 +1,80 @@
+---
+title: 'Sessions vs. JWTs — pick the right one (usually sessions)'
+description: Two ways to track who's logged in. The default should be sessions; JWTs need a reason.
+sidebar:
+  order: 2
+pathSlug: full-stack
+module: auth
+lessonNumber: 2
+difficulty: intermediate
+duration: 6 min
+tags: [auth, sessions, jwt]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Sessions
+
+Server stores a session record. Client holds an opaque session ID (in an HTTP-only cookie). Each request, server looks up the session.
+
+Pros: revocable instantly. Small token. Server controls lifecycle.
+
+Cons: needs server-side storage (Redis, DB).
+
+## JWTs
+
+A signed, self-contained token with claims (`sub`, `exp`, etc.). Client stores it; server verifies the signature without lookup.
+
+Pros: stateless. Microservice-friendly. Works across services that share a secret/key.
+
+Cons: revocation is hard (blocklist or short TTL + refresh). Larger token. If the secret leaks, all tokens compromise.
+
+## The default should be sessions
+
+For 95% of apps, sessions in HTTP-only cookies are simpler, safer, and more flexible. Reach for JWTs when you have:
+
+- Microservices that need to validate tokens without a shared session store.
+- Mobile clients that can't share cookies cleanly.
+- Federated identity (OAuth/OIDC tokens are JWTs by spec).
+
+## A safe cookie
+
+```text
+Set-Cookie: sid=abc123;
+  HttpOnly;          (JS can't read — defends XSS)
+  Secure;            (HTTPS only)
+  SameSite=Lax;      (CSRF defense)
+  Path=/;
+  Max-Age=2592000;   (30 days)
+```
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/auth/sessions-vs-jwts"
+  questions={[
+    {
+      id: 'sj-1',
+      type: 'single',
+      prompt: 'For a single web app needing login, the default should be…',
+      options: [
+        { value: 'a', label: 'JWTs in localStorage' },
+        { value: 'b', label: 'Server-side sessions with HTTP-only cookies' },
+        { value: 'c', label: 'API keys' },
+        { value: 'd', label: 'Basic auth' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/auth/sessions-vs-jwts"
+  lessonHref="/paths/full-stack/auth/sessions-vs-jwts/"
+  lessonTitle="Sessions vs JWTs"
+  nextHref="/paths/full-stack/auth/oauth-oidc/"
+  nextTitle="OAuth 2.0 / OIDC"
+/>

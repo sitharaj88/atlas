@@ -1,0 +1,82 @@
+---
+title: 'Querying like a user (not a developer)'
+description: Testing Library's golden rule — find elements the way users do.
+sidebar:
+  order: 1
+pathSlug: testing
+module: component
+lessonNumber: 1
+difficulty: intermediate
+duration: 5 min
+tags: [testing-library, testing]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The hierarchy
+
+Testing Library queries, ordered by preference:
+
+1. **`getByRole`** — what assistive tech sees. `getByRole('button', { name: 'Submit' })`.
+2. **`getByLabelText`** — for form fields.
+3. **`getByPlaceholderText`** — when no label.
+4. **`getByText`** — for non-interactive content.
+5. **`getByDisplayValue`** — for filled-in form fields.
+6. **`getByAltText`** — for images.
+7. **`getByTitle`** — last resort for visual elements.
+8. **`getByTestId`** — when nothing else works. Add `data-testid`.
+
+## Why role-based
+
+If `getByRole('button')` finds your button, screen readers can too. Tests double as a11y check.
+
+## Variants
+
+- **`getBy...`** — throws if missing (one element).
+- **`queryBy...`** — returns null if missing.
+- **`findBy...`** — async, waits.
+- **`getAllBy...` / `findAllBy...`** — multiple matches.
+
+## A sample component test
+
+```tsx
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+
+it('shows hello after click', async () => {
+  render(<Greeter />);
+  await userEvent.click(screen.getByRole('button', { name: /say hi/i }));
+  expect(await screen.findByRole('status')).toHaveTextContent('Hello!');
+});
+```
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="testing/component/queries"
+  questions={[
+    {
+      id: 'qr-1',
+      type: 'single',
+      prompt: 'Best query for a "Submit" button?',
+      options: [
+        { value: 'a', label: 'getByTestId("submit")' },
+        { value: 'b', label: 'getByRole("button", { name: /submit/i })' },
+        { value: 'c', label: 'document.querySelector(".submit")' },
+        { value: 'd', label: 'getByClassName' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="testing/component/queries"
+  lessonHref="/paths/testing/component/queries/"
+  lessonTitle="Querying like a user"
+  nextHref="/paths/testing/component/user-event/"
+  nextTitle="userEvent vs. fireEvent"
+/>

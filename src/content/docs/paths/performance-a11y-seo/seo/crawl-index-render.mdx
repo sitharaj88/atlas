@@ -1,0 +1,64 @@
+---
+title: 'Crawling, indexing, rendering — what Google actually does'
+description: A short tour of how a search engine sees your site.
+sidebar:
+  order: 1
+pathSlug: performance-a11y-seo
+module: seo
+lessonNumber: 1
+difficulty: intermediate
+duration: 5 min
+tags: [seo]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The three phases
+
+1. **Crawling** — Googlebot discovers URLs (links, sitemap, manual submission) and fetches them.
+2. **Rendering** — for SPAs, Google runs JavaScript (in a headless Chromium) to see the final DOM.
+3. **Indexing** — Google decides whether the page is worth keeping and what it's about.
+
+## What this means for you
+
+- **Server-rendered HTML** is always indexed promptly. SPA rendering is best-effort and can be days behind.
+- **Hydration is optional from SEO\'s perspective.** What matters is the HTML in the response.
+- **Bad redirects, slow servers, blocked robots.txt** kill indexing.
+
+## Quick wins
+
+- Ensure key pages have unique `<title>` and `<meta name="description">`.
+- Submit a `sitemap.xml`.
+- Verify in Google Search Console.
+- Check `robots.txt` doesn't accidentally block /.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/seo/crawl-index-render"
+  questions={[
+    {
+      id: 'cr-1',
+      type: 'single',
+      prompt: 'A pure SPA returns mostly empty HTML. Compared to SSR, indexing is…',
+      options: [
+        { value: 'a', label: 'Equally fast' },
+        { value: 'b', label: 'Best-effort and can lag — SSR\'d HTML is indexed more reliably' },
+        { value: 'c', label: 'Faster' },
+        { value: 'd', label: 'Impossible' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/seo/crawl-index-render"
+  lessonHref="/paths/performance-a11y-seo/seo/crawl-index-render/"
+  lessonTitle="Crawl, index, render"
+  nextHref="/paths/performance-a11y-seo/seo/title-meta-headings/"
+  nextTitle="Title, meta description, headings"
+/>

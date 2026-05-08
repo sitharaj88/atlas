@@ -1,0 +1,91 @@
+---
+title: 'Object types vs. interfaces vs. types — the real differences'
+description: Both can describe an object. Three actual differences that matter.
+sidebar:
+  order: 2
+pathSlug: typescript
+module: building-blocks
+lessonNumber: 2
+difficulty: beginner
+duration: 6 min
+prerequisites:
+  - Previous building-blocks lesson
+objectives:
+  - Pick interface or type for the right reasons
+tags: [typescript, types, interfaces]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Both work
+
+```ts
+interface User { id: number; name: string; }
+type    User = { id: number; name: string; };
+```
+
+Either is fine for object shapes. Pick consistently.
+
+## Real differences
+
+| Feature | `interface` | `type` |
+|---|---|---|
+| Object shapes | ✓ | ✓ |
+| Unions / intersections | ✗ | ✓ |
+| Computed types (mapped, conditional, template literal) | ✗ | ✓ |
+| Declaration merging (multiple declarations combine) | ✓ | ✗ |
+| Extending | `extends` | `&` |
+
+## Use `interface` for…
+
+- Public API of a library (declaration merging is helpful for users to augment).
+- Class-like shapes that may be extended.
+
+## Use `type` for…
+
+- Unions, intersections, or anything computed.
+- Tuples, function signatures, conditionals, mapped types.
+
+## A common pattern
+
+```ts
+type Result<T> = { ok: true; value: T } | { ok: false; error: string };
+//   ^ must be `type` — interfaces can't be unions
+```
+
+When in doubt, `type` is more powerful; `interface` is more declarative. Many codebases use only `type` for simplicity.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/building-blocks/types-vs-interfaces"
+  questions={[
+    {
+      id: 'tv-1',
+      type: 'single',
+      prompt: 'You need a union type. Use…',
+      options: [
+        { value: 'a', label: 'interface' },
+        { value: 'b', label: 'type' },
+        { value: 'c', label: 'Either' },
+        { value: 'd', label: 'class' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Tuples and readonly.**
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/building-blocks/types-vs-interfaces"
+  lessonHref="/paths/typescript/building-blocks/types-vs-interfaces/"
+  lessonTitle="Types vs. interfaces"
+  nextHref="/paths/typescript/building-blocks/tuples-readonly/"
+  nextTitle="Tuples and readonly"
+/>

@@ -1,0 +1,109 @@
+---
+title: Documenting components with Storybook
+description: An interactive playground for every component, with stories that double as test fixtures and design specs.
+sidebar:
+  order: 2
+pathSlug: modern-css
+module: design-system
+lessonNumber: 2
+difficulty: intermediate
+duration: 8 min
+prerequisites:
+  - You've built a few components
+objectives:
+  - Set up Storybook
+  - Write a story for a component
+  - Recognize when stories are over-engineered
+tags: [storybook, design-systems]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Storybook gives every component a sandboxed page with controls, docs, and accessibility checks.
+
+## Setup
+
+```bash
+pnpm dlx storybook@latest init
+pnpm storybook   # http://localhost:6006
+```
+
+Storybook auto-detects React/Vue/Svelte/Lit and scaffolds.
+
+## A story
+
+```ts
+// Button.stories.tsx
+import type { Meta, StoryObj } from '@storybook/react';
+import { Button } from './Button';
+
+const meta: Meta<typeof Button> = {
+  component: Button,
+  args: { children: 'Click me' },
+};
+export default meta;
+type S = StoryObj<typeof Button>;
+
+export const Primary: S = { args: { variant: 'primary' } };
+export const Ghost:   S = { args: { variant: 'ghost' } };
+export const Disabled: S = { args: { disabled: true } };
+```
+
+Each export is a "story" — one fixture you can isolate, demo, and test.
+
+## Add-ons that pay off
+
+- **`@storybook/addon-a11y`** — runs axe on every story.
+- **`@storybook/addon-vitest`** — turn stories into Vitest tests.
+- **Chromatic** — visual regression cloud (paid).
+
+## When stories pay off
+
+- **Many people** build/use a shared library.
+- Components have **states** (disabled, loading, error) that are hard to reach from real pages.
+- Designers want a **live spec**.
+
+When stories don't pay off:
+
+- A solo project. Storybook overhead may exceed the value.
+- Components used in only one place. Inline test fixtures may be enough.
+
+<Callout variant="tip" title="Stories ARE tests">
+Treat each story as a fixture. With `@storybook/test`, the same story you demo also runs in CI as an interaction test. One fixture, two purposes.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/design-system/storybook"
+  questions={[
+    {
+      id: 'sb-1',
+      type: 'single',
+      prompt: 'A "story" in Storybook is…',
+      options: [
+        { value: 'a', label: 'A markdown doc' },
+        { value: 'b', label: 'One named fixture / state of a component, isolated for demo, docs, and tests' },
+        { value: 'c', label: 'A page route' },
+        { value: 'd', label: 'A unit test' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Versioning and consuming a design system across apps.**
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/design-system/storybook"
+  lessonHref="/paths/modern-css/design-system/storybook/"
+  lessonTitle="Documenting components with Storybook"
+  nextHref="/paths/modern-css/design-system/versioning/"
+  nextTitle="Versioning a design system"
+/>

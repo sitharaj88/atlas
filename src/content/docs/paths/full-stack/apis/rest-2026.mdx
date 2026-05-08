@@ -1,0 +1,66 @@
+---
+title: "REST in 2026 — what's still true, what's old wisdom"
+description: HATEOAS, idempotency, status codes, pagination, versioning — modern best practices.
+sidebar:
+  order: 1
+pathSlug: full-stack
+module: apis
+lessonNumber: 1
+difficulty: intermediate
+duration: 6 min
+tags: [rest, api]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What's still true
+
+- **Resources, not actions.** `POST /orders/123/cancel` is fine; better is `POST /orders/123/cancellations`.
+- **Verbs match intent.** `GET` reads, `POST` creates, `PUT` replaces, `PATCH` updates, `DELETE` removes.
+- **Idempotency.** `PUT` and `DELETE` should be repeatable safely. `POST` usually isn't (use idempotency keys for retries).
+- **Status codes are part of the contract.** `200`, `201`, `204`, `400`, `401`, `403`, `404`, `409`, `422`, `429`, `500`. ([cheatsheet](/cheatsheets/http-status-codes/))
+- **Pagination via `?cursor=` or `?page=`.** Cursor is friendlier for changing data.
+
+## What's evolved
+
+- **JSON every time.** XML is dead in REST.
+- **Errors via RFC 7807 Problem Details.**
+- **Versioning** via header (`Accept: application/vnd.atlas.v2+json`) or path (`/v2/...`). Pick one and stick.
+- **Authentication** via Bearer tokens (JWT for stateless, opaque for sessions).
+
+## What's outdated
+
+- **HATEOAS** as a strict requirement. Most APIs don't follow links.
+- **Heavy URI-versioning ceremony.** A version in the URL or header is enough.
+- **OPTIONS for everything.** Just for CORS preflight.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/apis/rest-2026"
+  questions={[
+    {
+      id: 'rt-1',
+      type: 'single',
+      prompt: 'Validation passes but business rules reject the request. Best status?',
+      options: [
+        { value: 'a', label: '400' },
+        { value: 'b', label: '422 Unprocessable Entity' },
+        { value: 'c', label: '500' },
+        { value: 'd', label: '403' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/apis/rest-2026"
+  lessonHref="/paths/full-stack/apis/rest-2026/"
+  lessonTitle="REST in 2026"
+  nextHref="/paths/full-stack/apis/graphql/"
+  nextTitle="GraphQL — when it pays off"
+/>

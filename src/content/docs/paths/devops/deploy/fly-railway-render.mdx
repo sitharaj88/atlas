@@ -1,0 +1,78 @@
+---
+title: 'Fly.io, Railway, Render — running real servers'
+description: When you need persistent processes, WebSockets, multi-region, your own DB.
+sidebar:
+  order: 3
+pathSlug: devops
+module: deploy
+lessonNumber: 3
+difficulty: intermediate
+duration: 5 min
+tags: [deployment, fly, railway]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## When you outgrow serverless
+
+- Long-lived WebSockets.
+- Persistent processes (queues, schedulers).
+- Specific runtime (you need Bun, Deno, Rust).
+- Custom binaries (FFmpeg, ML models).
+- Multi-region with persistent storage.
+
+## Fly.io
+
+Run any Docker image globally. `fly launch`, `fly deploy`. Postgres, Redis, volumes — all available. Excellent for full-stack apps.
+
+```bash
+fly launch
+fly deploy
+fly postgres create
+fly postgres attach
+```
+
+## Railway
+
+Push-to-deploy. Auto-detects framework. Built-in Postgres, Redis. Simpler than Fly; pricier per resource.
+
+## Render
+
+Heroku-like. Web services, background workers, cron jobs, managed Postgres. The PaaS for people who miss old Heroku.
+
+## Pick
+
+- **Fly** — global, control over Docker, custom runtimes.
+- **Railway** — fastest start, smallest projects.
+- **Render** — middle ground, good DX, mature.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="devops/deploy/fly-railway-render"
+  questions={[
+    {
+      id: 'frr-1',
+      type: 'single',
+      prompt: 'You need a persistent WebSocket server in 3 regions. Best fit?',
+      options: [
+        { value: 'a', label: 'Vercel' },
+        { value: 'b', label: 'Fly.io (multi-region apps with persistent processes)' },
+        { value: 'c', label: 'GitHub Pages' },
+        { value: 'd', label: 'AWS Lambda' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="devops/deploy/fly-railway-render"
+  lessonHref="/paths/devops/deploy/fly-railway-render/"
+  lessonTitle="Fly, Railway, Render"
+  nextHref="/paths/devops/deploy/your-own-vps/"
+  nextTitle="Your own VPS — when and how"
+/>

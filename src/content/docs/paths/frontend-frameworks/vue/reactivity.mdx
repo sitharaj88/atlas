@@ -1,0 +1,74 @@
+---
+title: 'Reactivity primitives — ref, reactive, computed'
+description: How Vue tracks dependencies and reruns computations.
+sidebar:
+  order: 2
+pathSlug: frontend-frameworks
+module: vue
+lessonNumber: 2
+difficulty: intermediate
+duration: 6 min
+tags: [vue, reactivity]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## ref vs reactive
+
+```ts
+const count = ref(0);
+count.value++;          // ✓
+
+const state = reactive({ count: 0 });
+state.count++;           // ✓ no `.value`
+```
+
+Reach for `ref` for primitives (numbers, strings, booleans). Use `reactive` for object shapes when you don't want `.value` everywhere.
+
+## watch and watchEffect
+
+```ts
+watch(count, (newVal, oldVal) => console.log(newVal));
+
+watchEffect(() => {
+  console.log(`count is ${count.value}`);  // re-runs when count changes
+});
+```
+
+`watch` is explicit (you list the source). `watchEffect` auto-tracks (any reactive read inside the function becomes a dep).
+
+## When the reactivity "doesn't work"
+
+- **Destructuring** a `reactive` object loses reactivity. Use `toRefs` to keep refs.
+- **Replacing** a reactive value (`state = newState`) breaks tracking. Mutate properties instead.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/vue/reactivity"
+  questions={[
+    {
+      id: 'vr-1',
+      type: 'single',
+      prompt: 'You destructure a `reactive` object. The fields…',
+      options: [
+        { value: 'a', label: 'Stay reactive' },
+        { value: 'b', label: 'Lose reactivity unless you wrap with toRefs' },
+        { value: 'c', label: 'Are deeply cloned' },
+        { value: 'd', label: 'Throw an error' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/vue/reactivity"
+  lessonHref="/paths/frontend-frameworks/vue/reactivity/"
+  lessonTitle="Vue reactivity primitives"
+  nextHref="/paths/frontend-frameworks/vue/sfc/"
+  nextTitle="Single-file components"
+/>

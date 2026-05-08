@@ -1,0 +1,83 @@
+---
+title: Full-Stack Roadmap
+description: From browser to server to database — all of it in one map.
+sidebar:
+  order: 3
+tags: [roadmap, full-stack]
+---
+
+import Roadmap from '~/components/Roadmap.tsx';
+
+<Roadmap
+  client:visible
+  height={760}
+  nodes={[
+    { id: 'web', label: 'How the web works', description: 'HTTP, DNS, browsers',
+      href: '/paths/foundations/web-platform/how-the-web-works/',
+      lessonId: 'foundations/web-platform/how-the-web-works',
+      position: { x: 0, y: 0 }, group: 'milestone' },
+
+    { id: 'html', label: 'HTML + CSS', description: 'Semantic markup',
+      href: '/paths/foundations/', position: { x: -250, y: 110 }, group: 'core' },
+    { id: 'js', label: 'JavaScript', description: 'ES2026 + DOM',
+      href: '/paths/foundations/', position: { x: 0, y: 110 }, group: 'core' },
+    { id: 'ts', label: 'TypeScript', description: 'Types end-to-end',
+      href: '/paths/typescript/generics/generics/',
+      lessonId: 'typescript/generics/generics',
+      position: { x: 250, y: 110 }, group: 'core' },
+
+    { id: 'react', label: 'Frontend framework', description: 'React / Vue / Svelte',
+      href: '/paths/frontend-frameworks/react/server-components/',
+      lessonId: 'frontend-frameworks/react/server-components',
+      position: { x: -150, y: 230 }, group: 'milestone' },
+    { id: 'meta', label: 'Meta-framework', description: 'Next / Astro / SvelteKit',
+      href: '/paths/frontend-frameworks/meta-frameworks/nextjs/', position: { x: 150, y: 230 }, group: 'core' },
+
+    { id: 'state', label: 'State + data', description: 'TanStack Query',
+      href: '/paths/frontend-frameworks/data/server-vs-client-state/',
+      position: { x: -250, y: 350 }, group: 'core' },
+    { id: 'api', label: 'API layer', description: 'REST / tRPC / GraphQL',
+      href: '/paths/full-stack/apis/rest-api-hono/',
+      lessonId: 'full-stack/apis/rest-api-hono',
+      position: { x: 0, y: 350 }, group: 'milestone' },
+    { id: 'auth', label: 'Auth', description: 'Sessions, OIDC',
+      href: '/paths/full-stack/auth/sessions-vs-jwts/',
+      position: { x: 250, y: 350 }, group: 'core' },
+
+    { id: 'db', label: 'Database', description: 'Postgres + ORM',
+      href: '/paths/full-stack/databases/postgres/', position: { x: 0, y: 470 }, group: 'milestone' },
+
+    { id: 'test', label: 'Testing', description: 'Unit + E2E',
+      href: '/paths/testing/e2e/first-playwright-test/',
+      lessonId: 'testing/e2e/first-playwright-test',
+      position: { x: -200, y: 590 }, group: 'core' },
+    { id: 'perf', label: 'Performance', description: 'Web Vitals',
+      href: '/paths/performance-a11y-seo/web-vitals/core-web-vitals/',
+      lessonId: 'performance-a11y-seo/web-vitals/core-web-vitals',
+      position: { x: 0, y: 590 }, group: 'core' },
+    { id: 'deploy', label: 'Deploy + observability', description: 'CI/CD, monitoring',
+      href: '/paths/devops/deploy/github-pages/',
+      lessonId: 'devops/deploy/github-pages',
+      position: { x: 200, y: 590 }, group: 'milestone' },
+
+    { id: 'frontier', label: 'Modern frontier', description: 'Edge, RSC, AI',
+      href: '/paths/frontier/', position: { x: 0, y: 720 }, group: 'optional' },
+  ]}
+  edges={[
+    { source: 'web', target: 'html' },
+    { source: 'web', target: 'js' },
+    { source: 'web', target: 'ts' },
+    { source: 'js', target: 'react' },
+    { source: 'ts', target: 'react' },
+    { source: 'react', target: 'meta' },
+    { source: 'meta', target: 'state' },
+    { source: 'meta', target: 'api' },
+    { source: 'api', target: 'auth' },
+    { source: 'api', target: 'db' },
+    { source: 'auth', target: 'db' },
+    { source: 'db', target: 'test' },
+    { source: 'db', target: 'perf' },
+    { source: 'db', target: 'deploy' },
+    { source: 'deploy', target: 'frontier', dashed: true },
+  ]}
+/>

@@ -1,0 +1,83 @@
+---
+title: Rebase vs. merge — religion meets reality
+description: Two strategies for combining branches. Both are valid; pick by context.
+sidebar:
+  order: 3
+pathSlug: devops
+module: git
+lessonNumber: 3
+difficulty: intermediate
+duration: 5 min
+tags: [git, rebase]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Merge
+
+Combines two branches by creating a new merge commit:
+
+```text
+A---B---C   main
+     \
+      D---E   feature
+       \
+        ----M   merge commit (parents: C, E)
+```
+
+Preserves history "as it happened."
+
+## Rebase
+
+Replays your commits on top of the target:
+
+```text
+A---B---C---D'---E'   main (after rebase)
+```
+
+Linear history. The original D, E disappear from your branch.
+
+## Rules of thumb
+
+- **Rebase BEFORE you push** to clean up local history.
+- **Merge AFTER you push** to share. Don't rewrite shared history.
+- **Squash-and-merge** in PRs is fine — collapses noisy commits to one.
+
+## Force-push safety
+
+`git push --force` is dangerous on shared branches. Use `--force-with-lease` — it refuses to overwrite if someone else has pushed since you fetched.
+
+```bash
+git push --force-with-lease origin feature/x
+```
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="devops/git/rebase-vs-merge"
+  questions={[
+    {
+      id: 'rvm-1',
+      type: 'single',
+      prompt: 'Why prefer `git push --force-with-lease` over `--force`?',
+      options: [
+        { value: 'a', label: 'It\'s faster' },
+        { value: 'b', label: 'It refuses to overwrite if someone else pushed first — saves you from clobbering their work' },
+        { value: 'c', label: 'It\'s required by GitHub' },
+        { value: 'd', label: 'It\'s just an alias' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="devops/git/rebase-vs-merge"
+  lessonHref="/paths/devops/git/rebase-vs-merge/"
+  lessonTitle="Rebase vs merge"
+  nextHref="/paths/devops/git/rescue-toolkit/"
+  nextTitle="Rescue toolkit — reflog, cherry-pick, bisect"
+/>

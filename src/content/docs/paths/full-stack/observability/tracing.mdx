@@ -1,0 +1,95 @@
+---
+title: Tracing with OpenTelemetry
+description: Follow a request across services. The vendor-neutral standard for distributed tracing.
+sidebar:
+  order: 2
+pathSlug: full-stack
+module: observability
+lessonNumber: 2
+difficulty: intermediate
+duration: 5 min
+tags: [tracing, opentelemetry]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What it does
+
+A trace is a tree of "spans" representing the work for one request:
+
+```
+HTTP /api/order [320ms]
+├── auth.verify [12ms]
+├── db.user.find [40ms]
+├── stripe.charge [180ms]
+└── queue.publish [4ms]
+```
+
+You see exactly what took time, where the request flowed, and what failed.
+
+## The instrumentation
+
+```ts
+import { NodeSDK } from '@opentelemetry/sdk-node';
+import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
+
+const sdk = new NodeSDK({
+  serviceName: 'atlas-api',
+  instrumentations: [getNodeAutoInstrumentations()],
+});
+sdk.start();
+```
+
+That single block instruments HTTP, fetch, Express/Fastify, Postgres, Redis, Mongo, and dozens more.
+
+## Where to send the data
+
+OpenTelemetry is **vendor-neutral**. Same SDK, different backends:
+- **Honeycomb** — best DX for tracing.
+- **Datadog** — combines metrics + logs + traces.
+- **Grafana Tempo / Loki** — open source.
+- **Sentry** — good if you already use Sentry for errors.
+
+## Manual spans
+
+```ts
+import { trace } from '@opentelemetry/api';
+const tracer = trace.getTracer('atlas');
+
+await tracer.startActiveSpan('process-order', async (span) => {
+  span.setAttribute('order.id', orderId);
+  // ... work ...
+  span.end();
+});
+```
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/observability/tracing"
+  questions={[
+    {
+      id: 'tr-1',
+      type: 'single',
+      prompt: 'OpenTelemetry\'s value vs. a vendor\'s SDK?',
+      options: [
+        { value: 'a', label: 'It\'s faster' },
+        { value: 'b', label: 'Vendor-neutral — instrument once, switch backends without rewriting' },
+        { value: 'c', label: 'It\'s cheaper' },
+        { value: 'd', label: 'No reason' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/observability/tracing"
+  lessonHref="/paths/full-stack/observability/tracing/"
+  lessonTitle="Tracing with OpenTelemetry"
+  nextHref="/paths/full-stack/observability/sentry/"
+  nextTitle="Error tracking with Sentry"
+/>

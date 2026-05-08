@@ -1,0 +1,83 @@
+---
+title: Single-file components
+description: Template, script, and style — all in one .vue file. The defining Vue ergonomic.
+sidebar:
+  order: 3
+pathSlug: frontend-frameworks
+module: vue
+lessonNumber: 3
+difficulty: intermediate
+duration: 5 min
+tags: [vue, sfc]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Three blocks
+
+```vue
+<script setup lang="ts">
+const name = 'Atlas';
+</script>
+
+<template>
+  <h1 class="title">{{ name }}</h1>
+</template>
+
+<style scoped>
+.title { font-size: 2rem; color: navy; }
+</style>
+```
+
+- `<script setup>` — JS/TS, the component logic.
+- `<template>` — HTML with `{{ }}` interpolation and `v-` directives.
+- `<style scoped>` — CSS, scoped to this component (auto-namespaced).
+
+`<style>` without `scoped` is global. Reach for that for design tokens or resets.
+
+## Directives
+
+```vue
+<button v-on:click="inc">+</button>     <!-- @click is shorthand -->
+<input v-model="name">                  <!-- two-way binding -->
+<div v-if="loggedIn">...</div>          <!-- conditional render -->
+<li v-for="item in items" :key="item.id">{{ item.name }}</li>
+<div :class="{ active: isActive }">     <!-- :prop is v-bind:prop -->
+```
+
+## When SFCs win
+
+- Co-located styles with scoped CSS.
+- One file = one component, easy to navigate.
+- Tooling (volar) understands the cross-block scope.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/vue/sfc"
+  questions={[
+    {
+      id: 'sfc-1',
+      type: 'single',
+      prompt: 'What does `scoped` on `<style>` do?',
+      options: [
+        { value: 'a', label: 'Disables CSS' },
+        { value: 'b', label: 'Scopes the styles to this component (auto-namespaced)' },
+        { value: 'c', label: 'Inlines styles' },
+        { value: 'd', label: 'Compiles to Tailwind' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/vue/sfc"
+  lessonHref="/paths/frontend-frameworks/vue/sfc/"
+  lessonTitle="Vue single-file components"
+  nextHref="/paths/frontend-frameworks/svelte/runes/"
+  nextTitle="Svelte 5 runes"
+/>

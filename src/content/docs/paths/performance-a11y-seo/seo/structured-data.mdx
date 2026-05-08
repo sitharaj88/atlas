@@ -1,0 +1,77 @@
+---
+title: Structured data (JSON-LD)
+description: Tell Google exactly what your page is about. Get rich results.
+sidebar:
+  order: 3
+pathSlug: performance-a11y-seo
+module: seo
+lessonNumber: 3
+difficulty: intermediate
+duration: 5 min
+tags: [seo, structured-data]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What it is
+
+JSON in a `<script>` tag describing the page using a vocabulary (schema.org):
+
+```html
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Article",
+  "headline": "How the web works",
+  "author": { "@type": "Person", "name": "Atlas" },
+  "datePublished": "2026-05-08",
+  "image": "https://atlas.dev/og.png"
+}
+</script>
+```
+
+Google parses this and may show rich snippets (article previews, FAQs, recipes, etc.).
+
+## Common types
+
+- **Article / BlogPosting** — articles.
+- **Product** — e-commerce.
+- **FAQPage** — Q&A sections.
+- **HowTo** — tutorials.
+- **Organization / Person** — entity pages.
+- **BreadcrumbList** — show breadcrumbs in results.
+
+## Validate
+
+Use Google's [Rich Results Test](https://search.google.com/test/rich-results) before shipping.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/seo/structured-data"
+  questions={[
+    {
+      id: 'sd-1',
+      type: 'single',
+      prompt: 'JSON-LD goes…',
+      options: [
+        { value: 'a', label: 'In a <script type="application/ld+json"> tag in <head> or <body>' },
+        { value: 'b', label: 'In meta tags' },
+        { value: 'c', label: 'In a special HTTP header' },
+        { value: 'd', label: 'In sitemap.xml' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/seo/structured-data"
+  lessonHref="/paths/performance-a11y-seo/seo/structured-data/"
+  lessonTitle="Structured data"
+  nextHref="/paths/performance-a11y-seo/seo/sitemaps-robots/"
+  nextTitle="Sitemaps, robots.txt, canonical URLs"
+/>

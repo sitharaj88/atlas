@@ -1,0 +1,210 @@
+---
+title: 'Concurrency — Promise.all, allSettled, race, any'
+description: Coordinating multiple async operations. Run things in parallel without losing your mind.
+sidebar:
+  order: 3
+pathSlug: foundations
+module: async
+lessonNumber: 3
+difficulty: beginner
+duration: 10 min
+prerequisites:
+  - You've completed *Error handling*
+objectives:
+  - Choose the right Promise combinator for the task
+  - Limit concurrency for large parallel operations
+  - Avoid the for-await sequential pitfall
+tags: [javascript, async, concurrency]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Four built-in combinators, when each is right, and how to stop hammering an API by accidentally doing 1,000 things at once.
+
+## The four combinators
+
+```js
+// All must succeed; rejects fast if any reject
+Promise.all([p1, p2, p3])
+  .then(([r1, r2, r3]) => /* ... */);
+
+// Resolves with array of {status: 'fulfilled', value} or {status: 'rejected', reason}
+Promise.allSettled([p1, p2, p3])
+  .then(results => results.forEach(r => /* ... */));
+
+// First to settle wins (success OR failure)
+Promise.race([p1, p2, p3]);
+
+// First to FULFILL wins; rejects only if all reject (with AggregateError)
+Promise.any([p1, p2, p3]);
+```
+
+| Use case | Combinator |
+|---|---|
+| Need every result; one failure = total failure | `all` |
+| Need every result, even partial | `allSettled` |
+| Implement a timeout: race fetch against `setTimeout(reject, ...)` | `race` |
+| Fastest of N redundant providers | `any` |
+
+## Race for timeouts
+
+```js
+function timeout(ms) {
+  return new Promise((_, reject) =>
+    setTimeout(() => reject(new Error(`timed out after ${ms}ms`)), ms)
+  );
+}
+
+const data = await Promise.race([
+  fetch('/api').then(r => r.json()),
+  timeout(5000),
+]);
+```
+
+Modern alternative: `AbortSignal.timeout(5000)` for fetch:
+
+```js
+const res = await fetch('/api', { signal: AbortSignal.timeout(5000) });
+```
+
+## Limited concurrency
+
+Calling `Promise.all` on 10,000 items launches 10,000 simultaneous fetches. The server hates you, your browser cries.
+
+Limit with a small pool:
+
+```js
+async function pMap(items, mapFn, concurrency = 5) {
+  const out = [];
+  let i = 0;
+  async function worker() {
+    while (i < items.length) {
+      const idx = i++;
+      out[idx] = await mapFn(items[idx]);
+    }
+  }
+  await Promise.all(Array.from({ length: concurrency }, worker));
+  return out;
+}
+
+const results = await pMap(urls, fetchJson, 5);
+```
+
+Libraries like **`p-limit`** and **`p-map`** do this with one line if you'd rather not roll your own.
+
+## Sequential vs. parallel
+
+```js
+// Sequential (slow but safe — preserves order, can short-circuit)
+for (const url of urls) {
+  await process(url);
+}
+
+// Parallel
+await Promise.all(urls.map(process));
+
+// Parallel with limit
+await pMap(urls, process, 5);
+```
+
+When ordering matters or each step depends on the previous, sequential is the right choice.
+
+## Promise.withResolvers — modern ergonomics
+
+Sometimes you need to expose `resolve`/`reject` to the outside:
+
+```js
+const { promise, resolve, reject } = Promise.withResolvers();
+
+emitter.once('done', resolve);
+emitter.once('error', reject);
+
+return promise;
+```
+
+Cleaner than `let resolveOuter; new Promise((r) => resolveOuter = r);`.
+
+## Async iterators
+
+For streams of values:
+
+```js
+async function* fetchPages(url) {
+  let next = url;
+  while (next) {
+    const res = await fetch(next).then(r => r.json());
+    yield res.items;
+    next = res.next;
+  }
+}
+
+for await (const page of fetchPages('/api/list')) {
+  for (const item of page) process(item);
+}
+```
+
+`for await…of` waits on each yielded Promise before continuing.
+
+<Callout variant="tip" title="Don't await in a loop unless you mean it">
+`for (const x of xs) { await fn(x); }` runs sequentially. If the operations are independent, that\'s an easy 10× slowdown. Use `Promise.all(xs.map(fn))` (with a concurrency limit if the list is large).
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/async/concurrency"
+  questions={[
+    {
+      id: 'con-1',
+      type: 'single',
+      prompt: 'You hit five APIs in parallel; one is allowed to fail without aborting. Use…',
+      options: [
+        { value: 'a', label: 'Promise.all' },
+        { value: 'b', label: 'Promise.allSettled' },
+        { value: 'c', label: 'Promise.race' },
+        { value: 'd', label: 'Promise.any' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'con-2',
+      type: 'single',
+      prompt: 'You\'re processing 10,000 URLs. What\'s wrong with `Promise.all(urls.map(fetch))`?',
+      options: [
+        { value: 'a', label: 'Nothing — Promise.all is parallel by design' },
+        { value: 'b', label: 'It launches 10,000 simultaneous fetches; you need to limit concurrency' },
+        { value: 'c', label: 'Promise.all only handles 5 at a time' },
+        { value: 'd', label: 'It runs sequentially' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'con-3',
+      type: 'single',
+      prompt: 'Modern way to set a timeout on a fetch?',
+      options: [
+        { value: 'a', label: 'setTimeout(() => reject(...), ms) inside a Promise wrapping fetch' },
+        { value: 'b', label: 'fetch(url, { signal: AbortSignal.timeout(5000) })' },
+        { value: 'c', label: 'fetch(url).timeout(5000)' },
+        { value: 'd', label: 'Browsers handle timeouts automatically' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+The Async module wraps. Next module: **Modules & Tooling** — how real apps are organized.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/async/concurrency"
+  lessonHref="/paths/foundations/async/concurrency/"
+  lessonTitle="Concurrency — Promise.all, allSettled, race, any"
+  nextHref="/paths/foundations/modules/es-modules/"
+  nextTitle="ES Modules, native import/export"
+/>

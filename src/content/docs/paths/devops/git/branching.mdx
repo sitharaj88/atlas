@@ -1,0 +1,67 @@
+---
+title: 'Branching strategies — trunk-based, GitFlow, when each fits'
+description: Two dominant patterns, picked for very different reasons.
+sidebar:
+  order: 2
+pathSlug: devops
+module: git
+lessonNumber: 2
+difficulty: intermediate
+duration: 5 min
+tags: [git, branching]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Trunk-based
+
+One main branch (`main`). Short-lived feature branches merge frequently. Releases via tags or feature flags.
+
+Pros: fast iteration, fewer merge conflicts, CI/CD friendly.
+
+Cons: needs feature flags to ship safely.
+
+## GitFlow
+
+`main` (releases), `develop` (next release), `feature/*`, `release/*`, `hotfix/*` branches.
+
+Pros: explicit release cycle, fits regulated industries.
+
+Cons: complex, slower, conflicts pile up.
+
+## What most teams should pick
+
+**Trunk-based** unless you have a reason. Most companies do continuous delivery; GitFlow's structure becomes overhead.
+
+For greenfield projects: short-lived branches, daily merges, feature flags for partial rollouts.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="devops/git/branching"
+  questions={[
+    {
+      id: 'br-1',
+      type: 'single',
+      prompt: 'Best default for a new SaaS team?',
+      options: [
+        { value: 'a', label: 'GitFlow' },
+        { value: 'b', label: 'Trunk-based with short-lived branches and feature flags' },
+        { value: 'c', label: 'A single branch, no PRs' },
+        { value: 'd', label: 'Subversion' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="devops/git/branching"
+  lessonHref="/paths/devops/git/branching/"
+  lessonTitle="Branching strategies"
+  nextHref="/paths/devops/git/rebase-vs-merge/"
+  nextTitle="Rebase vs. merge"
+/>

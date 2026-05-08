@@ -1,0 +1,132 @@
+---
+title: HTML, the contract you sign with the browser
+description: Why HTML is more than markup — it's a contract that promises behavior to browsers, search engines, and assistive tech.
+sidebar:
+  order: 1
+pathSlug: foundations
+module: html
+lessonNumber: 1
+difficulty: beginner
+duration: 8 min
+prerequisites:
+  - You\'ve read the Web Platform module
+objectives:
+  - Recognize HTML as a semantic contract, not just visual markup
+  - Pick the right element for the meaning, not the look
+  - Know when <div> and <span> are the right answer
+tags: [html, semantics, fundamentals]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Why writing `<button>` instead of `<div onclick>` is one of the highest-leverage habits a web developer can have, and how to think about HTML as a contract rather than a soup of tags.
+
+## HTML is semantics
+
+When you write `<button>Submit</button>`, the browser doesn't just render text in a box. It promises:
+
+- It will be **focusable** with the keyboard.
+- Pressing **Space** or **Enter** while focused triggers the click handler.
+- Screen readers announce it as "Submit, button."
+- Inside a `<form>`, it submits by default.
+- Browser styling marks it visually as interactive.
+
+When you write `<div onclick="...">Submit</div>`, you get **none of that**. You can paper over it with `tabindex="0"`, `role="button"`, `aria-pressed`, and a keydown handler — but you've just rebuilt a button, badly.
+
+**Pick the element that means what you mean.** Everything else flows from there.
+
+## The decision
+
+Need a button? `<button>`. Need a link? `<a href>`. Need a list? `<ul>`. Need to navigate? `<nav>`. Need to identify the main content? `<main>`. Need a heading? `<h1>` through `<h6>`.
+
+Reach for `<div>` and `<span>` only when **no semantic element fits**. They mean "generic block" and "generic inline" — which is exactly the right meaning for layout containers and styling hooks.
+
+## A concrete checklist
+
+| You want to… | Use |
+|---|---|
+| Trigger an action | `<button type="button">` |
+| Submit a form | `<button>` (or `<button type="submit">`) |
+| Navigate somewhere | `<a href="...">` |
+| Group form fields | `<fieldset>` + `<legend>` |
+| Show a list | `<ul>` / `<ol>` |
+| Mark a region of the page | `<header>`, `<main>`, `<nav>`, `<aside>`, `<footer>` |
+| Group a self-contained chunk | `<article>` |
+| Group a generic chunk | `<section>` (with a heading) or `<div>` (without) |
+| Highlight a word's meaning | `<strong>` (importance), `<em>` (emphasis), `<mark>` (highlight) |
+| Show a date/time | `<time datetime="2026-05-08">` |
+
+## What about styling?
+
+Semantics and visuals are independent. A `<button>` can look like a link (`background: none; border: 0; color: inherit;`). A heading can look like body text. **Visual style does not change semantic meaning.**
+
+So write `<button>` for "this is interactive" and style it any way you want. Don't pick `<div>` to avoid default styling — reset the styling instead.
+
+<Callout variant="warn" title="The biggest mistake">
+`<div onclick="">` is everywhere on the web. It\'s also the single most common cause of broken keyboard navigation, missing screen-reader announcements, and forms that don\'t submit. **If it\'s clickable, it\'s a `<button>` or an `<a>`.** Period.
+</Callout>
+
+## Two more rules
+
+1. **Headings tell a structure.** Don't skip levels (`<h1>` → `<h3>`) just for the visual size — use CSS. Screen readers use heading levels to build a table of contents users can jump through.
+2. **Use the `lang` attribute.** `<html lang="en">` (or `lang="ja"`, etc.). Tells screen readers which voice to use, helps search engines and translation tools.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/html/html-contract"
+  questions={[
+    {
+      id: 'html1-1',
+      type: 'single',
+      prompt: 'You need a clickable thing that submits a form. Use…',
+      options: [
+        { value: 'a', label: '<div onclick> with role="button"' },
+        { value: 'b', label: '<button>' },
+        { value: 'c', label: '<a href="#" onclick>' },
+        { value: 'd', label: '<span tabindex="0">' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'html1-2',
+      type: 'multi',
+      prompt: 'What does `<button>` give you for free? (select all that apply)',
+      options: [
+        { value: 'a', label: 'Keyboard focus' },
+        { value: 'b', label: 'Space/Enter triggers click' },
+        { value: 'c', label: 'Screen reader announces "button"' },
+        { value: 'd', label: 'Form submission inside <form>' },
+      ],
+      answer: ['a', 'b', 'c', 'd'],
+    },
+    {
+      id: 'html1-3',
+      type: 'single',
+      prompt: 'Why use `<h2>` instead of a styled `<div>` that looks like a heading?',
+      options: [
+        { value: 'a', label: 'It\'s shorter to type' },
+        { value: 'b', label: 'It\'s required by HTML' },
+        { value: 'c', label: 'Screen readers and search engines use heading structure to navigate the page' },
+        { value: 'd', label: 'It\'s faster to render' },
+      ],
+      answer: 'c',
+    },
+  ]}
+/>
+
+## What's next
+
+Now apply the rule at scale: **Document structure and semantics** — sectioning the page into header, main, nav, article, aside, footer.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/html/html-contract"
+  lessonHref="/paths/foundations/html/html-contract/"
+  lessonTitle="HTML, the contract you sign with the browser"
+  nextHref="/paths/foundations/html/document-structure/"
+  nextTitle="Document structure and semantics"
+/>

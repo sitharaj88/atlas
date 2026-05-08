@@ -1,0 +1,71 @@
+---
+title: Cold-start vs always-on tradeoffs
+description: When does serverless beat a long-running server, and when not?
+sidebar:
+  order: 4
+pathSlug: frontier
+module: edge
+lessonNumber: 4
+difficulty: advanced
+duration: 4 min
+tags: [edge, performance]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Cold-start cost
+
+- **AWS Lambda (Node)** — 200-800ms.
+- **Vercel Edge** — 50-150ms.
+- **Cloudflare Workers** — 5-10ms (V8 isolate, not container).
+- **Always-on server (Fly, Render)** — 0ms.
+
+## When cold starts hurt
+
+- Low-traffic endpoints. After 5 min idle, container sleeps; first request lags.
+- Functions with heavy startup (DB connection pools, ML model loading).
+- Latency-critical APIs.
+
+## Mitigations
+
+- **Provisioned concurrency** (AWS) — keep N instances warm. Costs more.
+- **Edge runtimes** — much faster cold starts.
+- **Connection-pool services** (Hyperdrive, Neon) — share pools across cold starts.
+- **Always-on hosting** for hot paths.
+
+## Picking
+
+- High-traffic or latency-critical → always-on (Fly, Render) OR Cloudflare Workers.
+- Bursty / event-driven → AWS Lambda or Vercel Functions.
+- Global low-latency → Cloudflare Workers.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/edge/cold-start"
+  questions={[
+    {
+      id: 'cs-1',
+      type: 'single',
+      prompt: 'Cloudflare Workers cold start so fast because…',
+      options: [
+        { value: 'a', label: 'They\'re always running' },
+        { value: 'b', label: 'They use V8 isolates (no container boot), starting in single-digit ms' },
+        { value: 'c', label: 'They run AOT-compiled binaries' },
+        { value: 'd', label: 'They cache requests' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/edge/cold-start"
+  lessonHref="/paths/frontier/edge/cold-start/"
+  lessonTitle="Cold-start tradeoffs"
+  nextHref="/paths/frontier/islands/astro-fresh/"
+  nextTitle="Astro and Fresh — server-rendered, JS-light"
+/>

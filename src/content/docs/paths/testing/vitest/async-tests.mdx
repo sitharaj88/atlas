@@ -1,0 +1,86 @@
+---
+title: Testing async code
+description: Promises, timers, fetch — the patterns that make async tests reliable.
+sidebar:
+  order: 3
+pathSlug: testing
+module: vitest
+lessonNumber: 3
+difficulty: intermediate
+duration: 5 min
+tags: [testing, async]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## await your assertions
+
+```ts
+it('fetches user', async () => {
+  const u = await getUser('1');
+  expect(u.name).toBe('Ada');
+});
+```
+
+Don't forget `async`/`await`. A test that returns a Promise must `await` for the assertions to wait.
+
+## Resolves / rejects
+
+```ts
+await expect(getUser('1')).resolves.toEqual({ name: 'Ada' });
+await expect(getUser('999')).rejects.toThrow('not found');
+```
+
+Cleaner than try/catch in tests.
+
+## Fake timers + setTimeout
+
+```ts
+vi.useFakeTimers();
+const cb = vi.fn();
+setTimeout(cb, 1000);
+expect(cb).not.toHaveBeenCalled();
+vi.advanceTimersByTime(1000);
+expect(cb).toHaveBeenCalled();
+```
+
+## Testing fetch
+
+For unit tests, mock fetch:
+
+```ts
+global.fetch = vi.fn(() => Promise.resolve(new Response(JSON.stringify({ ok: true }))));
+```
+
+For component/integration tests, use MSW (next lesson).
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="testing/vitest/async-tests"
+  questions={[
+    {
+      id: 'at-1',
+      type: 'single',
+      prompt: 'A test that returns a Promise without await…',
+      options: [
+        { value: 'a', label: 'Works the same' },
+        { value: 'b', label: 'Returns before assertions run — false positives. Always await' },
+        { value: 'c', label: 'Throws a syntax error' },
+        { value: 'd', label: 'Runs in parallel' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="testing/vitest/async-tests"
+  lessonHref="/paths/testing/vitest/async-tests/"
+  lessonTitle="Async tests"
+  nextHref="/paths/testing/component/queries/"
+  nextTitle="Querying like a user"
+/>

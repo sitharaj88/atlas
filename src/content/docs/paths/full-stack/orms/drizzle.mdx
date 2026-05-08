@@ -1,0 +1,85 @@
+---
+title: 'Drizzle — types straight from your schema'
+description: A modern TypeScript ORM that feels like SQL with autocomplete.
+sidebar:
+  order: 1
+pathSlug: full-stack
+module: orms
+lessonNumber: 1
+difficulty: intermediate
+duration: 6 min
+tags: [drizzle, orms]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Schema = code
+
+```ts
+import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
+  email: text('email').notNull().unique(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+```
+
+Types are derived from the schema. Migrations are generated from changes:
+
+```bash
+pnpm drizzle-kit generate
+pnpm drizzle-kit migrate
+```
+
+## Queries
+
+```ts
+import { eq } from 'drizzle-orm';
+import { drizzle } from 'drizzle-orm/postgres-js';
+
+const db = drizzle(client);
+
+const u = await db.select().from(users).where(eq(users.email, 'a@b.com'));
+const inserted = await db.insert(users).values({ email: 'c@d.com' }).returning();
+```
+
+Looks like SQL, types are inferred end-to-end.
+
+## Why Drizzle wins
+
+- Lightweight, no proxy generation.
+- Outputs SQL you can read and reason about.
+- Works with Postgres, MySQL, SQLite (Bun, D1, Turso).
+- Fast cold-start (great for serverless).
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/orms/drizzle"
+  questions={[
+    {
+      id: 'drz-1',
+      type: 'single',
+      prompt: 'In Drizzle, where does the schema live?',
+      options: [
+        { value: 'a', label: 'In a separate `.prisma` file' },
+        { value: 'b', label: 'In TypeScript code (`pgTable(...)`) — types and migrations derive from it' },
+        { value: 'c', label: 'In SQL DDL files only' },
+        { value: 'd', label: 'In your IDE' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/orms/drizzle"
+  lessonHref="/paths/full-stack/orms/drizzle/"
+  lessonTitle="Drizzle"
+  nextHref="/paths/full-stack/orms/prisma/"
+  nextTitle="Prisma"
+/>

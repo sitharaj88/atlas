@@ -1,0 +1,175 @@
+---
+title: Selecting and traversing nodes
+description: querySelector, getElementById, traversal — finding the elements you want to manipulate.
+sidebar:
+  order: 1
+pathSlug: foundations
+module: dom
+lessonNumber: 1
+difficulty: beginner
+duration: 8 min
+prerequisites:
+  - You\'ve completed the JavaScript Basics module
+objectives:
+  - Pick the right query method for the task
+  - Walk parent/child/sibling relationships
+  - Recognize NodeList vs HTMLCollection
+tags: [javascript, dom]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** How to find elements in the DOM. Modern code mostly uses `querySelector`/`querySelectorAll` — the rest is for special cases.
+
+## The four selectors
+
+```js
+document.getElementById('main');             // by id (fastest, returns Element or null)
+document.getElementsByClassName('btn');      // live HTMLCollection
+document.getElementsByTagName('a');          // live HTMLCollection
+document.querySelector('.btn[type=submit]'); // first match (or null)
+document.querySelectorAll('.btn');           // static NodeList
+```
+
+In modern code, default to **`querySelector`** and **`querySelectorAll`**. CSS-selector syntax means you already know it; performance is rarely the bottleneck.
+
+## Live vs. static
+
+`getElementsByClassName` returns a **live** collection: it updates as the DOM changes.
+
+```js
+const btns = document.getElementsByClassName('btn');  // live
+const newBtn = document.createElement('button');
+newBtn.className = 'btn';
+document.body.append(newBtn);
+btns.length;  // grew!  it tracks the DOM
+```
+
+`querySelectorAll` returns a **static** NodeList — a snapshot:
+
+```js
+const btns = document.querySelectorAll('.btn'); // static
+// add a new .btn to the page
+btns.length; // unchanged
+```
+
+Static is what you usually want.
+
+## NodeList vs HTMLCollection
+
+Both are array-like, neither is an array. Convert when you need real array methods:
+
+```js
+const arr = [...document.querySelectorAll('.btn')];
+const arr2 = Array.from(document.querySelectorAll('.btn'));
+
+document.querySelectorAll('.btn').forEach(btn => btn.disabled = true); // works (NodeList has forEach)
+document.getElementsByClassName('btn').forEach(...); // ❌ HTMLCollection has no forEach
+```
+
+## Scoping queries
+
+`querySelector` works on any element, not just `document`:
+
+```js
+const form = document.querySelector('form#signup');
+const inputs = form.querySelectorAll('input');  // only this form's inputs
+const submit = form.querySelector('button[type=submit]');
+```
+
+This is huge for component code — scope to the local subtree, not the whole document.
+
+## Traversal
+
+```js
+el.parentElement      // closest ancestor element (skips text nodes)
+el.children           // direct child elements (HTMLCollection)
+el.firstElementChild  // first child element
+el.lastElementChild
+el.previousElementSibling
+el.nextElementSibling
+
+// Closer to a specific ancestor (CSS selector)
+el.closest('section.dialog')   // self or nearest ancestor matching
+el.closest('form');            // walks up until it finds a <form> (or null)
+
+// Match check
+el.matches('.btn:not(:disabled)') // true/false
+```
+
+`closest` is the workhorse: it returns the element OR an ancestor that matches. Used constantly in event handlers.
+
+## The text inside
+
+```js
+el.textContent      // raw text, including hidden/styled text
+el.innerText        // rendered text (respects display: none, line breaks)
+el.innerHTML        // serialized HTML — DANGEROUS if user input is involved
+```
+
+For setting text, prefer `textContent`. Setting `innerHTML` with user-supplied data is the classic XSS vulnerability.
+
+<Callout variant="warn" title='`innerHTML` and XSS'>
+Anywhere you put `innerHTML = userInput` in production code, an attacker can inject `<script>` and steal sessions. Use `textContent` for text, or sanitize via DOMPurify when HTML is required.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/dom/selecting"
+  questions={[
+    {
+      id: 'sel-1',
+      type: 'single',
+      prompt: 'You want every `.btn` inside a specific `<form>`. Which scope?',
+      options: [
+        { value: 'a', label: 'document.querySelectorAll(\'form .btn\')' },
+        { value: 'b', label: 'form.querySelectorAll(\'.btn\')' },
+        { value: 'c', label: 'document.getElementsByClassName(\'btn\')' },
+        { value: 'd', label: 'Both a and b are valid; b is cleaner' },
+      ],
+      answer: 'd',
+    },
+    {
+      id: 'sel-2',
+      type: 'single',
+      prompt: 'In an event handler, you need the parent <li> of whatever was clicked. Best tool?',
+      options: [
+        { value: 'a', label: 'event.target.parentElement' },
+        { value: 'b', label: 'event.target.closest(\'li\')' },
+        { value: 'c', label: 'event.target.parentNode.parentNode' },
+        { value: 'd', label: 'document.querySelector(\'li\')' },
+      ],
+      answer: 'b',
+      explanation: 'closest() walks up the tree until it matches. Robust against extra wrappers.',
+    },
+    {
+      id: 'sel-3',
+      type: 'single',
+      prompt: 'Why prefer `textContent` over `innerHTML` when inserting text?',
+      options: [
+        { value: 'a', label: 'It\'s faster' },
+        { value: 'b', label: 'It treats input as text, preventing HTML injection / XSS' },
+        { value: 'c', label: 'It\'s the only one supported in older browsers' },
+        { value: 'd', label: 'innerHTML doesn\'t work for text' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Mutating the DOM (carefully)** — adding, removing, and updating nodes.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/dom/selecting"
+  lessonHref="/paths/foundations/dom/selecting/"
+  lessonTitle="Selecting and traversing nodes"
+  nextHref="/paths/foundations/dom/mutating/"
+  nextTitle="Mutating the DOM (carefully)"
+/>

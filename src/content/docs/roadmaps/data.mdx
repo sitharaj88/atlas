@@ -1,0 +1,45 @@
+---
+title: Data for Web Devs Roadmap
+description: SQL, ORMs, vectors, real-time — the data skills web engineers need.
+sidebar:
+  order: 5
+tags: [roadmap, data]
+---
+
+import Roadmap from '~/components/Roadmap.tsx';
+
+<Roadmap
+  client:visible
+  height={580}
+  nodes={[
+    { id: 'sql', label: 'Relational vs document', description: 'Postgres is the safe default',
+      href: '/paths/full-stack/databases/relational-vs-document/',
+      position: { x: 0, y: 0 }, group: 'milestone' },
+
+    { id: 'pg', label: 'Postgres', description: 'JSONB, FTS, vectors',
+      href: '/paths/full-stack/databases/postgres/', position: { x: -200, y: 110 }, group: 'core' },
+    { id: 'sqlite', label: 'SQLite', description: 'In production, in the file',
+      href: '/paths/full-stack/databases/sqlite/', position: { x: 200, y: 110 }, group: 'optional' },
+
+    { id: 'orm', label: 'Drizzle / Prisma / Kysely', description: 'Type-safe queries',
+      href: '/paths/full-stack/orms/drizzle/', position: { x: 0, y: 230 }, group: 'core' },
+
+    { id: 'redis', label: 'Redis', description: 'Cache, queues, pub/sub',
+      href: '/paths/full-stack/databases/redis/', position: { x: -200, y: 350 }, group: 'core' },
+    { id: 'embed', label: 'Vector search', description: 'pgvector / sqlite-vec / Pinecone',
+      href: '/paths/frontier/ai/embeddings-rag/', position: { x: 200, y: 350 }, group: 'optional' },
+
+    { id: 'rt', label: 'Real-time data', description: 'WebSockets, SSE, CRDTs',
+      href: '/paths/full-stack/realtime/websockets/', position: { x: 0, y: 470 }, group: 'milestone' },
+  ]}
+  edges={[
+    { source: 'sql', target: 'pg' },
+    { source: 'sql', target: 'sqlite', dashed: true },
+    { source: 'pg', target: 'orm' },
+    { source: 'sqlite', target: 'orm', dashed: true },
+    { source: 'orm', target: 'redis' },
+    { source: 'orm', target: 'embed', dashed: true },
+    { source: 'redis', target: 'rt' },
+    { source: 'embed', target: 'rt', dashed: true },
+  ]}
+/>

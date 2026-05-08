@@ -1,0 +1,69 @@
+---
+title: "Canvas, WebGL, WebGPU — what's different"
+description: Three browser APIs for graphics, with very different sweet spots.
+sidebar:
+  order: 1
+pathSlug: frontier
+module: graphics
+lessonNumber: 1
+difficulty: advanced
+duration: 5 min
+tags: [graphics, webgpu]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Canvas 2D
+
+```js
+const ctx = canvas.getContext('2d');
+ctx.fillRect(0, 0, 100, 100);
+```
+
+CPU-rendered 2D. Great for games up to a few thousand sprites, charts, generative art.
+
+## WebGL
+
+OpenGL ES 3.0 in the browser. GPU-accelerated, but verbose API and 15 years old.
+
+## WebGPU
+
+Modern, lower-level GPU API. Compute shaders. Better debugging. Smaller bundle for what you can do. New code should target WebGPU; WebGL will remain for years for compat.
+
+## Pick
+
+- **Static charts** — SVG or Canvas 2D.
+- **2D games, particle systems** — Canvas 2D or PixiJS.
+- **3D, complex graphics** — WebGPU (or libraries: Three.js, Babylon.js — they support both).
+- **GPU compute** (image processing, ML) — WebGPU compute shaders.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/graphics/canvas-webgl-webgpu"
+  questions={[
+    {
+      id: 'gx-1',
+      type: 'single',
+      prompt: 'For a brand-new 3D scene, target…',
+      options: [
+        { value: 'a', label: 'WebGL 1' },
+        { value: 'b', label: 'WebGPU (or use a library that supports both for compat)' },
+        { value: 'c', label: 'Canvas 2D' },
+        { value: 'd', label: 'SVG' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/graphics/canvas-webgl-webgpu"
+  lessonHref="/paths/frontier/graphics/canvas-webgl-webgpu/"
+  lessonTitle="Canvas, WebGL, WebGPU"
+  nextHref="/paths/frontier/graphics/first-compute-shader/"
+  nextTitle="A first WebGPU compute shader"
+/>

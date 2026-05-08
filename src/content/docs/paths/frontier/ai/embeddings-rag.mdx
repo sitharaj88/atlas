@@ -1,0 +1,87 @@
+---
+title: Embeddings and vector search (RAG)
+description: Give an LLM facts it doesn't have. The retrieval part of "retrieval-augmented generation."
+sidebar:
+  order: 2
+pathSlug: frontier
+module: ai
+lessonNumber: 2
+difficulty: advanced
+duration: 6 min
+tags: [ai, rag, embeddings]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Embeddings
+
+A model that turns text into a vector (e.g., 1536 numbers). Similar text → similar vectors. You compare with cosine similarity.
+
+```ts
+const v1 = await embed('How do I refund?');     // [0.012, -0.045, ...]
+const v2 = await embed('What is your refund policy?');
+similarity(v1, v2);   // 0.93 (very similar)
+```
+
+## RAG, in 4 steps
+
+1. **Index** — chunk your docs, embed each chunk, store (chunk + vector) in a vector DB.
+2. **Embed query** — when the user asks something, embed the question.
+3. **Retrieve** — find top-K chunks by similarity.
+4. **Augment** — include those chunks in the LLM prompt as context.
+
+```ts
+const q = userQuestion;
+const queryVec = await embed(q);
+const chunks = await vectorDB.search(queryVec, { topK: 5 });
+
+const messages = [
+  { role: 'system', content: `Answer using ONLY this context:\n${chunks.map(c => c.text).join('\n---\n')}` },
+  { role: 'user', content: q },
+];
+const reply = await llm.chat(messages);
+```
+
+## Vector DBs
+
+- **pgvector** — Postgres extension. Use this if you already have Postgres.
+- **sqlite-vec** — SQLite extension. Edge-friendly.
+- **Pinecone, Qdrant, Weaviate** — dedicated.
+- **Cloudflare Vectorize** — managed, edge-deployed.
+
+## Chunking strategies
+
+- 200-800 tokens per chunk.
+- Split at paragraph boundaries when possible.
+- Overlap chunks slightly so concepts spanning two chunks aren't cut.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/ai/embeddings-rag"
+  questions={[
+    {
+      id: 'rag-1',
+      type: 'single',
+      prompt: 'In RAG, what does the vector DB return?',
+      options: [
+        { value: 'a', label: 'A pre-written answer' },
+        { value: 'b', label: 'The top-K most similar text chunks (by embedding similarity), to feed into the LLM as context' },
+        { value: 'c', label: 'The raw user question' },
+        { value: 'd', label: 'A summary' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/ai/embeddings-rag"
+  lessonHref="/paths/frontier/ai/embeddings-rag/"
+  lessonTitle="Embeddings and RAG"
+  nextHref="/paths/frontier/ai/mcp/"
+  nextTitle="The Model Context Protocol (MCP) primer"
+/>

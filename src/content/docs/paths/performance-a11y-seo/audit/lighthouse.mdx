@@ -1,0 +1,61 @@
+---
+title: 'Lighthouse, WebPageTest, PageSpeed Insights'
+description: Three tools, three purposes. Use each for what it's good at.
+sidebar:
+  order: 1
+pathSlug: performance-a11y-seo
+module: audit
+lessonNumber: 1
+difficulty: intermediate
+duration: 5 min
+tags: [audit, lighthouse]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Lighthouse
+
+Built into Chrome DevTools. Single-run lab measurement of performance, a11y, SEO, best practices. Good for quick checks while developing.
+
+## WebPageTest
+
+Multiple runs. Real devices. Filmstrip + waterfall. Best for deep performance investigations.
+
+## PageSpeed Insights
+
+Combines Lighthouse (lab) + CrUX (field data from real Chrome users). The real number Google uses for ranking.
+
+## Lab vs. field
+
+Lab numbers come from one machine, one configuration. Field data is what real users experience. **Always validate with field data** before declaring victory — a green Lighthouse with a red CrUX field report means real users are still slow.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/audit/lighthouse"
+  questions={[
+    {
+      id: 'lh-1',
+      type: 'single',
+      prompt: 'Best tool for "what does Google actually see for my site"?',
+      options: [
+        { value: 'a', label: 'Lighthouse (single-run, lab)' },
+        { value: 'b', label: 'PageSpeed Insights (combines Lighthouse + real-user CrUX data)' },
+        { value: 'c', label: 'Local DevTools' },
+        { value: 'd', label: 'A stopwatch' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/audit/lighthouse"
+  lessonHref="/paths/performance-a11y-seo/audit/lighthouse/"
+  lessonTitle="Lighthouse and friends"
+  nextHref="/paths/performance-a11y-seo/audit/rum/"
+  nextTitle="Real User Monitoring (RUM)"
+/>

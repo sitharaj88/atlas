@@ -1,0 +1,64 @@
+---
+title: 'The 20-minute mental model — WebAssembly'
+description: A binary format that runs in the browser at near-native speed. What it is and isn't.
+sidebar:
+  order: 1
+pathSlug: frontier
+module: wasm
+lessonNumber: 1
+difficulty: advanced
+duration: 5 min
+tags: [wasm]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What it is
+
+A portable binary format that runs in the browser (and Node, Deno, Bun, edge runtimes). Compiled from C/C++/Rust/Zig/AssemblyScript. Runs in a sandboxed VM with no DOM access (talks to JS for that).
+
+## What it's good at
+
+- **CPU-heavy** work: image processing, codecs (FFmpeg.wasm), 3D, simulations, ML inference.
+- **Porting native libraries** (OpenCV, SQLite) to the web.
+- **Polyfills for low-level features** (e.g., `wasi-fs` for file system in browser).
+
+## What it's NOT
+
+- **A JS replacement.** Calling DOM APIs requires JS bridge — same overhead as before.
+- **Magically faster.** For typical web logic (calling fetch, manipulating arrays), modern V8 beats unoptimized Wasm.
+
+## Use it when
+
+The bottleneck is genuine compute, not network or DOM. Otherwise, plain JS wins on dev cost.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/wasm/wasm-mental-model"
+  questions={[
+    {
+      id: 'wm-1',
+      type: 'single',
+      prompt: 'WebAssembly is most useful for…',
+      options: [
+        { value: 'a', label: 'Replacing JS in business logic' },
+        { value: 'b', label: 'CPU-heavy compute (image processing, codecs, ML, simulations) and porting native libs' },
+        { value: 'c', label: 'DOM manipulation' },
+        { value: 'd', label: 'Replacing TypeScript' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/wasm/wasm-mental-model"
+  lessonHref="/paths/frontier/wasm/wasm-mental-model/"
+  lessonTitle="Wasm mental model"
+  nextHref="/paths/frontier/wasm/calling-between/"
+  nextTitle="Calling Wasm from JS, and vice versa"
+/>

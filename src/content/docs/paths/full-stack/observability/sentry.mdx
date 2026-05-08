@@ -1,0 +1,77 @@
+---
+title: Error tracking with Sentry
+description: Capture exceptions in production with stack traces, breadcrumbs, and user context.
+sidebar:
+  order: 3
+pathSlug: full-stack
+module: observability
+lessonNumber: 3
+difficulty: intermediate
+duration: 4 min
+tags: [errors, sentry]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Setup
+
+```ts
+import * as Sentry from '@sentry/node';
+
+Sentry.init({
+  dsn: process.env.SENTRY_DSN,
+  tracesSampleRate: 0.1,    // 10% of requests get a trace
+  environment: process.env.NODE_ENV,
+});
+```
+
+Now any unhandled exception in your app is captured with a stack trace, the request that caused it, the user context, and a breadcrumb trail.
+
+## What you get
+
+- **Grouping** — same error, same fingerprint, one issue with N occurrences.
+- **Source maps** — original TS line numbers, not minified ones.
+- **Releases** — tag each deploy; see "this issue started in v1.2.3."
+- **User context** — `Sentry.setUser({ id: user.id })` so you can see "this affected 14 users."
+- **Breadcrumbs** — automatic log of what happened before the error.
+
+## Error boundaries (frontend)
+
+```tsx
+<Sentry.ErrorBoundary fallback={<ErrorPage />}>
+  <App />
+</Sentry.ErrorBoundary>
+```
+
+Catches JS errors in components.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/observability/sentry"
+  questions={[
+    {
+      id: 'st-1',
+      type: 'single',
+      prompt: 'Sentry\'s "release" feature lets you…',
+      options: [
+        { value: 'a', label: 'Tag each deployment so you can see which build introduced an issue' },
+        { value: 'b', label: 'Schedule deploys' },
+        { value: 'c', label: 'Replace your CI' },
+        { value: 'd', label: 'Run rollbacks' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/observability/sentry"
+  lessonHref="/paths/full-stack/observability/sentry/"
+  lessonTitle="Sentry"
+  nextHref="/paths/full-stack/shipping/deployment-targets/"
+  nextTitle="Deployment targets compared"
+/>

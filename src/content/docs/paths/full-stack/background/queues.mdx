@@ -1,0 +1,77 @@
+---
+title: 'Queues — BullMQ, pgmq, SQS'
+description: Get long-running work off the request path. The simplest queueing patterns.
+sidebar:
+  order: 1
+pathSlug: full-stack
+module: background
+lessonNumber: 1
+difficulty: intermediate
+duration: 5 min
+tags: [queues, jobs]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Why queue?
+
+A web request should respond in under 1s. Sending an email, generating a thumbnail, calling a slow third party — those don't fit. Push a job to a queue; a worker picks it up.
+
+## Three options
+
+**BullMQ (Redis-backed)** — most popular Node solution. Retries, schedules, priorities, UI.
+
+```ts
+import { Queue, Worker } from 'bullmq';
+const queue = new Queue('emails', { connection });
+await queue.add('welcome', { userId: '123' });
+
+new Worker('emails', async (job) => {
+  await sendWelcome(job.data.userId);
+}, { connection });
+```
+
+**pgmq (Postgres-backed)** — uses Postgres as a queue. One less moving part if you already have Postgres. Cron-friendly.
+
+**SQS (AWS)** — managed. Excellent for high-scale or AWS-heavy stacks.
+
+## Cron-style scheduling
+
+Most queues support delayed jobs and repeat patterns:
+
+```ts
+await queue.add('daily-digest', {}, { repeat: { cron: '0 9 * * *' } });
+```
+
+Or use a service: **GitHub Actions on schedule**, **Vercel Cron**, **Cloudflare Triggers**.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/background/queues"
+  questions={[
+    {
+      id: 'qu-1',
+      type: 'single',
+      prompt: 'Why move work to a queue?',
+      options: [
+        { value: 'a', label: 'It\'s faster' },
+        { value: 'b', label: 'Long-running tasks shouldn\'t block HTTP requests; queues let them run separately with retries' },
+        { value: 'c', label: 'Queues are required' },
+        { value: 'd', label: 'They use less memory' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/background/queues"
+  lessonHref="/paths/full-stack/background/queues/"
+  lessonTitle="Queues"
+  nextHref="/paths/full-stack/background/cron/"
+  nextTitle="Cron and scheduled jobs"
+/>

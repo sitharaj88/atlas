@@ -1,0 +1,79 @@
+---
+title: 'Image optimization — AVIF, responsive images, lazy loading'
+description: The high-leverage fixes for the bytes that dominate most pages.
+sidebar:
+  order: 1
+pathSlug: performance-a11y-seo
+module: optimization
+lessonNumber: 1
+difficulty: intermediate
+duration: 6 min
+tags: [performance, images]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Use modern formats
+
+- **AVIF** — smallest, broadest modern support.
+- **WebP** — good fallback, near-universal.
+- **JPEG** — last resort.
+- **PNG** — only for transparency or pixel-art.
+
+## Serve responsively
+
+```html
+<picture>
+  <source type="image/avif" srcset="hero.avif">
+  <source type="image/webp" srcset="hero.webp">
+  <img src="hero.jpg" srcset="hero-400.jpg 400w, hero-800.jpg 800w" sizes="50vw"
+       width="800" height="600" alt="..." fetchpriority="high">
+</picture>
+```
+
+## Lazy load below the fold
+
+```html
+<img src="..." loading="lazy" decoding="async" alt="...">
+```
+
+NOT on the LCP image.
+
+## Build pipeline
+
+- **Astro / Next** have built-in image optimization (`<Image>`).
+- **sharp** (Node) for build-time resizing.
+- **Cloudflare Images / Imgix / Cloudinary** for on-the-fly transformation.
+
+A `2000×1200` photo served at full size when displayed at `400×240` is 25× wasted. Optimization is the easiest perf win.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/optimization/image-optimization"
+  questions={[
+    {
+      id: 'imo-1',
+      type: 'single',
+      prompt: 'For the hero image (LCP), should you use `loading="lazy"`?',
+      options: [
+        { value: 'a', label: 'Yes — always lazy load' },
+        { value: 'b', label: 'No — the LCP image needs to load fast; use `fetchpriority="high"` instead' },
+        { value: 'c', label: 'Only on mobile' },
+        { value: 'd', label: 'Doesn\'t matter' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/optimization/image-optimization"
+  lessonHref="/paths/performance-a11y-seo/optimization/image-optimization/"
+  lessonTitle="Image optimization"
+  nextHref="/paths/performance-a11y-seo/optimization/font-loading/"
+  nextTitle="Font loading without FOUT/FOIT"
+/>

@@ -1,0 +1,83 @@
+---
+title: 'WebSockets — bidirectional, when you need it'
+description: Persistent connections for chat, collaboration, and live dashboards.
+sidebar:
+  order: 1
+pathSlug: full-stack
+module: realtime
+lessonNumber: 1
+difficulty: intermediate
+duration: 6 min
+tags: [websockets, realtime]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Server (Hono)
+
+```ts
+import { upgradeWebSocket } from 'hono/ws';
+
+app.get('/ws', upgradeWebSocket((c) => ({
+  onOpen: (e, ws) => ws.send('hello'),
+  onMessage: (e, ws) => ws.send(`echo: ${e.data}`),
+  onClose: () => console.log('disconnected'),
+})));
+```
+
+## Client
+
+```ts
+const ws = new WebSocket('wss://atlas.dev/ws');
+ws.addEventListener('open', () => ws.send('hi'));
+ws.addEventListener('message', (e) => console.log(e.data));
+```
+
+## When WebSockets
+
+- Chat, presence, collaborative editors.
+- Live dashboards with sub-second updates.
+- Real-time games.
+
+## When NOT
+
+- One-way streaming (SSE is simpler).
+- Request/response (just use HTTP).
+- Sporadic updates (polling or SSE often suffices).
+
+## Production gotchas
+
+- **Reconnection logic.** Networks drop; clients must reconnect with backoff.
+- **Auth.** WebSockets don't have headers post-handshake — auth via the upgrade request or first message.
+- **Scaling.** State is per-server. Use Redis pub/sub or a managed service to fan out.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/realtime/websockets"
+  questions={[
+    {
+      id: 'ws-1',
+      type: 'single',
+      prompt: 'For a one-way stream of server-pushed events, prefer…',
+      options: [
+        { value: 'a', label: 'WebSockets' },
+        { value: 'b', label: 'Server-Sent Events (SSE)' },
+        { value: 'c', label: 'WebRTC' },
+        { value: 'd', label: 'HTTP polling' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/realtime/websockets"
+  lessonHref="/paths/full-stack/realtime/websockets/"
+  lessonTitle="WebSockets"
+  nextHref="/paths/full-stack/realtime/sse/"
+  nextTitle="Server-Sent Events"
+/>

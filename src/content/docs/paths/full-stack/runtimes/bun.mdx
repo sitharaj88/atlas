@@ -1,0 +1,73 @@
+---
+title: Bun — speed and DX you can feel
+description: A drop-in Node alternative that's also a bundler, package manager, and test runner.
+sidebar:
+  order: 3
+pathSlug: full-stack
+module: runtimes
+lessonNumber: 3
+difficulty: intermediate
+duration: 5 min
+tags: [bun, runtimes]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What's good
+
+- 2–4× faster startup than Node.
+- One tool: runtime + bundler + package manager + test runner.
+- Native TS / JSX. No transpiler.
+- Node-API compat — most npm packages "just work."
+- Built-in `bun:sqlite`, `bun:test`, `Bun.serve()`.
+
+## A server
+
+```ts
+Bun.serve({
+  port: 3000,
+  fetch(req) { return new Response('Hello from Bun'); },
+});
+```
+
+## When Bun wins
+
+- Dev iteration speed.
+- Greenfield monorepos (one tool everywhere).
+- Simple deployment (single binary).
+
+## When to be careful
+
+- Newer than Node — fewer years of production scars to learn from.
+- Some platforms (older serverless) don't support Bun runtime yet.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/runtimes/bun"
+  questions={[
+    {
+      id: 'bn-1',
+      type: 'single',
+      prompt: 'Bun bundles which roles into one tool?',
+      options: [
+        { value: 'a', label: 'Runtime + bundler + package manager + test runner' },
+        { value: 'b', label: 'Runtime only' },
+        { value: 'c', label: 'Bundler only' },
+        { value: 'd', label: 'Package manager only' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/runtimes/bun"
+  lessonHref="/paths/full-stack/runtimes/bun/"
+  lessonTitle="Bun"
+  nextHref="/paths/full-stack/frameworks/hono-overview/"
+  nextTitle="Hono — small, fast, edge-ready"
+/>

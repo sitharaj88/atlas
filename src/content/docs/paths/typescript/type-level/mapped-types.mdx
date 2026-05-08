@@ -1,0 +1,108 @@
+---
+title: Mapped types
+description: Transform every property of a type — the engine behind Partial, Readonly, Pick, and Record.
+sidebar:
+  order: 2
+pathSlug: typescript
+module: type-level
+lessonNumber: 2
+difficulty: advanced
+duration: 8 min
+prerequisites:
+  - Conditional types
+objectives:
+  - Read and write mapped types
+  - Add and remove modifiers (?, readonly)
+tags: [typescript, type-level]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The basic shape
+
+```ts
+type Readonly<T> = {
+  readonly [K in keyof T]: T[K];
+};
+```
+
+For each key K in T, copy the field, mark it `readonly`.
+
+## Built-ins
+
+```ts
+type Partial<T>    = { [K in keyof T]?: T[K] };
+type Required<T>   = { [K in keyof T]-?: T[K] };       // -? removes optional
+type Readonly<T>   = { readonly [K in keyof T]: T[K] };
+type Pick<T, K extends keyof T> = { [P in K]: T[P] };
+type Record<K extends keyof any, V> = { [P in K]: V };
+```
+
+`-?` and `-readonly` *remove* modifiers. Useful for "make all fields required":
+
+```ts
+type Strict<T> = { -readonly [K in keyof T]-?: T[K] };
+```
+
+## Key remapping
+
+ES2022+ syntax — rename keys:
+
+```ts
+type Getters<T> = {
+  [K in keyof T as `get${Capitalize<string & K>}`]: () => T[K];
+};
+
+type U = { name: string; age: number };
+type G = Getters<U>; // { getName: () => string; getAge: () => number }
+```
+
+Combined with template literal types — extremely powerful.
+
+## Filter keys
+
+```ts
+type StringKeys<T> = {
+  [K in keyof T as T[K] extends string ? K : never]: T[K];
+};
+
+type U = { id: number; name: string; age: number };
+type S = StringKeys<U>; // { name: string }
+```
+
+`as never` filters keys out of the resulting type.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/type-level/mapped-types"
+  questions={[
+    {
+      id: 'mt-1',
+      type: 'single',
+      prompt: 'What does `-?` do in a mapped type?',
+      options: [
+        { value: 'a', label: 'Adds optional' },
+        { value: 'b', label: 'Removes the optional modifier' },
+        { value: 'c', label: 'Removes the property' },
+        { value: 'd', label: 'Throws an error' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Template literal types.**
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/type-level/mapped-types"
+  lessonHref="/paths/typescript/type-level/mapped-types/"
+  lessonTitle="Mapped types"
+  nextHref="/paths/typescript/type-level/template-literal/"
+  nextTitle="Template literal types"
+/>

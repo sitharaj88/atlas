@@ -1,0 +1,197 @@
+---
+title: Keyboard navigation and focus
+description: Tab order, focus rings, focus management — making the page navigable without a mouse.
+sidebar:
+  order: 2
+pathSlug: foundations
+module: a11y
+lessonNumber: 2
+difficulty: beginner
+duration: 10 min
+prerequisites:
+  - You\'ve completed *Semantic HTML is 80% of a11y*
+objectives:
+  - Make every interactive element focusable in the right order
+  - Manage focus when content changes (modals, navigation)
+  - Keep visible focus indicators
+tags: [accessibility, keyboard, focus]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Keyboard users — including everyone with a sticky mouse, RSI, or any motor-impairment — should be able to use your site as smoothly as mouse users. The rules are surprisingly few.
+
+## What's focusable by default
+
+- `<a href>` — links
+- `<button>`
+- `<input>`, `<textarea>`, `<select>`
+- `<details>` (the summary), `<dialog>`
+- Anything with `tabindex="0"`
+
+Everything else (divs, spans, headings) is **not** focusable.
+
+## tabindex
+
+```html
+<div tabindex="0">…</div>      <!-- focusable; in tab order -->
+<div tabindex="-1">…</div>     <!-- focusable programmatically; NOT in tab order -->
+<div tabindex="3">…</div>      <!-- AVOID — positive values force order, almost always wrong -->
+```
+
+The two values you'll use: `0` (in natural tab order) and `-1` (focus via JS only, e.g., a modal that wants to focus its container without being tabbed to).
+
+## Visible focus
+
+Every focusable element MUST have a visible focus indicator. Browsers ship one — don't remove it without replacing it.
+
+```css
+/* ❌ DON'T do this */
+*:focus { outline: none; }
+
+/* ✓ Replace, don't remove */
+:focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+```
+
+`:focus-visible` shows the indicator only for keyboard focus (not on mouse click). That's usually what you want — clicks shouldn't show a ring, tabs should.
+
+## Tab order
+
+Tab order follows DOM order. If your visual layout differs (e.g., CSS `flex-direction: row-reverse`, `order`, `grid-area`), the tab order won't match — and that's a bug.
+
+The fix: **DOM order should match visual reading order.** Don't rearrange visually with CSS in ways that break the logical flow.
+
+## Focus management
+
+When content appears (modal, drawer, async-loaded page), **move focus to it**:
+
+```js
+function openModal() {
+  modal.showModal();        // <dialog>'s built-in method
+  modal.querySelector('h2').focus();  // first focusable inside
+}
+
+function closeModal() {
+  modal.close();
+  triggerButton.focus();    // restore focus to the button that opened it
+}
+```
+
+Without this, the keyboard user is left wherever they were — often invisible to the modal that just appeared.
+
+## Focus traps in modals
+
+A modal should trap focus inside itself — Tab from the last item should wrap to the first. The modern `<dialog>` element does this for free:
+
+```html
+<dialog id="confirm">
+  <h2>Are you sure?</h2>
+  <form method="dialog">
+    <button>Cancel</button>
+    <button value="ok">Confirm</button>
+  </form>
+</dialog>
+<script>
+  document.querySelector('#confirm').showModal();
+</script>
+```
+
+`<dialog>` traps focus, handles `Esc` to close, has the right ARIA role. Use it.
+
+## Skip-to-main
+
+Long site headers waste a screen reader / keyboard user's time on every page. A "Skip to main content" link at the top fixes it:
+
+```html
+<a class="skip-link" href="#main">Skip to main content</a>
+…
+<main id="main" tabindex="-1">…</main>
+```
+
+```css
+.skip-link {
+  position: absolute;
+  left: -10000px;
+}
+.skip-link:focus {
+  left: 0; top: 0; padding: 1rem; background: white;
+  z-index: 1000;
+}
+```
+
+`tabindex="-1"` on the `<main>` makes it focusable so the link can target it.
+
+## Common failures
+
+- `<div onclick>` not focusable.
+- Focus indicator removed without replacement.
+- Modal opens; focus stays where it was; Tab cycles through hidden background page.
+- Custom dropdown that arrow-keys but is missing the standard pattern (Esc, Home/End, type-ahead).
+
+<Callout variant="tip" title="Test once and you'll catch 90% of issues">
+Disconnect your mouse for 10 minutes. Try to use your app. Whatever you can\'t reach, can\'t see, or can\'t close — that\'s a bug.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/a11y/keyboard-focus"
+  questions={[
+    {
+      id: 'kb-1',
+      type: 'single',
+      prompt: 'You have a custom widget that needs to be focusable but should not appear in tab order. The `tabindex` value is…',
+      options: [
+        { value: 'a', label: '0' },
+        { value: 'b', label: '-1' },
+        { value: 'c', label: '99' },
+        { value: 'd', label: 'You can\'t do that' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'kb-2',
+      type: 'single',
+      prompt: 'You open a modal. What should happen to focus?',
+      options: [
+        { value: 'a', label: 'Stay on the trigger button' },
+        { value: 'b', label: 'Move to the first focusable element inside the modal' },
+        { value: 'c', label: 'Move to the close button' },
+        { value: 'd', label: 'Doesn\'t matter' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'kb-3',
+      type: 'single',
+      prompt: 'You see `*:focus { outline: none; }` in a stylesheet. What\'s the problem?',
+      options: [
+        { value: 'a', label: 'Nothing — outlines are ugly' },
+        { value: 'b', label: 'Removes ALL keyboard focus indicators — keyboard users can\'t see where they are' },
+        { value: 'c', label: 'It only works in Chrome' },
+        { value: 'd', label: 'It breaks form validation' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Color contrast, motion, screen readers** — the rest of the a11y essentials.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/a11y/keyboard-focus"
+  lessonHref="/paths/foundations/a11y/keyboard-focus/"
+  lessonTitle="Keyboard navigation and focus"
+  nextHref="/paths/foundations/a11y/color-motion-screenreaders/"
+  nextTitle="Color contrast, motion, screen readers"
+/>

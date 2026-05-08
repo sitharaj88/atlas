@@ -19,4 +19,27 @@ import PathCard from '~/components/PathCard.astro';
     difficulty="beginner" accent="#2bb4a4" />
 </div>
 
-> **Coming soon:** CSS Grid · Regex · WCAG checklist · TypeScript utility types · npm/pnpm scripts · DOM events.
+## More
+
+import PathCard2 from '~/components/PathCard.astro';
+
+<div class="atlas-grid atlas-grid--cards" style="margin-top: 2rem;">
+  <PathCard2 number="04" href="/cheatsheets/grid/" title="CSS Grid"
+    description="Track sizing, named areas, subgrid, auto-fit. Every property in one place."
+    accent="#9b59f5" />
+  <PathCard2 number="05" href="/cheatsheets/regex/" title="Regex"
+    description="Patterns, flags, lookarounds — JavaScript regex on one page."
+    accent="#566cf0" />
+  <PathCard2 number="06" href="/cheatsheets/wcag-checklist/" title="WCAG checklist"
+    description="A pre-flight a11y checklist. Walk it before every ship."
+    accent="#0eaae6" />
+  <PathCard2 number="07" href="/cheatsheets/ts-utility-types/" title="TS utility types"
+    description="Pick, Omit, Partial, Record, ReturnType — and how to compose your own."
+    accent="#3178c6" />
+  <PathCard2 number="08" href="/cheatsheets/npm-scripts/" title="npm / pnpm / bun scripts"
+    description="Equivalent commands across package managers, plus the scripts you actually use."
+    accent="#6abf6e" />
+  <PathCard2 number="09" href="/cheatsheets/dom-events/" title="DOM events"
+    description="Every common event, when it fires, and the addEventListener options."
+    accent="#e25c64" />
+</div>

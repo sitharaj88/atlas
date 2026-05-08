@@ -1,0 +1,214 @@
+---
+title: 'fetch — the modern HTTP client'
+description: The standard browser API for HTTP — requests, responses, JSON, errors, cancellation, streaming.
+sidebar:
+  order: 1
+pathSlug: foundations
+module: web-apis
+lessonNumber: 1
+difficulty: beginner
+duration: 12 min
+prerequisites:
+  - You've completed the DOM module
+objectives:
+  - Make GET and POST requests with fetch
+  - Handle errors correctly (fetch doesn't throw on 4xx/5xx)
+  - Cancel requests with AbortController
+tags: [javascript, fetch, http]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** How to make HTTP requests from JavaScript with the standard `fetch` API — including the gotcha that fetch doesn't throw on HTTP errors.
+
+## The simplest GET
+
+```js
+const res = await fetch('/api/posts');
+if (!res.ok) throw new Error(`HTTP ${res.status}`);
+const posts = await res.json();
+```
+
+Three things to notice:
+
+1. `fetch` returns a **`Response`**. You read its body separately (`.json()`, `.text()`, `.blob()`, `.arrayBuffer()`).
+2. **`fetch` does not reject on HTTP errors.** A 404 or 500 still resolves. Always check `res.ok` (true for 200–299) before reading the body.
+3. The body methods are async and one-shot — call `.json()` once.
+
+## POST with JSON
+
+```js
+const res = await fetch('/api/posts', {
+  method: 'POST',
+  headers: { 'content-type': 'application/json' },
+  body: JSON.stringify({ title: 'Hello', body: '...' }),
+});
+const created = await res.json();
+```
+
+## POST a form
+
+```js
+const form = document.querySelector('form');
+const res = await fetch(form.action, {
+  method: form.method,
+  body: new FormData(form),  // multipart/form-data automatically
+});
+```
+
+`FormData` handles file uploads too — drop `<input type="file">` in your form, send `new FormData(form)`, done.
+
+## Query strings
+
+```js
+const params = new URLSearchParams({ q: 'atlas', limit: '10' });
+const res = await fetch(`/api/search?${params}`);
+```
+
+Or use the `URL` constructor for cleaner composition:
+
+```js
+const url = new URL('/api/search', location.origin);
+url.searchParams.set('q', 'atlas');
+url.searchParams.set('limit', 10);
+const res = await fetch(url);
+```
+
+## Errors and timeouts
+
+`AbortController` cancels a request:
+
+```js
+const ctrl = new AbortController();
+const timer = setTimeout(() => ctrl.abort(), 5000); // 5s timeout
+
+try {
+  const res = await fetch('/api/slow', { signal: ctrl.signal });
+  clearTimeout(timer);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  return await res.json();
+} catch (err) {
+  if (err.name === 'AbortError') console.warn('Timed out');
+  else throw err;
+}
+```
+
+For "actually error on bad status," wrap once:
+
+```js
+async function api(path, init) {
+  const res = await fetch(path, init);
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`HTTP ${res.status}: ${text}`);
+  }
+  return res.json();
+}
+```
+
+## Streaming
+
+Reading the body as a stream — useful for LLM token streams or large downloads:
+
+```js
+const res = await fetch('/api/stream');
+const reader = res.body
+  .pipeThrough(new TextDecoderStream())
+  .getReader();
+
+while (true) {
+  const { value, done } = await reader.read();
+  if (done) break;
+  appendChunk(value);
+}
+```
+
+## Headers
+
+```js
+const res = await fetch('/api/posts', {
+  headers: {
+    accept: 'application/json',
+    authorization: `Bearer ${token}`,
+    'x-trace-id': crypto.randomUUID(),
+  },
+});
+```
+
+Headers are case-insensitive. `Authorization`, `authorization`, `AUTHORIZATION` are all the same to the server.
+
+## Cookies and credentials
+
+By default, `fetch` does NOT send cookies cross-origin. To include them:
+
+```js
+fetch(url, { credentials: 'include' });    // always send cookies
+fetch(url, { credentials: 'same-origin' }); // only same-origin (default)
+fetch(url, { credentials: 'omit' });        // never
+```
+
+The server must also set `Access-Control-Allow-Credentials: true`.
+
+<Callout variant="warn" title={"`fetch` doesn't throw on 404"}>
+This trips up everyone. Always check `res.ok`. The promise only rejects on **network** errors (offline, DNS, CORS).
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/web-apis/fetch"
+  questions={[
+    {
+      id: 'fet-1',
+      type: 'single',
+      prompt: 'Your fetch returns 500. What happens?',
+      options: [
+        { value: 'a', label: 'The promise rejects' },
+        { value: 'b', label: 'The promise resolves with res.ok === false' },
+        { value: 'c', label: 'Fetch throws synchronously' },
+        { value: 'd', label: 'The browser shows an error page' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'fet-2',
+      type: 'single',
+      prompt: 'Cleanest way to enforce a 5-second timeout?',
+      options: [
+        { value: 'a', label: 'Promise.race with setTimeout' },
+        { value: 'b', label: 'AbortController with setTimeout calling ctrl.abort()' },
+        { value: 'c', label: 'Configure the browser timeout' },
+        { value: 'd', label: 'Fetch doesn\'t support timeouts' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'fet-3',
+      type: 'single',
+      prompt: 'You\'re POSTing JSON. What\'s the right Content-Type header?',
+      options: [
+        { value: 'a', label: 'application/x-www-form-urlencoded' },
+        { value: 'b', label: 'application/json' },
+        { value: 'c', label: 'text/json' },
+        { value: 'd', label: 'multipart/form-data' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Storage** — keeping data between page loads with localStorage, sessionStorage, and IndexedDB.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/web-apis/fetch"
+  lessonHref="/paths/foundations/web-apis/fetch/"
+  lessonTitle="fetch — the modern HTTP client"
+  nextHref="/paths/foundations/web-apis/storage/"
+  nextTitle="Storage — localStorage, sessionStorage, IndexedDB"
+/>

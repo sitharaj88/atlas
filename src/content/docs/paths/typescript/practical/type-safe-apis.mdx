@@ -1,0 +1,117 @@
+---
+title: 'Designing type-safe APIs (request/response, event buses)'
+description: Patterns for typing the boundaries of your code — HTTP, events, callbacks.
+sidebar:
+  order: 1
+pathSlug: typescript
+module: practical
+lessonNumber: 1
+difficulty: intermediate
+duration: 8 min
+prerequisites:
+  - You\'ve completed the Narrowing module
+objectives:
+  - Type request/response shapes end-to-end
+  - Build a typed event emitter
+tags: [typescript, api]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Shared schema is the goal
+
+When client and server speak via HTTP, the type contract is what's left if you delete the runtime code. Best results come from a single source of truth shared by both:
+
+- **Zod schemas** — `z.infer<typeof X>` extracts the type.
+- **tRPC** — types travel directly with router code; no schema layer.
+- **OpenAPI** — generate types from a spec.
+
+```ts
+// shared/user.ts
+import { z } from 'zod';
+export const UserSchema = z.object({
+  id: z.string(),
+  email: z.string().email(),
+});
+export type User = z.infer<typeof UserSchema>;
+
+// server (Hono)
+app.get('/users/:id', (c) => c.json(getUser(c.req.param('id'))));
+
+// client
+const data = UserSchema.parse(await fetch(`/users/${id}`).then(r => r.json()));
+//    ^ User
+```
+
+Same schema, both ends. Validation + types in one.
+
+## Typed event emitters
+
+```ts
+type Events = {
+  login:  { userId: string };
+  logout: void;
+  error:  { code: number; message: string };
+};
+
+type Emitter<E extends Record<string, any>> = {
+  on<K extends keyof E>(name: K, fn: (payload: E[K]) => void): void;
+  emit<K extends keyof E>(name: K, payload: E[K]): void;
+};
+
+const e: Emitter<Events> = create();
+e.on('login', ({ userId }) => /* ... */);
+e.emit('error', { code: 500, message: 'oops' });
+```
+
+Strongly-typed pub/sub with no runtime overhead.
+
+## Branded IDs
+
+```ts
+type UserId = string & { __brand: 'UserId' };
+type PostId = string & { __brand: 'PostId' };
+
+function getUser(id: UserId) {}
+const x = 'abc' as UserId;
+const y = 'abc' as PostId;
+getUser(x); // ✓
+getUser(y); // ✗
+```
+
+Prevents string-ID swaps at compile time.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/practical/type-safe-apis"
+  questions={[
+    {
+      id: 'tsa-1',
+      type: 'single',
+      prompt: 'Best way to keep client and server types in sync?',
+      options: [
+        { value: 'a', label: 'Manually keep two type definitions identical' },
+        { value: 'b', label: 'Single source of truth (shared Zod schema, tRPC router type, or generated from OpenAPI)' },
+        { value: 'c', label: 'Use any and validate manually' },
+        { value: 'd', label: 'Comments' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Working with third-party types.**
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/practical/type-safe-apis"
+  lessonHref="/paths/typescript/practical/type-safe-apis/"
+  lessonTitle="Designing type-safe APIs"
+  nextHref="/paths/typescript/practical/third-party-types/"
+  nextTitle="Working with third-party types"
+/>

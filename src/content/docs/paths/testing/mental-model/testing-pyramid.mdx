@@ -1,0 +1,76 @@
+---
+title: 'The testing pyramid (and the trophy)'
+description: How to balance fast unit tests with slower-but-real E2E tests.
+sidebar:
+  order: 1
+pathSlug: testing
+module: mental-model
+lessonNumber: 1
+difficulty: intermediate
+duration: 5 min
+tags: [testing]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The classic pyramid
+
+```text
+  /\          E2E       (few, slow, real)
+ /  \         ↕
+/____\        Integration (some, medium)
+        Unit       (many, fast, isolated)
+```
+
+Many fast tests, few slow ones.
+
+## The Testing Trophy (Kent C. Dodds)
+
+For frontend, integration tests provide the best ROI:
+
+```text
+  E2E           (few)
+  Integration   (most)
+  Unit          (some)
+  Static        (TS, ESLint — free)
+```
+
+Component tests using Testing Library are integration tests — they exercise multiple units together, give high confidence, and run fast.
+
+## When to write what
+
+- **Unit** — pure logic. Algorithms, parsers, formatters.
+- **Component** — UI behavior. Renders, clicks, accessibility.
+- **E2E** — critical user flows. Login, checkout, signup.
+- **Visual regression** — design didn't drift.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="testing/mental-model/testing-pyramid"
+  questions={[
+    {
+      id: 'tp-1',
+      type: 'single',
+      prompt: 'Frontend apps benefit most from…',
+      options: [
+        { value: 'a', label: 'Many unit tests of small functions' },
+        { value: 'b', label: 'Integration / component tests that exercise rendering and interaction' },
+        { value: 'c', label: 'Only E2E' },
+        { value: 'd', label: 'No tests' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="testing/mental-model/testing-pyramid"
+  lessonHref="/paths/testing/mental-model/testing-pyramid/"
+  lessonTitle="The testing pyramid"
+  nextHref="/paths/testing/mental-model/what-not-to-test/"
+  nextTitle="What NOT to test"
+/>

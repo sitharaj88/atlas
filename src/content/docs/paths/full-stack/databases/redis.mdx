@@ -1,0 +1,79 @@
+---
+title: 'Redis — caches, queues, pub/sub'
+description: An in-memory data store that's perfect for the things SQL is bad at.
+sidebar:
+  order: 4
+pathSlug: full-stack
+module: databases
+lessonNumber: 4
+difficulty: intermediate
+duration: 5 min
+tags: [redis, cache]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What it does well
+
+- **Cache.** Read-heavy data with a TTL. `SET key value EX 60`.
+- **Rate limiting.** Sliding window counters via `INCR` + `EXPIRE`.
+- **Queues.** `RPUSH`/`BLPOP` for simple jobs; BullMQ for full job workflow.
+- **Pub/Sub.** Many subscribers, fan-out events.
+- **Sessions.** Fast, in-memory, evictable.
+
+## A simple cache
+
+```ts
+import Redis from 'ioredis';
+const redis = new Redis(process.env.REDIS_URL!);
+
+async function getUser(id: string) {
+  const cached = await redis.get(`user:${id}`);
+  if (cached) return JSON.parse(cached);
+  const user = await db.user.findUnique({ where: { id } });
+  await redis.set(`user:${id}`, JSON.stringify(user), 'EX', 60);
+  return user;
+}
+```
+
+## Hosted Redis
+
+- **Upstash** — serverless, HTTP-based (great for edge functions).
+- **Redis Cloud / AWS ElastiCache** — managed clusters.
+- Self-hosted in Docker for dev.
+
+## When NOT to use Redis
+
+- As your primary store. It's not durable in the same way Postgres is.
+- For complex relational queries.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/databases/redis"
+  questions={[
+    {
+      id: 'rd-1',
+      type: 'single',
+      prompt: 'Best use of Redis in a typical web app?',
+      options: [
+        { value: 'a', label: 'Replacing the primary database' },
+        { value: 'b', label: 'Cache, rate limiting, sessions, queues, pub/sub' },
+        { value: 'c', label: 'Storing user-uploaded files' },
+        { value: 'd', label: 'Frontend state' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/databases/redis"
+  lessonHref="/paths/full-stack/databases/redis/"
+  lessonTitle="Redis"
+  nextHref="/paths/full-stack/orms/drizzle/"
+  nextTitle="Drizzle ORM"
+/>

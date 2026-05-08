@@ -1,0 +1,72 @@
+---
+title: 'Git mental model: commits, refs, the index'
+description: The core data model — once you see it, every command makes sense.
+sidebar:
+  order: 1
+pathSlug: devops
+module: git
+lessonNumber: 1
+difficulty: intermediate
+duration: 6 min
+tags: [git]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Three things to know
+
+**Commits** — snapshots of the working tree, plus a parent pointer (or two for merges). Identified by SHA.
+
+**Refs** — named pointers to commits. Branches (`main`) and tags (`v1.0.0`) are refs. **HEAD** is "which ref am I on right now."
+
+**The index** (a.k.a. "staging area") — the next commit you're about to make. `git add` updates the index; `git commit` turns the index into a commit.
+
+## The three trees
+
+```text
+Working tree    ←→  Index (staging)  ←→  HEAD (last commit)
+   git add ────►       git commit ────►
+                ◄──── git checkout       ◄──── git reset
+```
+
+Almost every Git command moves data between these three.
+
+## Branches are just labels
+
+```bash
+git branch                  # list local branches
+git switch -c feature/x     # create + switch
+```
+
+A "branch" is a movable pointer. `main` and `feature/x` are both labels pointing at commits. New commits move the current branch's pointer forward.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="devops/git/mental-model"
+  questions={[
+    {
+      id: 'gm-1',
+      type: 'single',
+      prompt: 'A "branch" in Git is…',
+      options: [
+        { value: 'a', label: 'A copy of the codebase' },
+        { value: 'b', label: 'A movable pointer to a commit' },
+        { value: 'c', label: 'A folder' },
+        { value: 'd', label: 'A separate working tree' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="devops/git/mental-model"
+  lessonHref="/paths/devops/git/mental-model/"
+  lessonTitle="Git mental model"
+  nextHref="/paths/devops/git/branching/"
+  nextTitle="Branching strategies"
+/>

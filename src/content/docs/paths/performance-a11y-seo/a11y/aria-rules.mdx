@@ -1,0 +1,68 @@
+---
+title: 'ARIA — the rules of use'
+description: The five WAI-ARIA rules. Memorize them; it's most of accessibility.
+sidebar:
+  order: 2
+pathSlug: performance-a11y-seo
+module: a11y
+lessonNumber: 2
+difficulty: intermediate
+duration: 5 min
+tags: [a11y, aria]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The five rules
+
+1. **Don't use ARIA if HTML can do it.**
+2. **Don't change native semantics.** `<a role="button">` is wrong.
+3. **All interactive ARIA controls must be keyboard accessible.** Including `tabindex="0"`, Space, Enter.
+4. **Don't make focusable elements `aria-hidden="true"`.** And don't use `role="presentation"` on focusable elements.
+5. **All interactive controls must have an accessible name.** Visible text, `aria-label`, or `aria-labelledby`.
+
+## The most-useful attributes
+
+- **`aria-label`** — accessible name when there's no visible text.
+- **`aria-labelledby`** — point at another element's text.
+- **`aria-describedby`** — extra description.
+- **`aria-live="polite"`** — announce dynamic changes.
+- **`aria-expanded`** — toggle / disclosure state.
+
+## Common mistakes
+
+- Adding ARIA to native elements that already have the role.
+- `role="button"` on a `<div>` without keyboard handlers.
+- `aria-hidden="true"` on a focusable button (focus + can't read = bug).
+- Conflicting visible text and `aria-label`.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/a11y/aria-rules"
+  questions={[
+    {
+      id: 'ar-1',
+      type: 'single',
+      prompt: 'An icon-only button needs…',
+      options: [
+        { value: 'a', label: 'A title attribute' },
+        { value: 'b', label: 'aria-label or visually-hidden text inside' },
+        { value: 'c', label: 'A placeholder' },
+        { value: 'd', label: 'role="presentation"' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/a11y/aria-rules"
+  lessonHref="/paths/performance-a11y-seo/a11y/aria-rules/"
+  lessonTitle="ARIA rules of use"
+  nextHref="/paths/performance-a11y-seo/a11y/keyboard-nav-mgmt/"
+  nextTitle="Keyboard navigation and focus management"
+/>

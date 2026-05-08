@@ -1,0 +1,80 @@
+---
+title: 'Server state vs. client state — TanStack Query'
+description: Two kinds of state need two strategies. Don't mix them up.
+sidebar:
+  order: 2
+pathSlug: frontend-frameworks
+module: data
+lessonNumber: 2
+difficulty: intermediate
+duration: 7 min
+tags: [react, state, tanstack-query]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The two kinds
+
+**Client state** — UI state owned by your app: form input, "is the modal open," theme. Lives in `useState`/Zustand/Context.
+
+**Server state** — data owned by a server, cached locally: lists of posts, user profiles. Asynchronous, can become stale, can be refetched. Needs caching, dedup, retries, refetch-on-focus.
+
+Trying to handle server state with `useState` (`useState` + `useEffect` + `loading`/`error`/`data`) reinvents poorly what TanStack Query does well.
+
+## TanStack Query
+
+```jsx
+const { data, isLoading, error } = useQuery({
+  queryKey: ['posts'],
+  queryFn: () => fetch('/api/posts').then(r => r.json()),
+});
+```
+
+You get for free:
+- Caching keyed by `queryKey`.
+- Refetching on focus, on network reconnect, on stale.
+- Dedup — multiple components asking the same key share one request.
+- Mutations with cache invalidation.
+
+For React-based apps, **TanStack Query (or its newer SSR-friendly siblings) is the default for server state.**
+
+## Mutations
+
+```jsx
+const mutation = useMutation({
+  mutationFn: (post) => fetch('/api/posts', { method: 'POST', body: JSON.stringify(post) }),
+  onSuccess: () => queryClient.invalidateQueries({ queryKey: ['posts'] }),
+});
+mutation.mutate({ title: 'Hello' });
+```
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/data/server-vs-client-state"
+  questions={[
+    {
+      id: 'ssc-1',
+      type: 'single',
+      prompt: 'Server state should NOT live in…',
+      options: [
+        { value: 'a', label: 'A query cache like TanStack Query' },
+        { value: 'b', label: 'A naive useState + useEffect that re-fetches manually' },
+        { value: 'c', label: 'A query library' },
+        { value: 'd', label: 'SWR' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/data/server-vs-client-state"
+  lessonHref="/paths/frontend-frameworks/data/server-vs-client-state/"
+  lessonTitle="Server state vs client state"
+  nextHref="/paths/frontend-frameworks/data/global-state/"
+  nextTitle="Global state — when you don't need Redux"
+/>

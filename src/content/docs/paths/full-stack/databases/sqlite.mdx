@@ -1,0 +1,78 @@
+---
+title: 'SQLite — yes, in production'
+description: A relational DB that fits in a file. Surprisingly capable; the right answer more often than people think.
+sidebar:
+  order: 2
+pathSlug: full-stack
+module: databases
+lessonNumber: 2
+difficulty: intermediate
+duration: 5 min
+tags: [databases, sqlite]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What it is
+
+A C library that implements a SQL database in a single file. No server, no network. The DB is `app.db`.
+
+## Why production-worthy
+
+- **Faster than network DB** for many workloads — no round-trips.
+- **WAL mode** allows concurrent readers + one writer.
+- **Litestream / Cloudflare D1 / Turso** replicate to remote storage / multi-region.
+- Used in production by: SQLite.org's own site, Expensify, Notion (locally), countless others.
+
+## When SQLite fits
+
+- Single-server apps.
+- Read-heavy workloads.
+- Edge deployments (Turso replicates to every region).
+- Per-user databases ("one tenant, one file").
+
+## When it doesn't
+
+- Many concurrent writers across machines.
+- Need a managed service that auto-scales.
+- Sharded multi-master.
+
+## Connecting from Node
+
+```ts
+import Database from 'better-sqlite3';
+const db = new Database('app.db');
+db.pragma('journal_mode = WAL');
+const users = db.prepare('SELECT * FROM users WHERE id = ?').get(id);
+```
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/databases/sqlite"
+  questions={[
+    {
+      id: 'sql-1',
+      type: 'single',
+      prompt: 'WAL mode in SQLite enables…',
+      options: [
+        { value: 'a', label: 'Concurrent readers + one writer (vs. read OR write blocking the file)' },
+        { value: 'b', label: 'Multi-master replication' },
+        { value: 'c', label: 'Encryption' },
+        { value: 'd', label: 'JSON support' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/databases/sqlite"
+  lessonHref="/paths/full-stack/databases/sqlite/"
+  lessonTitle="SQLite"
+  nextHref="/paths/full-stack/databases/postgres/"
+  nextTitle="PostgreSQL — the safe default"
+/>

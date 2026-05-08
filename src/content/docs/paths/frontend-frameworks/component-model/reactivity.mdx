@@ -1,0 +1,67 @@
+---
+title: 'Reactivity: VDOM, fine-grained signals, compilers'
+description: How frameworks turn state changes into DOM updates — three different strategies.
+sidebar:
+  order: 2
+pathSlug: frontend-frameworks
+module: component-model
+lessonNumber: 2
+difficulty: intermediate
+duration: 6 min
+prerequisites:
+  - Why components
+objectives:
+  - Distinguish the three reactivity models
+tags: [components, reactivity]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Three strategies
+
+**Virtual DOM (React)** — re-run components, diff the output trees, patch the real DOM. Mental model is simple; runtime cost is real.
+
+**Fine-grained signals (Solid, Vue 3, Svelte 5)** — track which value each piece of UI depends on. Update only those pieces when a value changes. No diff, no re-render of unrelated components.
+
+**Compilers (Svelte 4, Solid)** — at build time, analyze which DOM operations a component needs. Emit minimal imperative code. No runtime VDOM.
+
+## Performance trade-offs
+
+| Approach | Runtime cost | Bundle | Mental model |
+|---|---|---|---|
+| VDOM | Higher (diff each render) | Larger | Easy |
+| Signals | Lower (granular) | Small | Medium |
+| Compiled | Lowest | Smallest | Familiar (looks like JSX/HTML) |
+
+For most apps, the difference is invisible. For massive lists or animation-heavy UIs, signals/compilers shine.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/component-model/reactivity"
+  questions={[
+    {
+      id: 'rx-1',
+      type: 'single',
+      prompt: 'Fine-grained reactivity (signals) means…',
+      options: [
+        { value: 'a', label: 'Re-rendering the whole component on any change' },
+        { value: 'b', label: 'Tracking which UI depends on each value, updating only the affected DOM' },
+        { value: 'c', label: 'Using inline styles' },
+        { value: 'd', label: 'Server-side rendering' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/component-model/reactivity"
+  lessonHref="/paths/frontend-frameworks/component-model/reactivity/"
+  lessonTitle="Reactivity strategies"
+  nextHref="/paths/frontend-frameworks/component-model/tradeoffs/"
+  nextTitle="The big tradeoffs"
+/>

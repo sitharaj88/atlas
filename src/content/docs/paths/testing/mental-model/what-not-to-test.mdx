@@ -1,0 +1,68 @@
+---
+title: 'What NOT to test — implementation details'
+description: Bad tests are worse than no tests. Avoid the traps.
+sidebar:
+  order: 2
+pathSlug: testing
+module: mental-model
+lessonNumber: 2
+difficulty: intermediate
+duration: 5 min
+tags: [testing]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Don't test implementation details
+
+```ts
+// ❌ Tests the internal state shape
+expect(wrapper.state().count).toBe(1);
+
+// ✓ Tests the user-visible outcome
+expect(screen.getByRole('status')).toHaveTextContent('1');
+```
+
+Tests should break when **behavior** breaks, not when **structure** is refactored.
+
+## Smells
+
+- **Mocking your own code.** If you mock half your modules, you're testing the mocks, not your code.
+- **Snapshots that nobody reads.** A pile of "matches snapshot" tests rot quickly.
+- **Tests that check method calls** (`expect(spy).toHaveBeenCalled`). Behavior, not invocation, is what users see.
+- **100% coverage as a goal.** Coverage measures lines hit, not behavior verified. 80% with high-quality tests beats 100% with tautologies.
+
+## The right question
+
+Before writing a test, ask: **"What user-visible thing breaks if this isn't true?"** If you can answer that, write the test. Otherwise skip.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="testing/mental-model/what-not-to-test"
+  questions={[
+    {
+      id: 'wnt-1',
+      type: 'single',
+      prompt: 'A test that breaks when you rename an internal method (without changing behavior) is…',
+      options: [
+        { value: 'a', label: 'A great test' },
+        { value: 'b', label: 'A test of implementation details — it should test behavior instead' },
+        { value: 'c', label: 'Required for full coverage' },
+        { value: 'd', label: 'Industry standard' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="testing/mental-model/what-not-to-test"
+  lessonHref="/paths/testing/mental-model/what-not-to-test/"
+  lessonTitle="What NOT to test"
+  nextHref="/paths/testing/mental-model/tdd-when/"
+  nextTitle="TDD — when it pays off"
+/>

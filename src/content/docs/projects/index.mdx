@@ -13,4 +13,21 @@ Tutorials are theory. **Projects are reps.** Each project is a complete, build-a
     difficulty="beginner" hours={2} accent="#F5B14A" />
 </div>
 
-> **Coming soon:** Todo (vanilla JS) · E-commerce storefront · Real-time chat · AI study buddy.
+## More
+
+import PathCard2 from '~/components/PathCard.astro';
+
+<div class="atlas-grid atlas-grid--cards" style="margin-top: 2rem;">
+  <PathCard2 number="02" href="/projects/todo-vanilla/" title="Todo (vanilla JS)"
+    description="100 lines of HTML/CSS/JS. localStorage-persistent, accessible. Save and run."
+    difficulty="beginner" hours={1} accent="#6abf6e" />
+  <PathCard2 number="03" href="/projects/ecommerce-storefront/" title="E-commerce storefront"
+    description="Astro + React + Stripe Checkout. Test mode = free. Deployable to Vercel/Cloudflare."
+    difficulty="intermediate" hours={4} accent="#0eaae6" />
+  <PathCard2 number="04" href="/projects/realtime-chat/" title="Real-time chat"
+    description="Hono + WebSockets + Postgres. Multi-room, persistent, with presence."
+    difficulty="intermediate" hours={6} accent="#9b59f5" />
+  <PathCard2 number="05" href="/projects/ai-study-buddy/" title="AI study buddy"
+    description="RAG with pgvector + Claude + streaming. Answers questions from your own notes."
+    difficulty="advanced" hours={6} accent="#e25c64" />
+</div>

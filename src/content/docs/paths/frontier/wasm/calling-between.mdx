@@ -1,0 +1,77 @@
+---
+title: 'Calling Wasm from JS, and vice versa'
+description: The interface between JS and WebAssembly modules.
+sidebar:
+  order: 2
+pathSlug: frontier
+module: wasm
+lessonNumber: 2
+difficulty: advanced
+duration: 5 min
+tags: [wasm]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Loading
+
+```ts
+const wasm = await WebAssembly.instantiateStreaming(fetch('/lib.wasm'));
+const { add } = wasm.instance.exports;
+add(2, 3);   // 5
+```
+
+## With higher-level tooling
+
+Most teams use **wasm-bindgen** (Rust) or AssemblyScript:
+
+```rust
+// Rust
+use wasm_bindgen::prelude::*;
+
+#[wasm_bindgen]
+pub fn greet(name: &str) -> String {
+    format!("Hello, {name}")
+}
+```
+
+Build with `wasm-pack` → produces JS glue + .wasm file. From the consumer side it's just an import.
+
+## Memory
+
+Wasm exposes a linear memory buffer. Strings, structs, and arrays are passed via byte offsets — bindgen tools wrap this for you.
+
+## Performance
+
+Crossing the JS/Wasm boundary has a small cost (microseconds). For tight loops, do work entirely in Wasm; cross over only at boundaries.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/wasm/calling-between"
+  questions={[
+    {
+      id: 'cb-1',
+      type: 'single',
+      prompt: 'Most ergonomic way to use Rust→Wasm in a JS app?',
+      options: [
+        { value: 'a', label: 'Hand-write WebAssembly' },
+        { value: 'b', label: 'Use `wasm-bindgen` + `wasm-pack` to generate JS glue' },
+        { value: 'c', label: 'Write everything in JS' },
+        { value: 'd', label: 'Use Emscripten' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/wasm/calling-between"
+  lessonHref="/paths/frontier/wasm/calling-between/"
+  lessonTitle="Calling Wasm and JS"
+  nextHref="/paths/frontier/wasm/use-cases/"
+  nextTitle="Real use cases (and where it's overkill)"
+/>

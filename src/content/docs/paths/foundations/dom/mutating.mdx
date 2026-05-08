@@ -1,0 +1,194 @@
+---
+title: Mutating the DOM (carefully)
+description: Adding, removing, and modifying elements — and the cost of doing it wrong.
+sidebar:
+  order: 2
+pathSlug: foundations
+module: dom
+lessonNumber: 2
+difficulty: beginner
+duration: 10 min
+prerequisites:
+  - You\'ve completed *Selecting and traversing nodes*
+objectives:
+  - Create, append, remove, and replace elements
+  - Update classes and attributes safely
+  - Avoid layout thrashing and unnecessary reflows
+tags: [javascript, dom]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** The minimum-needed API for changing the DOM, and the patterns that keep your changes fast and safe.
+
+## Creating and inserting
+
+```js
+const li = document.createElement('li');
+li.textContent = 'Atlas';
+li.classList.add('item', 'item--new');
+li.dataset.id = '42';
+
+const list = document.querySelector('ul');
+list.append(li);          // append (last)
+list.prepend(li);         // prepend (first)
+list.insertBefore(li, list.firstChild);  // before specific node
+existing.before(li);      // before this sibling
+existing.after(li);       // after this sibling
+existing.replaceWith(li); // swap one element for another
+```
+
+`append`, `prepend`, `before`, `after`, and `replaceWith` accept multiple nodes and strings:
+
+```js
+list.append('Hello, ', strong('Atlas'), '!');  // mix nodes and text
+```
+
+## Removing
+
+```js
+el.remove();              // detach from the DOM
+el.replaceChildren();     // remove ALL children (cleanest "empty this" idiom)
+```
+
+The old `parentNode.removeChild(el)` still works but is unnecessary now.
+
+## Classes and attributes
+
+```js
+el.classList.add('open');
+el.classList.remove('hidden');
+el.classList.toggle('expanded');
+el.classList.toggle('expanded', isExpanded);  // force a state
+el.classList.contains('open');
+
+el.setAttribute('aria-expanded', 'true');
+el.getAttribute('href');
+el.removeAttribute('disabled');
+el.toggleAttribute('disabled');
+
+// data-* attributes have a sugary API:
+el.dataset.id = '42';     // sets data-id="42"
+el.dataset.userRole;      // reads data-user-role (camelCase ↔ kebab-case)
+```
+
+Special cases:
+
+```js
+input.value = 'hello';     // form values
+checkbox.checked = true;   // boolean state
+img.src = '/photo.jpg';    // some attributes have property aliases
+```
+
+## innerHTML, but safer
+
+For inserting trusted HTML (like a server-rendered chunk), `innerHTML` is fine:
+
+```js
+container.innerHTML = '<p>Loaded</p>';
+```
+
+For untrusted input — search queries, user names, comment bodies — sanitize:
+
+```js
+import DOMPurify from 'dompurify';
+container.innerHTML = DOMPurify.sanitize(userInput);
+```
+
+Or sidestep entirely — set `textContent`, build elements with `createElement`.
+
+## Document fragments — batch changes
+
+Inserting one node at a time triggers reflow each time. Build with a fragment, insert once:
+
+```js
+const frag = document.createDocumentFragment();
+for (const post of posts) {
+  const li = document.createElement('li');
+  li.textContent = post.title;
+  frag.append(li);
+}
+list.append(frag);  // single reflow
+```
+
+For a small list (< 100 items) the win is invisible. For 10,000, it matters.
+
+## Avoid layout thrashing
+
+```js
+// ❌ Read after write — forces synchronous layout each time
+for (const el of items) {
+  const w = el.offsetWidth;     // read (forces layout)
+  el.style.width = w + 1 + 'px'; // write
+}
+
+// ✓ Batch reads, then batch writes
+const widths = items.map(el => el.offsetWidth);
+items.forEach((el, i) => { el.style.width = widths[i] + 1 + 'px'; });
+```
+
+(See *The browser rendering pipeline* for more.)
+
+<Callout variant="tip" title="When to reach for a framework">
+This works fine for small surfaces. For anything bigger than a navbar, the imperative DOM API gets painful — that\'s why React, Vue, Svelte exist. **Don\'t reinvent them.** They\'re the right tool when you have more than a few interactive bits.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/dom/mutating"
+  questions={[
+    {
+      id: 'mut-1',
+      type: 'single',
+      prompt: 'Cleanest way to add an element to the end of a list?',
+      options: [
+        { value: 'a', label: 'list.appendChild(el) (legacy)' },
+        { value: 'b', label: 'list.append(el)' },
+        { value: 'c', label: 'list.innerHTML += el.outerHTML' },
+        { value: 'd', label: 'list.insertBefore(el, null)' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'mut-2',
+      type: 'single',
+      prompt: 'You\'re inserting 1,000 list items. Best pattern?',
+      options: [
+        { value: 'a', label: 'Append each to the list one at a time' },
+        { value: 'b', label: 'Build a DocumentFragment, append it once' },
+        { value: 'c', label: 'innerHTML += each item\'s HTML' },
+        { value: 'd', label: 'Use a setTimeout per item' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'mut-3',
+      type: 'single',
+      prompt: 'Why is `el.innerHTML = userComment` dangerous?',
+      options: [
+        { value: 'a', label: 'It\'s slower than textContent' },
+        { value: 'b', label: 'It enables XSS — script tags or event handlers in `userComment` execute' },
+        { value: 'c', label: 'It removes other content first' },
+        { value: 'd', label: 'It only works for plain text' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Events, delegation, and bubbling** — the way users tell your code what they want.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/dom/mutating"
+  lessonHref="/paths/foundations/dom/mutating/"
+  lessonTitle="Mutating the DOM (carefully)"
+  nextHref="/paths/foundations/dom/events/"
+  nextTitle="Events, delegation, and bubbling"
+/>

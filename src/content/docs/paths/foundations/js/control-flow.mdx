@@ -1,0 +1,210 @@
+---
+title: Control flow and iteration
+description: if/else, ternaries, switch, for, while, for…of — the constructs that direct your program's path.
+sidebar:
+  order: 5
+pathSlug: foundations
+module: js
+lessonNumber: 5
+difficulty: beginner
+duration: 10 min
+prerequisites:
+  - You've completed *Arrays and objects*
+objectives:
+  - Pick the right control-flow construct
+  - Iterate over arrays, objects, and iterables idiomatically
+  - Recognize when functional methods (map/filter/reduce) replace loops
+tags: [javascript, control-flow, iteration]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** The handful of control-flow constructs in JS, when each is right, and how `for…of` and the array methods replace classic `for` loops in modern code.
+
+## Conditionals
+
+```js
+if (cond) {
+  // ...
+} else if (other) {
+  // ...
+} else {
+  // ...
+}
+```
+
+For simple value-picking, the **ternary** is cleaner:
+
+```js
+const label = isAdmin ? 'Admin' : 'User';
+```
+
+Avoid nested ternaries beyond two levels — they get unreadable fast.
+
+## switch
+
+For multi-way branching on a single value:
+
+```js
+switch (status) {
+  case 'pending':
+  case 'running':
+    return 'in progress';
+  case 'success':
+    return 'done';
+  default:
+    return 'unknown';
+}
+```
+
+Cases **fall through** unless you `break` or `return`. The grouping above (`pending`/`running`) uses fall-through intentionally. Always `default` at the end.
+
+## Loops
+
+```js
+// Classic for — when you need the index
+for (let i = 0; i < xs.length; i++) {
+  console.log(i, xs[i]);
+}
+
+// for…of — over any iterable (arrays, strings, Maps, Sets)
+for (const x of xs) {
+  console.log(x);
+}
+
+// for…of with index
+for (const [i, x] of xs.entries()) {
+  console.log(i, x);
+}
+
+// for…in — over enumerable KEYS of an object
+for (const key in obj) {
+  console.log(key, obj[key]);
+}
+
+// while
+while (condition) { /* ... */ }
+do { /* ... */ } while (condition);
+```
+
+`for…in` is for objects. `for…of` is for arrays and other iterables. **Don't mix them up** — `for (const x in arr)` gives you string indices, not values.
+
+## Functional methods replace most loops
+
+```js
+// Imperative
+const doubled = [];
+for (let i = 0; i < xs.length; i++) doubled.push(xs[i] * 2);
+
+// Declarative
+const doubled = xs.map(x => x * 2);
+```
+
+Reach for `map`, `filter`, `reduce`, `find` first. Use a loop when:
+
+- You need to **break early** (`for…of` allows `break`; `forEach` doesn't).
+- You're doing **side effects** that don't fit the functional shape.
+- Performance matters (rare; engines optimize both).
+
+## Breaking and continuing
+
+```js
+for (const x of xs) {
+  if (x === skipMe) continue; // skip to next iteration
+  if (x === stopAt) break;    // exit the loop
+  process(x);
+}
+```
+
+`break` and `continue` work in any loop; `return` exits the entire function.
+
+## Truthy short-circuits
+
+A common idiom:
+
+```js
+const user = users.find(u => u.id === id);
+if (!user) return null;
+const role = user?.role ?? 'guest';
+```
+
+Optional chaining (`?.`) and nullish coalescing (`??`) replace many guard `if`s.
+
+## Pattern matching (the modern alt to switch)
+
+There's a TC39 proposal for native pattern matching; until it lands, JS developers often pattern-match with object literals:
+
+```js
+const verb = {
+  pending: 'Loading',
+  success: 'Done',
+  error:   'Failed',
+}[status] ?? 'Unknown';
+```
+
+For complex matching, libraries like `ts-pattern` are popular in TypeScript code.
+
+<Callout variant="tip" title="When in doubt, write the for…of">
+Old advice: prefer `forEach` over `for`. Modern advice: prefer `for…of` over `forEach` because `await`, `break`, and `continue` all work inside `for…of`. They don\'t in `forEach`.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/js/control-flow"
+  questions={[
+    {
+      id: 'cf-1',
+      type: 'single',
+      prompt: 'You want to iterate over an array, breaking out when you find the target. Best loop?',
+      options: [
+        { value: 'a', label: '.forEach with throw to break' },
+        { value: 'b', label: 'for…of (break works inside it)' },
+        { value: 'c', label: 'for…in (it\'s for arrays)' },
+        { value: 'd', label: 'while (true) with manual indexing' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'cf-2',
+      type: 'single',
+      prompt: '`for (const x in [10, 20, 30]) console.log(x);` logs…',
+      options: [
+        { value: 'a', label: '10, 20, 30' },
+        { value: 'b', label: '0, 1, 2 (the indices, as strings)' },
+        { value: 'c', label: 'undefined three times' },
+        { value: 'd', label: 'It throws — for…in doesn\'t work on arrays' },
+      ],
+      answer: 'b',
+      explanation: '`for…in` iterates enumerable keys. For arrays, that\'s the indices — and they\'re STRINGS. Use `for…of` for arrays.',
+    },
+    {
+      id: 'cf-3',
+      type: 'single',
+      prompt: 'Cleanest way to filter and transform an array?',
+      options: [
+        { value: 'a', label: 'A for loop with two if-statements' },
+        { value: 'b', label: 'xs.filter(...).map(...)' },
+        { value: 'c', label: 'A while loop' },
+        { value: 'd', label: 'Recursion' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+The JavaScript Basics module wraps. Next module: **The DOM** — JavaScript and HTML, formally introduced.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/js/control-flow"
+  lessonHref="/paths/foundations/js/control-flow/"
+  lessonTitle="Control flow and iteration"
+  nextHref="/paths/foundations/dom/selecting/"
+  nextTitle="Selecting and traversing nodes"
+/>

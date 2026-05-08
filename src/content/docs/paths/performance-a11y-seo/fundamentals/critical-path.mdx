@@ -1,0 +1,77 @@
+---
+title: Critical rendering path
+description: The bytes the browser MUST have to paint the first useful pixel.
+sidebar:
+  order: 2
+pathSlug: performance-a11y-seo
+module: fundamentals
+lessonNumber: 2
+difficulty: intermediate
+duration: 5 min
+tags: [performance]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What blocks first paint
+
+- **HTML** itself (it's the entry).
+- **`<link rel="stylesheet">`** in `<head>` (render-blocking by default).
+- **Synchronous `<script>`** in `<head>` (parser-blocking AND render-blocking).
+- **Web fonts** (text waits unless `font-display: swap`).
+
+## The fastest LCP recipe
+
+```html
+<!-- Inline critical CSS -->
+<style>/* above-the-fold */</style>
+
+<!-- Defer non-critical CSS -->
+<link rel="stylesheet" href="/main.css" media="print" onload="this.media='all'">
+
+<!-- Preload the LCP image -->
+<link rel="preload" as="image" href="/hero.avif" fetchpriority="high">
+
+<!-- Defer JS -->
+<script src="/app.js" defer></script>
+
+<!-- Font that doesn't block text -->
+<style>@font-face { font-display: swap; }</style>
+```
+
+## What does NOT block
+
+- `<script defer>` and `<script async>` — start fetch but don't pause parsing.
+- Images and videos (the parser keeps going).
+- CSS in `<body>` (loads but is non-blocking… mostly).
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/fundamentals/critical-path"
+  questions={[
+    {
+      id: 'cp-1',
+      type: 'single',
+      prompt: 'Which is render-blocking by default?',
+      options: [
+        { value: 'a', label: '<link rel="stylesheet">' },
+        { value: 'b', label: '<script defer>' },
+        { value: 'c', label: '<img>' },
+        { value: 'd', label: '<link rel="preload">' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/fundamentals/critical-path"
+  lessonHref="/paths/performance-a11y-seo/fundamentals/critical-path/"
+  lessonTitle="Critical rendering path"
+  nextHref="/paths/performance-a11y-seo/fundamentals/network-waterfall/"
+  nextTitle="The network waterfall"
+/>

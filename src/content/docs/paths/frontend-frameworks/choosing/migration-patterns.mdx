@@ -1,0 +1,72 @@
+---
+title: Migration patterns — adding (or removing) a framework gradually
+description: Strangler-fig, micro-frontends, islands. Three patterns for changing tech without a rewrite.
+sidebar:
+  order: 2
+pathSlug: frontend-frameworks
+module: choosing
+lessonNumber: 2
+difficulty: intermediate
+duration: 6 min
+tags: [frameworks, migration]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Strangler fig
+
+Build new features in the new framework, behind a feature flag. Migrate old features one at a time as you touch them. The old framework "strangles" away over months/years.
+
+Pros: low risk. Cons: you maintain two stacks during migration.
+
+## Micro-frontends
+
+Different teams ship independent apps mounted in slots in a shell. Each can use its preferred framework.
+
+Pros: team independence. Cons: bundle size, design-system fragmentation, navigation glue.
+
+## Islands
+
+The old page stays. Drop in islands of the new framework where you need them. Astro pioneered this; the pattern works for any "modern bit in a legacy page" scenario.
+
+Pros: progressive. Cons: islands need careful state-passing across boundaries.
+
+## What rarely works
+
+- **Big-bang rewrite.** "We'll have it ready in 6 months" → 18 months → buggy → frustrated team.
+- **"Let's keep both forever."** Dual maintenance is real. Pick a target.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/choosing/migration-patterns"
+  questions={[
+    {
+      id: 'mp-1',
+      type: 'single',
+      prompt: 'Strangler-fig migration means…',
+      options: [
+        { value: 'a', label: 'Rewrite everything in one PR' },
+        { value: 'b', label: 'Build new in the new stack; replace old as you touch it; eventually the old goes away' },
+        { value: 'c', label: 'Run both stacks forever' },
+        { value: 'd', label: 'Use micro-frontends' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## Path complete
+
+You\'ve finished **Frontend Frameworks**. Pair with [TypeScript Mastery](/paths/typescript/) and [Performance, A11y & SEO](/paths/performance-a11y-seo/) for production-grade UI work, and [Full-Stack](/paths/full-stack/) for end-to-end shipping.
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/choosing/migration-patterns"
+  lessonHref="/paths/frontend-frameworks/choosing/migration-patterns/"
+  lessonTitle="Migration patterns"
+  nextHref="/paths/full-stack/"
+  nextTitle="Full-Stack Web Development"
+/>

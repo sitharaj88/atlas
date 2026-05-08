@@ -1,0 +1,84 @@
+---
+title: The Fetch handler and the small global object
+description: One function signature. Limited globals. The constraints that make portability work.
+sidebar:
+  order: 3
+pathSlug: frontier
+module: edge
+lessonNumber: 3
+difficulty: advanced
+duration: 5 min
+tags: [edge, fetch]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The signature
+
+```ts
+export default {
+  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    return new Response('Hello');
+  },
+};
+```
+
+Same shape on Cloudflare, Vercel Edge, Deno Deploy. Frameworks (Hono, Astro, Next, SvelteKit) wrap this with routing.
+
+## What's NOT in the global
+
+- `process` (no `process.env`; use `env` arg).
+- `fs`, `child_process`, `os`.
+- `Buffer` is partial.
+- Native binaries.
+
+## What IS
+
+- `fetch`, `Request`, `Response`, `Headers`.
+- `URL`, `URLSearchParams`.
+- `Web Streams` (`ReadableStream`, `TransformStream`).
+- `crypto.subtle` (Web Crypto).
+- `WebSocket` (Workers / Deno).
+- `setTimeout`, `setInterval`.
+
+## Background work via `ctx.waitUntil`
+
+```ts
+async fetch(req, env, ctx) {
+  ctx.waitUntil(logToAnalytics(req));    // runs after the response is sent
+  return new Response('OK');
+}
+```
+
+The user gets the response immediately; the analytics call completes in the background.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/edge/fetch-handler"
+  questions={[
+    {
+      id: 'fh-1',
+      type: 'single',
+      prompt: 'In an edge function, you read environment variables from…',
+      options: [
+        { value: 'a', label: 'process.env' },
+        { value: 'b', label: 'The `env` argument passed to the fetch handler' },
+        { value: 'c', label: 'A .env file' },
+        { value: 'd', label: 'A global Env object' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/edge/fetch-handler"
+  lessonHref="/paths/frontier/edge/fetch-handler/"
+  lessonTitle="Fetch handler"
+  nextHref="/paths/frontier/edge/cold-start/"
+  nextTitle="Cold-start vs always-on tradeoffs"
+/>

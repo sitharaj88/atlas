@@ -1,0 +1,86 @@
+---
+title: Zero-downtime deploys
+description: Roll out new versions without dropping requests. Health checks, rolling, blue-green.
+sidebar:
+  order: 2
+pathSlug: full-stack
+module: shipping
+lessonNumber: 2
+difficulty: intermediate
+duration: 5 min
+tags: [deployment, ops]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The recipe
+
+```text
+1. Build new version.
+2. Start new instances. Wait for them to pass HEALTH check.
+3. Add new instances to load balancer.
+4. Drain old instances — stop accepting new requests; finish in-flight.
+5. Stop old instances.
+```
+
+This is "rolling deploy." Most managed platforms do it for you.
+
+## Health checks
+
+```ts
+app.get('/health', (c) => c.json({ ok: true, version: process.env.GIT_SHA }));
+
+app.get('/health/ready', async (c) => {
+  await db.execute('SELECT 1');           // can we hit the DB?
+  await redis.ping();                      // can we hit Redis?
+  return c.json({ ok: true });
+});
+```
+
+`/health` is for liveness (am I alive?). `/health/ready` is for readiness (can I serve traffic?). Load balancers should use ready.
+
+## Blue-green
+
+Two complete environments. Switch DNS / LB routing from blue to green when green is ready. Roll back instantly by switching back.
+
+Pro: instant rollback. Con: 2x infra cost during switchover.
+
+## Database migrations
+
+Hardest part. The rule:
+
+- **Adding columns** — fine, deploy code that reads optionally.
+- **Renaming columns / dropping** — multi-step. Add new column, deploy code that writes both, backfill, deploy code that reads new only, drop old.
+
+Never deploy code that's incompatible with both the old AND new schema simultaneously.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/shipping/zero-downtime"
+  questions={[
+    {
+      id: 'zd-1',
+      type: 'single',
+      prompt: 'Best DB-migration pattern for a column rename in a zero-downtime deploy?',
+      options: [
+        { value: 'a', label: 'Drop old + add new in one PR' },
+        { value: 'b', label: 'Multi-step: add new, dual-write, backfill, dual-read, drop old' },
+        { value: 'c', label: 'Rename via UPDATE' },
+        { value: 'd', label: 'Take the site offline' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/shipping/zero-downtime"
+  lessonHref="/paths/full-stack/shipping/zero-downtime/"
+  lessonTitle="Zero-downtime deploys"
+  nextHref="/paths/full-stack/shipping/migrations-rollbacks-flags/"
+  nextTitle="Migrations, rollbacks, feature flags"
+/>

@@ -1,0 +1,91 @@
+---
+title: Setting and enforcing performance budgets in CI
+description: Catch perf regressions in pull requests, not in production.
+sidebar:
+  order: 3
+pathSlug: performance-a11y-seo
+module: audit
+lessonNumber: 3
+difficulty: intermediate
+duration: 5 min
+tags: [performance, ci]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Pick budgets
+
+Concrete numbers your team commits to:
+
+- **JS bundle: < 100 KB gzip** for the home page.
+- **LCP: < 2.5s** at p75.
+- **CLS: < 0.1** at p75.
+- **Image bytes: < 500 KB** per page.
+
+## Enforce in CI
+
+**Lighthouse CI:**
+
+```yaml
+- run: pnpm dlx @lhci/cli autorun --collect.url=http://localhost:4321
+```
+
+Configure budgets in `lighthouserc.json`:
+
+```json
+{
+  "ci": {
+    "assert": {
+      "assertions": {
+        "categories:performance": ["error", { "minScore": 0.9 }],
+        "first-contentful-paint": ["error", { "maxNumericValue": 1500 }]
+      }
+    }
+  }
+}
+```
+
+**Bundle size:**
+
+```yaml
+- uses: pkg-size/pkg-size-action@v1
+```
+
+Or `size-limit` for stricter per-export limits.
+
+**Visual regression** with Playwright + screenshot diffs catches CLS issues that perf scores miss.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/audit/perf-budgets-ci"
+  questions={[
+    {
+      id: 'pb-1',
+      type: 'single',
+      prompt: 'Best place to enforce perf budgets?',
+      options: [
+        { value: 'a', label: 'Manually before each release' },
+        { value: 'b', label: 'In CI on every PR — fail the build if budgets are exceeded' },
+        { value: 'c', label: 'Never' },
+        { value: 'd', label: 'Production monitoring' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## Path complete
+
+You\'ve finished **Performance, A11y & SEO**. Combine with [Testing & Quality](/paths/testing/) and [DevOps for Web](/paths/devops/) to ship confidently.
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/audit/perf-budgets-ci"
+  lessonHref="/paths/performance-a11y-seo/audit/perf-budgets-ci/"
+  lessonTitle="Perf budgets in CI"
+  nextHref="/paths/testing/"
+  nextTitle="Testing & Quality"
+/>

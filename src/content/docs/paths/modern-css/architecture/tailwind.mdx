@@ -1,0 +1,132 @@
+---
+title: 'Tailwind CSS — the utility-first mental model'
+description: When utility-first wins, when it loses, and the patterns that keep large Tailwind codebases readable.
+sidebar:
+  order: 1
+pathSlug: modern-css
+module: architecture
+lessonNumber: 1
+difficulty: intermediate
+duration: 10 min
+prerequisites:
+  - Foundations CSS
+objectives:
+  - Recognize the utility-first mental model
+  - Compose utilities into components without losing flexibility
+  - Avoid the typical anti-patterns
+tags: [css, tailwind, architecture]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Why Tailwind splits opinion, how to use it well, and the patterns that keep markup readable.
+
+## The mental shift
+
+Instead of `<button class="btn btn--primary">` paired with a 50-line `.btn` rule, write the styles inline as utility classes:
+
+```html
+<button class="px-4 py-2 rounded-md bg-navy-700 text-white font-semibold hover:bg-navy-600">
+  Save
+</button>
+```
+
+You compose appearance from atoms. No new class names; no separate stylesheet to grep.
+
+## Why this works
+
+- **Co-location** — styles live next to markup. Nothing to track down.
+- **No naming** — naming things is the second-hardest problem in CS.
+- **Tree-shaken** — Tailwind ships only the utilities you used.
+- **Constraints** — the design tokens are baked in (`text-lg`, not `font-size: 19px`).
+- **Refactor-safe** — change the component, change the styles, no orphaned CSS.
+
+## Why it polarizes
+
+- Markup gets noisy. A button with 12 utilities is hard to scan.
+- "Just use CSS" works fine for many teams.
+- Custom tokens require Tailwind config changes.
+
+## Composing into components
+
+When utilities pile up, extract the component:
+
+```jsx
+function Button({ children, variant = 'primary' }) {
+  const cls = {
+    primary: 'bg-navy-700 text-white hover:bg-navy-600',
+    ghost:   'border border-navy-700 text-navy-700 hover:bg-navy-50',
+  }[variant];
+  return <button className={`px-4 py-2 rounded-md font-semibold ${cls}`}>{children}</button>;
+}
+```
+
+The component is now your design system primitive.
+
+For non-React projects, use `@apply` sparingly:
+
+```css
+.btn { @apply px-4 py-2 rounded-md font-semibold; }
+```
+
+Don't `@apply` everything — that defeats the point. Reserve for genuine reuse.
+
+## Tailwind 4
+
+The latest Tailwind moves config from JS to CSS:
+
+```css
+@import 'tailwindcss';
+@theme {
+  --color-brand: oklch(72% 0.18 70);
+  --font-display: 'Fraunces', serif;
+}
+```
+
+Modern, faster, no `tailwind.config.js`.
+
+## Anti-patterns
+
+- **Inline overriding** every component (`px-3.5` here, `px-4` there) instead of fixing tokens.
+- **Aliases for everything** (`@apply btn-base`) defeating the point.
+- **Skipping `prettier-plugin-tailwindcss`** — class order matters for readability; the plugin sorts.
+
+<Callout variant="tip" title="Start with utilities, extract when patterns emerge">
+Don\'t pre-architect components. Write utilities. After three places need the same combination, extract. The patterns reveal themselves.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/architecture/tailwind"
+  questions={[
+    {
+      id: 'tw-1',
+      type: 'single',
+      prompt: 'When should you `@apply` Tailwind utilities into a custom class?',
+      options: [
+        { value: 'a', label: 'Always — utilities are messy in HTML' },
+        { value: 'b', label: 'Sparingly — for genuine reuse where a component framework can\'t encapsulate it' },
+        { value: 'c', label: 'Never' },
+        { value: 'd', label: 'Only in production builds' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**CSS Modules — scoped styles in component code.**
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/architecture/tailwind"
+  lessonHref="/paths/modern-css/architecture/tailwind/"
+  lessonTitle="Tailwind CSS — utility-first"
+  nextHref="/paths/modern-css/architecture/css-modules/"
+  nextTitle="CSS Modules — scoped styles"
+/>

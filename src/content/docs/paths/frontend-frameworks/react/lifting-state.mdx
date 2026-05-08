@@ -1,0 +1,83 @@
+---
+title: 'Lifting state, prop drilling, composition over inheritance'
+description: When state goes up, when props drill down, and the composition pattern that solves both.
+sidebar:
+  order: 3
+pathSlug: frontend-frameworks
+module: react
+lessonNumber: 3
+difficulty: intermediate
+duration: 6 min
+tags: [react, state]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Lifting state up
+
+When two siblings need the same data, move state to their **lowest common ancestor**:
+
+```jsx
+function App() {
+  const [filter, setFilter] = useState('');
+  return (
+    <>
+      <SearchBar value={filter} onChange={setFilter} />
+      <Results filter={filter} />
+    </>
+  );
+}
+```
+
+## Prop drilling
+
+When state lives several levels above where it's needed, you pass it down through every level:
+
+```
+App → Page → Toolbar → Search
+```
+
+For 1-2 levels, fine. Beyond that, reach for **Context**, a state library (Zustand/Jotai), or composition.
+
+## Composition over passing
+
+Often the cleaner answer is to pass children:
+
+```jsx
+<Page>
+  <Toolbar><Search /></Toolbar>  {/* Search receives state directly */}
+</Page>
+```
+
+The "lifted" component renders the inner one with its own props/state — no drilling needed.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/react/lifting-state"
+  questions={[
+    {
+      id: 'ls-1',
+      type: 'single',
+      prompt: 'Two sibling components need the same data. Best move?',
+      options: [
+        { value: 'a', label: 'Lift state to their common parent' },
+        { value: 'b', label: 'Use a global variable' },
+        { value: 'c', label: 'Replicate the state in both' },
+        { value: 'd', label: 'Use context' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/react/lifting-state"
+  lessonHref="/paths/frontend-frameworks/react/lifting-state/"
+  lessonTitle="Lifting state and composition"
+  nextHref="/paths/frontend-frameworks/react/lists-keys-inputs/"
+  nextTitle="Lists, keys, controlled vs uncontrolled inputs"
+/>

@@ -1,0 +1,100 @@
+---
+title: Constraints with extends
+description: Limit a type parameter so you can actually use it.
+sidebar:
+  order: 2
+pathSlug: typescript
+module: generics
+lessonNumber: 2
+difficulty: intermediate
+duration: 6 min
+prerequisites:
+  - Generics from first principles
+objectives:
+  - Constrain T to types with a known shape
+  - Preserve T while operating on it
+tags: [typescript, generics]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The problem
+
+```ts
+function logId<T>(obj: T) {
+  console.log(obj.id); // ✗ Property 'id' does not exist on type 'T'
+}
+```
+
+T could be anything. The compiler refuses.
+
+## The fix
+
+```ts
+function logId<T extends { id: string | number }>(obj: T) {
+  console.log(obj.id);
+  return obj;
+}
+
+const u = logId({ id: '42', name: 'Ada' });
+//    type: { id: string; name: string }   ← T is preserved!
+```
+
+Constrain T to the minimum shape you need. You retain full T on the return — extra fields are kept.
+
+## keyof in constraints
+
+```ts
+function get<T, K extends keyof T>(obj: T, key: K): T[K] {
+  return obj[key];
+}
+
+const user = { id: 1, name: 'Ada' };
+const name = get(user, 'name'); // type: string
+const oops = get(user, 'foo');  // ✗ '"foo"' not assignable
+```
+
+`K extends keyof T` — K must be a key of T. `T[K]` is the type of the value at that key.
+
+## Multiple constraints
+
+```ts
+function merge<A extends object, B extends object>(a: A, b: B): A & B {
+  return { ...a, ...b };
+}
+```
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/generics/constraints"
+  questions={[
+    {
+      id: 'gc-1',
+      type: 'single',
+      prompt: '`<T extends { id: number }>` means T must…',
+      options: [
+        { value: 'a', label: 'Be exactly { id: number }' },
+        { value: 'b', label: 'Have at least an `id: number` property (can have more)' },
+        { value: 'c', label: 'Be a class extending Object' },
+        { value: 'd', label: 'Have a string id' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Default type parameters.**
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/generics/constraints"
+  lessonHref="/paths/typescript/generics/constraints/"
+  lessonTitle="Constraints with extends"
+  nextHref="/paths/typescript/generics/defaults/"
+  nextTitle="Default type parameters"
+/>

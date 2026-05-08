@@ -1,0 +1,72 @@
+---
+title: 'TDD: when it pays off, when it slows you down'
+description: Test-Driven Development is a tool, not a religion.
+sidebar:
+  order: 3
+pathSlug: testing
+module: mental-model
+lessonNumber: 3
+difficulty: intermediate
+duration: 5 min
+tags: [testing, tdd]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What TDD is
+
+Red → Green → Refactor.
+
+1. Write a failing test.
+2. Write the minimum code to pass.
+3. Refactor without breaking the test.
+
+## When it shines
+
+- **Pure logic** — parsers, calculators, schedulers. Cheap to test, expensive to debug.
+- **Bug fixes** — write a test that reproduces the bug, then fix.
+- **Hard refactors** — wrap in tests first, refactor with safety net.
+
+## When it gets in the way
+
+- **UI exploration.** When you don't know what the design should be, tests slow iteration.
+- **Throwaway prototypes.**
+- **Spike work** — proving a concept.
+
+## Hybrid in practice
+
+Most pros write tests:
+- **First** for new pure logic.
+- **After** the design settles for UI.
+- **Always** for regressions (test = bug ticket).
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="testing/mental-model/tdd-when"
+  questions={[
+    {
+      id: 'tdd-1',
+      type: 'single',
+      prompt: 'TDD especially shines for…',
+      options: [
+        { value: 'a', label: 'UI exploration' },
+        { value: 'b', label: 'Pure logic AND regression-fixing — write the failing test first' },
+        { value: 'c', label: 'Throwaway prototypes' },
+        { value: 'd', label: 'Style changes' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="testing/mental-model/tdd-when"
+  lessonHref="/paths/testing/mental-model/tdd-when/"
+  lessonTitle="TDD"
+  nextHref="/paths/testing/vitest/vitest-basics/"
+  nextTitle="Vitest in 5 minutes"
+/>

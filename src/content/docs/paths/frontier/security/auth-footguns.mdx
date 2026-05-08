@@ -1,0 +1,69 @@
+---
+title: Auth-related footguns
+description: Mistakes that look reasonable until they aren't.
+sidebar:
+  order: 4
+pathSlug: frontier
+module: security
+lessonNumber: 4
+difficulty: advanced
+duration: 5 min
+tags: [security, auth]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Top mistakes
+
+- **JWTs in localStorage.** XSS-readable. Use HTTP-only cookies.
+- **Returning the password hash** in API responses. Strip it.
+- **Auth check on the client only.** Always re-check on the server.
+- **No CSRF protection** when using cookie-auth. SameSite=Lax helps; double-submit token + Origin check is the belt-and-suspenders.
+- **Open redirects.** `?next=...` query params used in redirects without a same-origin check.
+- **Timing attacks.** String comparison of tokens with `===` (not constant-time). Use `timingSafeEqual` (Node) or library.
+- **Verbose error messages** that leak whether an email is registered.
+- **Long sessions with no expiration.** 30 days max is reasonable; refresh tokens for "remember me."
+- **Magic-link / OTP without rate limiting.** Attackers spray.
+
+## Patterns that work
+
+- HTTP-only cookies for sessions.
+- Server-side authz check on every request.
+- Use a library (Lucia, Auth.js, BetterAuth) — don't roll your own.
+- Centralize the auth middleware so it's hard to forget.
+- Audit logs for sensitive actions.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/security/auth-footguns"
+  questions={[
+    {
+      id: 'af-1',
+      type: 'single',
+      prompt: 'Best place to store a session token in a web app?',
+      options: [
+        { value: 'a', label: 'localStorage' },
+        { value: 'b', label: 'HTTP-only cookie with SameSite=Lax (and Secure)' },
+        { value: 'c', label: 'In-memory variable' },
+        { value: 'd', label: 'A query string' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## Path complete
+
+You\'ve finished **The Modern Frontier**. You\'re now riding the edge — RSC, edge runtimes, real-time, AI, and security. Combine with [Performance, A11y & SEO](/paths/performance-a11y-seo/) and [DevOps for Web](/paths/devops/) for production-grade modern web work.
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/security/auth-footguns"
+  lessonHref="/paths/frontier/security/auth-footguns/"
+  lessonTitle="Auth footguns"
+  nextHref="/paths/"
+  nextTitle="All paths"
+/>

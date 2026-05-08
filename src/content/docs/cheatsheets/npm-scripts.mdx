@@ -1,0 +1,89 @@
+---
+title: 'npm / pnpm / bun scripts cheatsheet'
+description: Common scripts to put in your package.json — and the package-manager equivalents.
+sidebar:
+  order: 8
+tags: [npm, pnpm, bun, cheatsheet]
+---
+
+> Print-friendly.
+
+## Equivalent commands
+
+| Action | npm | pnpm | bun | yarn |
+|---|---|---|---|---|
+| Install all | `npm install` | `pnpm install` | `bun install` | `yarn` |
+| Add | `npm i pkg` | `pnpm add pkg` | `bun add pkg` | `yarn add pkg` |
+| Add dev | `npm i -D pkg` | `pnpm add -D pkg` | `bun add -d pkg` | `yarn add -D pkg` |
+| Remove | `npm uninstall pkg` | `pnpm remove pkg` | `bun remove pkg` | `yarn remove pkg` |
+| Run script | `npm run x` | `pnpm x` | `bun run x` | `yarn x` |
+| Update | `npm update` | `pnpm update` | `bun update` | `yarn upgrade` |
+| Audit | `npm audit` | `pnpm audit` | `bun audit` | `yarn audit` |
+| One-off | `npx pkg` | `pnpm dlx pkg` | `bunx pkg` | `yarn dlx pkg` |
+
+## Useful scripts
+
+```json
+{
+  "scripts": {
+    "dev":        "vite",
+    "build":      "vite build",
+    "preview":    "vite preview",
+    "test":       "vitest",
+    "test:run":   "vitest --run",
+    "test:e2e":   "playwright test",
+    "typecheck":  "tsc --noEmit",
+    "lint":       "biome lint .",
+    "format":     "biome format --write .",
+    "check":      "biome check . && tsc --noEmit && vitest --run",
+    "release":    "changeset publish",
+    "clean":      "rm -rf dist .next .astro node_modules/.cache"
+  }
+}
+```
+
+## Hooks
+
+```json
+{ "scripts": {
+  "preinstall": "...",   "postinstall": "...",
+  "prebuild":   "...",   "postbuild":   "...",
+  "pretest":    "...",   "posttest":    "..."
+}}
+```
+
+`pre-` and `post-` run automatically. Use sparingly; explicit `&&` is clearer.
+
+## Compose scripts
+
+```json
+{ "scripts": {
+  "ci": "pnpm install --frozen-lockfile && pnpm typecheck && pnpm lint && pnpm test:run && pnpm build"
+}}
+```
+
+For larger graphs, use **`turbo`** (Turborepo) or **`nx`** (NX) — they cache outputs and parallelize across workspaces.
+
+## Pass args
+
+```bash
+pnpm test -- --run    # everything after `--` goes to the underlying command
+```
+
+## Cross-platform env vars
+
+```json
+{ "scripts": {
+  "build": "cross-env NODE_ENV=production vite build"
+}}
+```
+
+`cross-env` makes `NODE_ENV=...` work on Windows.
+
+## Engines
+
+```json
+{ "engines": { "node": ">=20", "pnpm": ">=10" } }
+```
+
+CI tools warn or fail when versions don't match.

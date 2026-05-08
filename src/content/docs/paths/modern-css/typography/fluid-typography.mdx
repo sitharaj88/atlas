@@ -1,0 +1,122 @@
+---
+title: Fluid typography with clamp()
+description: Type that scales smoothly between viewports — no media queries.
+sidebar:
+  order: 1
+pathSlug: modern-css
+module: typography
+lessonNumber: 1
+difficulty: intermediate
+duration: 8 min
+prerequisites:
+  - Foundations CSS module
+objectives:
+  - Build a fluid type scale with clamp()
+  - Use a slope generator to pick the values
+tags: [css, typography]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Replace 4–5 media queries per heading with a single `clamp()` call.
+
+## The pattern
+
+```css
+h1 { font-size: clamp(2rem, 4vw + 1rem, 3.5rem); }
+h2 { font-size: clamp(1.5rem, 2.5vw + 1rem, 2.5rem); }
+body { font-size: clamp(1rem, 0.5vw + 0.875rem, 1.125rem); }
+```
+
+`clamp(MIN, FLUID, MAX)`. Type grows linearly between MIN and MAX viewports — no breakpoints.
+
+## Why `4vw + 1rem` instead of `4vw`?
+
+Pure `vw` makes type vanish on tiny screens and explode on big. Adding a `rem` constant flattens the slope so the difference between mobile and desktop is sane.
+
+## Pick values with the slope formula
+
+For "16px at 320w viewport, 24px at 1280w":
+
+```text
+slope = (24 - 16) / (1280 - 320) = 0.00833 → 0.833vw
+constant = 16 - 0.833vw_at_320 = 16 - 2.66 = 13.34px
+font-size: clamp(1rem, 0.833vw + 0.83rem, 1.5rem);
+```
+
+Use a generator (search "fluid type calculator") to skip the math.
+
+## A complete fluid scale
+
+```css
+:root {
+  --fs-xs:   clamp(0.75rem,  0.7rem  + 0.25vw, 0.875rem);
+  --fs-sm:   clamp(0.875rem, 0.8rem  + 0.4vw,  1rem);
+  --fs-base: clamp(1rem,     0.9rem  + 0.5vw,  1.125rem);
+  --fs-lg:   clamp(1.125rem, 1rem    + 0.625vw,1.25rem);
+  --fs-xl:   clamp(1.5rem,   1.2rem  + 1vw,    1.875rem);
+  --fs-2xl:  clamp(2rem,     1.5rem  + 2vw,    3rem);
+  --fs-3xl:  clamp(2.5rem,   2rem    + 3vw,    4rem);
+}
+
+h1 { font-size: var(--fs-3xl); }
+```
+
+## With container queries
+
+`clamp()` accepts `cqi` (container inline) units, scaling type to the **container** instead of the viewport:
+
+```css
+.card { container-type: inline-size; }
+.card h2 { font-size: clamp(1rem, 4cqi, 2rem); }
+```
+
+Cards that look right inside a 200px sidebar AND a 800px main column.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/typography/fluid-typography"
+  questions={[
+    {
+      id: 'flu-1',
+      type: 'single',
+      prompt: '`clamp(MIN, FLUID, MAX)` returns…',
+      options: [
+        { value: 'a', label: 'The maximum of the three' },
+        { value: 'b', label: 'FLUID, but never less than MIN and never more than MAX' },
+        { value: 'c', label: 'The average' },
+        { value: 'd', label: 'MIN on small screens, MAX on large' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'flu-2',
+      type: 'single',
+      prompt: 'Why combine `vw + rem` instead of pure `vw`?',
+      options: [
+        { value: 'a', label: 'Pure vw makes type extreme at viewport edges; adding rem flattens the slope' },
+        { value: 'b', label: 'rem is required by browsers' },
+        { value: 'c', label: 'It\'s shorter to type' },
+        { value: 'd', label: 'No reason' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+## What's next
+
+**Variable fonts and OpenType features.**
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/typography/fluid-typography"
+  lessonHref="/paths/modern-css/typography/fluid-typography/"
+  lessonTitle="Fluid typography with clamp()"
+  nextHref="/paths/modern-css/typography/variable-fonts/"
+  nextTitle="Variable fonts and OpenType features"
+/>

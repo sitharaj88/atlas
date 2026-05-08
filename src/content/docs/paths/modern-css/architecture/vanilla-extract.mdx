@@ -1,0 +1,126 @@
+---
+title: Vanilla Extract — types for your styles
+description: Write CSS in TypeScript. Get autocomplete, refactoring, and zero-runtime CSS extraction.
+sidebar:
+  order: 3
+pathSlug: modern-css
+module: architecture
+lessonNumber: 3
+difficulty: intermediate
+duration: 7 min
+prerequisites:
+  - TypeScript basics
+objectives:
+  - Style components with type-safe CSS
+  - Generate themes with createGlobalTheme
+tags: [css, typescript, architecture]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Vanilla Extract — CSS in TS, extracted to real CSS at build time. Zero runtime cost, full type safety.
+
+## A component
+
+```ts
+// button.css.ts
+import { style } from '@vanilla-extract/css';
+
+export const btn = style({
+  padding: '0.6rem 1rem',
+  borderRadius: 8,
+  background: 'navy',
+  color: 'white',
+  ':hover': { background: '#1c3963' },
+});
+```
+
+```tsx
+// button.tsx
+import { btn } from './button.css';
+export function Button(props) { return <button className={btn}>...</button>; }
+```
+
+The build step extracts the styles into a real CSS file and replaces `btn` with the generated class name.
+
+## Variants
+
+```ts
+import { recipe } from '@vanilla-extract/recipes';
+
+export const button = recipe({
+  base: { padding: '0.6rem 1rem' },
+  variants: {
+    color: { primary: { background: 'navy' }, ghost: { background: 'transparent' } },
+    size:  { sm: { fontSize: 14 }, lg: { fontSize: 18 } },
+  },
+  defaultVariants: { color: 'primary', size: 'sm' },
+});
+
+button({ color: 'ghost', size: 'lg' });
+```
+
+Type-safe variants with autocomplete and exhaustive checking.
+
+## Themes
+
+```ts
+import { createGlobalTheme } from '@vanilla-extract/css';
+
+export const vars = createGlobalTheme(':root', {
+  color: { brand: '#0b1b2b', accent: '#f5b14a' },
+  space: { sm: '0.5rem', md: '1rem', lg: '2rem' },
+});
+
+export const btn = style({ background: vars.color.brand });
+```
+
+Type-safe access to design tokens. Rename a token, every consumer updates.
+
+## When it wins
+
+- TypeScript-first teams.
+- Design systems where types catch typos at compile time.
+- You need typed JS exports of computed styles for inline use.
+
+## When it loses
+
+- The build step adds complexity.
+- Less ecosystem support than Tailwind / CSS Modules.
+- Rapid prototyping — Tailwind is faster to write.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/architecture/vanilla-extract"
+  questions={[
+    {
+      id: 've-1',
+      type: 'single',
+      prompt: 'Vanilla Extract\'s runtime cost is…',
+      options: [
+        { value: 'a', label: 'High — it injects styles at runtime' },
+        { value: 'b', label: 'Zero — styles are extracted to CSS at build time' },
+        { value: 'c', label: 'Same as Tailwind' },
+        { value: 'd', label: 'Same as CSS-in-JS' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**BEM, ITCSS, CUBE — when each shines.**
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/architecture/vanilla-extract"
+  lessonHref="/paths/modern-css/architecture/vanilla-extract/"
+  lessonTitle="Vanilla Extract — typed styles"
+  nextHref="/paths/modern-css/architecture/bem-itcss-cube/"
+  nextTitle="BEM, ITCSS, CUBE methodologies"
+/>

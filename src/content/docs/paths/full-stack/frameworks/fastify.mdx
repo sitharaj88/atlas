@@ -1,0 +1,75 @@
+---
+title: 'Fastify — the Node.js workhorse'
+description: Mature, fast, plugin-rich. The pragmatic choice for Node-only servers.
+sidebar:
+  order: 2
+pathSlug: full-stack
+module: frameworks
+lessonNumber: 2
+difficulty: intermediate
+duration: 5 min
+tags: [fastify, node]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## A server
+
+```ts
+import Fastify from 'fastify';
+const app = Fastify({ logger: true });
+
+app.get('/health', async () => ({ status: 'ok' }));
+app.post('/users', async (req) => { /* req.body is typed */ });
+
+app.listen({ port: 3000 });
+```
+
+## What it gives you
+
+- Built-in JSON schema validation per route.
+- Plugins for everything: `@fastify/cors`, `@fastify/jwt`, `@fastify/swagger`, etc.
+- Logging via Pino (fast, structured).
+- Schema-driven serialization (faster than ad-hoc JSON.stringify).
+
+## When Fastify
+
+- Node-only deployment.
+- Performance-sensitive HTTP server.
+- You like JSON Schema for I/O validation.
+
+## Hono vs Fastify
+
+- **Hono** wins on portability (edge runtimes), tiny size, end-to-end types.
+- **Fastify** wins on Node ecosystem depth, schema-driven perf, mature plugins.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/frameworks/fastify"
+  questions={[
+    {
+      id: 'fs-1',
+      type: 'single',
+      prompt: 'Fastify\'s primary advantage over Express?',
+      options: [
+        { value: 'a', label: 'Built-in schema validation, faster JSON serialization, better TS support' },
+        { value: 'b', label: 'Smaller bundle' },
+        { value: 'c', label: 'Edge runtime support' },
+        { value: 'd', label: 'TypeScript only' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/frameworks/fastify"
+  lessonHref="/paths/full-stack/frameworks/fastify/"
+  lessonTitle="Fastify"
+  nextHref="/paths/full-stack/frameworks/express/"
+  nextTitle="Express — when you'll meet it"
+/>

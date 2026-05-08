@@ -1,0 +1,71 @@
+---
+title: 'TanStack Start — type-safe full-stack'
+description: A new React meta-framework built on TanStack Router with end-to-end type safety.
+sidebar:
+  order: 4
+pathSlug: frontend-frameworks
+module: meta-frameworks
+lessonNumber: 4
+difficulty: intermediate
+duration: 5 min
+tags: [react, tanstack]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The pitch
+
+A full-stack React framework built on TanStack Router. Strong type-safety from URL → loader → page → params. Pairs with TanStack Query for server state.
+
+```tsx
+const route = createFileRoute('/posts/$id')({
+  loader: async ({ params }) => fetchPost(params.id),
+  component: Post,
+});
+
+function Post() {
+  const post = Route.useLoaderData();   // fully typed
+  return <article>{post.body}</article>;
+}
+```
+
+## When to pick
+
+- You love TanStack Query and want one-stack consistency.
+- You want type-safe routing without code generation.
+- You don't want to be tied to Vercel-flavored opinions.
+
+## Status
+
+Newer than Next/Remix; ecosystem smaller. For greenfield projects with a TS-first team, increasingly compelling.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/meta-frameworks/tanstack-start"
+  questions={[
+    {
+      id: 'tss-1',
+      type: 'single',
+      prompt: 'TanStack Start\'s headline feature is…',
+      options: [
+        { value: 'a', label: 'Edge-first deploy' },
+        { value: 'b', label: 'End-to-end type safety from URL through loader to component' },
+        { value: 'c', label: 'JSX-free' },
+        { value: 'd', label: 'Static HTML output' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/meta-frameworks/tanstack-start"
+  lessonHref="/paths/frontend-frameworks/meta-frameworks/tanstack-start/"
+  lessonTitle="TanStack Start"
+  nextHref="/paths/frontend-frameworks/vue/composition-api/"
+  nextTitle="Vue 3 Composition API"
+/>

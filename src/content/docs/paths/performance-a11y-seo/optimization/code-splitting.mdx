@@ -1,0 +1,79 @@
+---
+title: Code splitting and prefetching
+description: Don't ship 500 KB of JS for the first paint. Split, lazy-load, and prefetch smartly.
+sidebar:
+  order: 3
+pathSlug: performance-a11y-seo
+module: optimization
+lessonNumber: 3
+difficulty: intermediate
+duration: 5 min
+tags: [performance, bundling]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Where to split
+
+- **By route.** Each page loads its own chunk.
+- **By heavy widget.** A rich text editor or chart library, lazy-loaded on demand.
+
+## Dynamic import
+
+```ts
+button.addEventListener('click', async () => {
+  const { Editor } = await import('./Editor.tsx');
+  open(<Editor />);
+});
+```
+
+Bundlers split at every `import()` automatically.
+
+## Prefetch hints
+
+```html
+<!-- The user's about to need it; download with low priority -->
+<link rel="prefetch" href="/_astro/editor.abc.js">
+```
+
+```jsx
+// In React Router / Next, hover-to-prefetch is built-in
+<Link to="/dashboard" prefetch="intent">Dashboard</Link>
+```
+
+## Tree-shake hard
+
+- Avoid barrel files (`export * from`) on hot paths.
+- Use ES modules.
+- Verify with `vite-plugin-visualizer` or `bundle-buddy`.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/optimization/code-splitting"
+  questions={[
+    {
+      id: 'cs-1',
+      type: 'single',
+      prompt: 'Easiest way to lazy-load a heavy widget?',
+      options: [
+        { value: 'a', label: 'A static `import` at the top of the file' },
+        { value: 'b', label: 'Dynamic `import()` triggered when needed' },
+        { value: 'c', label: 'A separate <script> tag in HTML' },
+        { value: 'd', label: 'Inlining as a string' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/optimization/code-splitting"
+  lessonHref="/paths/performance-a11y-seo/optimization/code-splitting/"
+  lessonTitle="Code splitting"
+  nextHref="/paths/performance-a11y-seo/optimization/service-workers/"
+  nextTitle="Service Workers and HTTP caching"
+/>

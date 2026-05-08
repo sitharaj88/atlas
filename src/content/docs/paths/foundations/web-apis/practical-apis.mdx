@@ -1,0 +1,222 @@
+---
+title: 'Geolocation, clipboard, Web Share — practical APIs'
+description: The browser ships with surprisingly capable built-ins. Use them before reaching for libraries.
+sidebar:
+  order: 3
+pathSlug: foundations
+module: web-apis
+lessonNumber: 3
+difficulty: beginner
+duration: 10 min
+prerequisites:
+  - You've completed the *fetch* and *Storage* lessons
+objectives:
+  - Request geolocation and handle errors
+  - Read/write the clipboard
+  - Trigger the native share sheet on mobile
+tags: [javascript, web-apis]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** A tour of the everyday Web APIs that are too small for their own lesson but too useful to skip — geolocation, clipboard, share, vibration, screen wake-lock, and the Permissions API.
+
+## Geolocation
+
+```js
+navigator.geolocation.getCurrentPosition(
+  pos => console.log(pos.coords.latitude, pos.coords.longitude),
+  err => console.error(err.message),
+  { enableHighAccuracy: true, timeout: 5000, maximumAge: 60000 }
+);
+
+// Continuous (returns an id, clearWatch to stop)
+const id = navigator.geolocation.watchPosition(pos => {/* ... */});
+navigator.geolocation.clearWatch(id);
+```
+
+Requires user permission. Requires HTTPS (except `localhost`). On a fresh prompt, design your UI around the wait — don't block the page.
+
+## Clipboard
+
+```js
+// Write
+await navigator.clipboard.writeText('hello');
+
+// Read (requires permission, must be triggered by user gesture)
+const text = await navigator.clipboard.readText();
+
+// Read images, files
+const items = await navigator.clipboard.read();
+for (const item of items) {
+  for (const type of item.types) {
+    const blob = await item.getType(type);
+    // ... do something with blob
+  }
+}
+```
+
+Clipboard write requires either focus on your site OR a user gesture. Read is more restricted.
+
+## Web Share
+
+The native share sheet:
+
+```js
+if (navigator.share) {
+  await navigator.share({
+    title: 'Atlas',
+    text: 'Your map to modern web development',
+    url: 'https://atlas.dev',
+  });
+}
+```
+
+Works on mobile and increasingly on desktop. Falls back to nothing if unsupported — feature-detect.
+
+You can also share files:
+
+```js
+const files = [new File([blob], 'photo.jpg', { type: 'image/jpeg' })];
+if (navigator.canShare?.({ files })) {
+  await navigator.share({ files, title: 'Look at this' });
+}
+```
+
+## Permissions API
+
+Check whether you'll be granted before asking:
+
+```js
+const status = await navigator.permissions.query({ name: 'geolocation' });
+console.log(status.state); // 'granted' | 'denied' | 'prompt'
+
+status.addEventListener('change', () => console.log('now', status.state));
+```
+
+Useful for hiding "Use my location" buttons when permission is already denied.
+
+## Vibration, Wake Lock, Notification
+
+```js
+// Vibration (mobile only)
+navigator.vibrate(200);                    // 200ms buzz
+navigator.vibrate([100, 50, 100]);         // pattern
+
+// Wake lock — keep the screen on
+const lock = await navigator.wakeLock.request('screen');
+// later: lock.release();
+
+// Notifications
+if (await Notification.requestPermission() === 'granted') {
+  new Notification('Hello', { body: 'You have a new message' });
+}
+```
+
+Notifications are most powerful with a service worker — you can show them even when the page is closed.
+
+## Speech: synthesis and recognition
+
+```js
+// Text-to-speech (broad support)
+const u = new SpeechSynthesisUtterance('Hello from Atlas');
+speechSynthesis.speak(u);
+
+// Speech-to-text (Chromium for now)
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+if (SR) {
+  const sr = new SR();
+  sr.onresult = (e) => console.log(e.results[0][0].transcript);
+  sr.start();
+}
+```
+
+## Drag and drop
+
+```js
+zone.addEventListener('dragover', e => e.preventDefault()); // required to allow drop
+zone.addEventListener('drop', e => {
+  e.preventDefault();
+  for (const file of e.dataTransfer.files) {
+    upload(file);
+  }
+});
+```
+
+## Visibility, online/offline
+
+```js
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) pauseExpensiveWork();
+  else resume();
+});
+
+window.addEventListener('online', () => syncQueue());
+window.addEventListener('offline', () => showOfflineBanner());
+navigator.onLine; // boolean (heuristic; not always accurate)
+```
+
+<Callout variant="tip" title="Feature-detect, then enhance">
+Many of these are well-supported but not universal. The pattern is `if (navigator.share) {...} else fallback()`. Progressive enhancement keeps your site working everywhere while leveraging the modern goodies where available.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/web-apis/practical-apis"
+  questions={[
+    {
+      id: 'pra-1',
+      type: 'single',
+      prompt: 'Why does `navigator.clipboard.readText()` sometimes fail?',
+      options: [
+        { value: 'a', label: 'It only works in Chrome' },
+        { value: 'b', label: 'It requires user permission and a recent gesture' },
+        { value: 'c', label: 'Clipboard API is deprecated' },
+        { value: 'd', label: 'It only reads images, not text' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'pra-2',
+      type: 'single',
+      prompt: '`document.addEventListener("dragover", ...)` does what for drop?',
+      options: [
+        { value: 'a', label: 'Prevents the default — required so the drop event fires' },
+        { value: 'b', label: 'Stops bubbling' },
+        { value: 'c', label: 'Reads the dragged data' },
+        { value: 'd', label: 'Nothing — drop works without it' },
+      ],
+      answer: 'a',
+      explanation: 'You MUST preventDefault on dragover. Otherwise the browser refuses the drop.',
+    },
+    {
+      id: 'pra-3',
+      type: 'single',
+      prompt: 'You want to know if Geolocation will be granted before showing the button. Use…',
+      options: [
+        { value: 'a', label: 'navigator.permissions.query({ name: \'geolocation\' })' },
+        { value: 'b', label: 'try/catch around getCurrentPosition' },
+        { value: 'c', label: 'Check navigator.userAgent' },
+        { value: 'd', label: 'Always show the button' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+## What's next
+
+The Web APIs module wraps. Next module: **Asynchronous JavaScript** — the part of the language that handles waiting.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/web-apis/practical-apis"
+  lessonHref="/paths/foundations/web-apis/practical-apis/"
+  lessonTitle="Geolocation, clipboard, Web Share — practical APIs"
+  nextHref="/paths/foundations/async/callbacks-to-async-await/"
+  nextTitle="Callbacks → Promises → async/await"
+/>

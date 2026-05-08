@@ -1,0 +1,72 @@
+---
+title: Running E2E in CI without flake
+description: The patterns that turn green-most-of-the-time into actually-green.
+sidebar:
+  order: 4
+pathSlug: testing
+module: e2e
+lessonNumber: 3
+difficulty: intermediate
+duration: 5 min
+tags: [playwright, ci]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Sources of flake
+
+- **Race conditions** — assertions running before content arrives. Fix with auto-waiting (`expect(...).toBeVisible()`).
+- **Time-of-day data** — tests that pass in the morning, fail at night.
+- **Order-dependent state** — tests that depend on previous tests' side effects. Always reset.
+- **Shared resources** — DB rows, accounts. Use per-test isolation.
+
+## Standard tools
+
+- **`retries: process.env.CI ? 2 : 0`** in Playwright config — flakes get a second chance, locally you get fast feedback.
+- **`trace: 'on-first-retry'`** — capture trace files only when retrying.
+- **Sharding** — split tests across CI runners. `--shard=2/4` runs the second quarter.
+
+## A solid CI workflow
+
+```yaml
+- run: pnpm install
+- run: pnpm exec playwright install --with-deps
+- run: pnpm exec playwright test --shard=${{ matrix.shard }}/4
+  env: { CI: 'true' }
+- if: failure()
+  uses: actions/upload-artifact@v4
+  with: { name: traces-${{ matrix.shard }}, path: test-results }
+```
+
+Upload trace files on failure. Past-you will thank current-you.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="testing/e2e/ci-e2e"
+  questions={[
+    {
+      id: 'cie-1',
+      type: 'single',
+      prompt: 'A flaky test pattern: assertions race the page. Best fix?',
+      options: [
+        { value: 'a', label: 'sleep(500)' },
+        { value: 'b', label: 'Use Playwright\'s auto-waiting assertions like `expect(locator).toBeVisible()`' },
+        { value: 'c', label: 'Run more retries' },
+        { value: 'd', label: 'Disable the test' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="testing/e2e/ci-e2e"
+  lessonHref="/paths/testing/e2e/ci-e2e/"
+  lessonTitle="E2E in CI"
+  nextHref="/paths/testing/quality-gates/storybook/"
+  nextTitle="Storybook in tests"
+/>

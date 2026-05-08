@@ -1,0 +1,75 @@
+---
+title: 'Kysely — query builder for SQL purists'
+description: Type-safe SQL without abstraction. Just SQL with autocomplete.
+sidebar:
+  order: 3
+pathSlug: full-stack
+module: orms
+lessonNumber: 3
+difficulty: intermediate
+duration: 5 min
+tags: [kysely, orms]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## A query
+
+```ts
+const users = await db
+  .selectFrom('user')
+  .where('email', '=', 'a@b.com')
+  .select(['id', 'name', 'createdAt'])
+  .execute();
+```
+
+You write SQL using a fluent API. Types come from a TS interface describing your schema.
+
+## Why Kysely
+
+- No abstraction beyond what SQL already does.
+- No generated client.
+- Works great with raw migrations (you write SQL).
+- Fast cold start.
+
+## Trade-offs
+
+- More boilerplate than Prisma/Drizzle for simple cases.
+- No "include relation" sugar — write the JOIN yourself.
+
+## When Kysely
+
+- You like SQL.
+- You want zero-magic type-safety.
+- You've outgrown an ORM and miss writing SQL.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/orms/kysely"
+  questions={[
+    {
+      id: 'ky-1',
+      type: 'single',
+      prompt: 'Kysely\'s niche is…',
+      options: [
+        { value: 'a', label: 'A query builder that types your raw SQL — no schema DSL, no model layer' },
+        { value: 'b', label: 'A full ORM with relations' },
+        { value: 'c', label: 'Schema migrations only' },
+        { value: 'd', label: 'Replacing Postgres' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/orms/kysely"
+  lessonHref="/paths/full-stack/orms/kysely/"
+  lessonTitle="Kysely"
+  nextHref="/paths/full-stack/storage-email-payments/file-uploads/"
+  nextTitle="File uploads"
+/>

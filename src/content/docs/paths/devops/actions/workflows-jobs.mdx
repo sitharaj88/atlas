@@ -1,0 +1,82 @@
+---
+title: 'Workflows, jobs, steps, runners'
+description: GitHub Actions structure in 5 minutes.
+sidebar:
+  order: 1
+pathSlug: devops
+module: actions
+lessonNumber: 1
+difficulty: intermediate
+duration: 5 min
+tags: [github-actions, ci]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The hierarchy
+
+```text
+Workflow (.github/workflows/x.yml — triggered by events)
+├── Job (runs on a runner)
+│   ├── Step (a single action or shell command)
+│   ├── Step
+│   └── Step
+└── Job (runs in parallel by default)
+```
+
+## A complete workflow
+
+```yaml
+name: CI
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 20, cache: pnpm }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm test
+```
+
+## Triggers
+
+- `push` — every push.
+- `pull_request` — PR opened/updated.
+- `schedule` — cron.
+- `workflow_dispatch` — manual button.
+- `release` — release published.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="devops/actions/workflows-jobs"
+  questions={[
+    {
+      id: 'wf-1',
+      type: 'single',
+      prompt: 'In a workflow, jobs run by default…',
+      options: [
+        { value: 'a', label: 'Sequentially' },
+        { value: 'b', label: 'In parallel (unless `needs:` declares dependencies)' },
+        { value: 'c', label: 'Once per file' },
+        { value: 'd', label: 'On the same runner' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="devops/actions/workflows-jobs"
+  lessonHref="/paths/devops/actions/workflows-jobs/"
+  lessonTitle="Workflows, jobs, steps"
+  nextHref="/paths/devops/actions/matrix-cache-artifacts/"
+  nextTitle="Matrix builds, caching, artifacts"
+/>

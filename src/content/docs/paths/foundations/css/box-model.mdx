@@ -1,0 +1,189 @@
+---
+title: 'The box model (and `box-sizing: border-box`)'
+description: Every element on the page is a box. Master content, padding, border, margin — and the one global rule that fixes 90% of layout pain.
+sidebar:
+  order: 2
+pathSlug: foundations
+module: css
+lessonNumber: 2
+difficulty: beginner
+duration: 10 min
+prerequisites:
+  - You\'ve written some CSS
+objectives:
+  - Trace what makes up an element\'s total rendered size
+  - 'Apply box-sizing: border-box globally and know why'
+  - Recognize and fix margin collapse
+tags: [css, layout, box-model]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** What CSS dimensions actually mean — and why every modern reset starts with `*, *::before, *::after { box-sizing: border-box; }`.
+
+## The four areas
+
+Every element is a stack of rectangles:
+
+```text
+┌────────────────────────────────────────┐  margin (transparent)
+│  ┌──────────────────────────────────┐  │
+│  │           border                 │  │
+│  │  ┌────────────────────────────┐  │  │
+│  │  │         padding            │  │  │
+│  │  │  ┌──────────────────────┐  │  │  │
+│  │  │  │      content         │  │  │  │
+│  │  │  └──────────────────────┘  │  │  │
+│  │  └────────────────────────────┘  │  │
+│  └──────────────────────────────────┘  │
+└────────────────────────────────────────┘
+```
+
+- **Content** — text or child elements.
+- **Padding** — space inside the border. Inherits the background.
+- **Border** — visible outline.
+- **Margin** — space outside the border. Always transparent.
+
+## The default `box-sizing: content-box` is wrong
+
+```css
+.box {
+  width: 200px;
+  padding: 20px;
+  border: 4px solid black;
+}
+/* Total rendered width: 200 + 20 + 20 + 4 + 4 = 248px */
+```
+
+That's `content-box` — `width` only sets the content area, padding and border are added on top. So `width: 100%; padding: 1rem;` overflows the parent. Madness.
+
+## The fix: `border-box`
+
+```css
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+```
+
+Now `width` is the **total** width including padding and border. The content area shrinks to fit.
+
+```css
+.box {
+  width: 200px;
+  padding: 20px;
+  border: 4px solid black;
+}
+/* Total rendered width: 200px. Content area: 152px. */
+```
+
+Every modern CSS reset starts with this. Add it once, never think about it again.
+
+## Margin collapse
+
+This one trips everyone up.
+
+```html
+<p style="margin-bottom: 30px">Top paragraph</p>
+<p style="margin-top: 20px">Bottom paragraph</p>
+```
+
+What's the gap? **30px**, not 50.
+
+When two block-level margins meet, they **collapse** into the larger of the two. That's not a bug — it's the default and it's why typography looks reasonable without you fighting margins.
+
+Margins also collapse:
+- Through empty blocks (no content, no padding, no border).
+- Between a parent and its first/last child if there's no border or padding separating them.
+
+To stop collapse: add a border, padding, `display: flex`/`grid`, or `overflow: hidden` to the parent.
+
+<Callout variant="tip" title="Margins are evil; gap is friendly">
+Margin collapse, asymmetric ownership ("which side owns the spacing?"), and the difficulty of resetting them are why modern CSS prefers `gap` (in flex/grid) and `padding` over `margin` for component-internal spacing. Reserve margins for typographic rhythm in body copy.
+</Callout>
+
+## Width gotchas
+
+Some properties don't include other properties in surprising ways:
+
+- **`min-width: auto`** on flex children — by default, flex items can't shrink below their content size. Override with `min-width: 0`.
+- **`width: 100%`** on a child of a padded parent — fine with `border-box`; overflows with `content-box`.
+- **Replaced elements** (`<img>`, `<video>`) have intrinsic dimensions; `box-sizing` matters less.
+
+## Logical properties
+
+For internationalization:
+
+```css
+.box {
+  margin-block: 1rem;       /* top + bottom in horizontal writing modes */
+  margin-inline: auto;      /* left + right (or RTL: right + left) */
+  padding-block-end: 2rem;  /* bottom (or, in vertical RTL, the appropriate side) */
+}
+```
+
+These flip automatically for RTL languages (Arabic, Hebrew). Use them for any UI that might ship internationally.
+
+## See it in DevTools
+
+DevTools → Elements → Styles → bottom of the panel: a colored box showing margin (orange), border (yellow), padding (green), content (blue) with the actual measurements. Hover an element in the DOM tree — the page highlights with the same colors.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/css/box-model"
+  questions={[
+    {
+      id: 'box-1',
+      type: 'single',
+      prompt: 'With default `box-sizing`, this box renders how wide? `width: 100px; padding: 10px; border: 2px solid;`',
+      options: [
+        { value: 'a', label: '100px (the width includes everything)' },
+        { value: 'b', label: '124px (100 + 10 + 10 + 2 + 2)' },
+        { value: 'c', label: '120px' },
+        { value: 'd', label: 'Depends on the browser' },
+      ],
+      answer: 'b',
+      explanation: 'Default is `content-box` — width is just the content area, with padding and border added on top.',
+    },
+    {
+      id: 'box-2',
+      type: 'single',
+      prompt: 'Two adjacent `<p>` elements with `margin-bottom: 30px` and `margin-top: 20px` produce a gap of…',
+      options: [
+        { value: 'a', label: '50px (they sum)' },
+        { value: 'b', label: '30px (they collapse to the larger)' },
+        { value: 'c', label: '20px (they collapse to the smaller)' },
+        { value: 'd', label: '0' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'box-3',
+      type: 'single',
+      prompt: 'Best modern way to space items in a flex container?',
+      options: [
+        { value: 'a', label: 'margin: 0 0.5rem on each child' },
+        { value: 'b', label: 'gap on the parent' },
+        { value: 'c', label: 'padding on each child' },
+        { value: 'd', label: '<br> tags' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Flexbox, the friendly version** — one-dimensional layout that finally makes sense.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/css/box-model"
+  lessonHref="/paths/foundations/css/box-model/"
+  lessonTitle="The box model"
+  nextHref="/paths/foundations/css/flexbox/"
+  nextTitle="Flexbox, the friendly version"
+/>

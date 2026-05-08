@@ -1,0 +1,129 @@
+---
+title: 'tsconfig.json — the flags that actually matter'
+description: There are 100+ tsconfig options. The 12 that actually affect your code.
+sidebar:
+  order: 3
+pathSlug: typescript
+module: mental-model
+lessonNumber: 3
+difficulty: beginner
+duration: 8 min
+prerequisites:
+  - You've used tsc or seen tsconfig.json
+objectives:
+  - Set strict, target, module, moduleResolution correctly
+  - Recognize when to enable advanced flags
+tags: [typescript, tsconfig]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** A minimal-but-complete tsconfig you can copy, with each flag's purpose explained.
+
+## A modern config
+
+```json
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "react-jsx",
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitOverride": true,
+
+    "isolatedModules": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+
+    "noEmit": true,
+    "resolveJsonModule": true
+  },
+  "include": ["src/**/*"]
+}
+```
+
+## The flags
+
+- **`target`** — what JS version to emit. `ES2022` is broadly safe; `ESNext` for modern-only.
+- **`module`** — how to emit modules. `ESNext` for bundlers, `NodeNext` for raw Node.
+- **`moduleResolution`** — `Bundler` for Vite/Webpack/etc.; `NodeNext` for Node ESM; `Node10` legacy.
+- **`lib`** — which type definitions to include. Add `DOM` for browser code.
+- **`jsx`** — `react-jsx` (modern), `preserve` (let your bundler handle), `react` (classic).
+- **`strict: true`** — turns on all strict-mode flags. Always.
+- **`noUncheckedIndexedAccess`** — `arr[0]` becomes `T | undefined` (correct).
+- **`exactOptionalPropertyTypes`** — `{ x?: number }` no longer accepts `undefined` explicitly.
+- **`isolatedModules`** — every file must be compilable in isolation. Required by bundlers.
+- **`esModuleInterop`** — clean `import x from 'cjs-module'` syntax.
+- **`skipLibCheck`** — skip type-checking `node_modules`. Almost always on (faster, fewer noise errors).
+- **`noEmit`** — don't write `.js` files. The bundler handles emit; tsc just type-checks.
+- **`resolveJsonModule`** — allow `import data from './x.json'`.
+
+## Strict mode breakdown
+
+`strict: true` turns on all of these:
+
+- `noImplicitAny` — must annotate function params.
+- `strictNullChecks` — null/undefined are not assignable to other types.
+- `strictFunctionTypes` — stricter function-parameter variance.
+- `strictBindCallApply` — type-check `bind`/`call`/`apply`.
+- `strictPropertyInitialization` — class fields must be initialized.
+- `noImplicitThis` — `this: any` not allowed implicitly.
+- `useUnknownInCatchVariables` — `catch (e)` is `unknown`, not `any`.
+- `alwaysStrict` — emits `'use strict'`.
+
+You can opt out individually if you really need to.
+
+## When to add the extra-strict flags
+
+`noUncheckedIndexedAccess` and `exactOptionalPropertyTypes` are not in `strict: true`. Add them when:
+
+- Your codebase is small enough to absorb the new errors.
+- You want maximum safety for new code.
+
+For a large legacy codebase, consider adding them to specific subdirectories via project references rather than turning on globally.
+
+<Callout variant="tip" title="Three-tier strictness">
+Modern teams often run three tsconfigs: a base, a stricter app config, and an even-stricter test config. New code passes the strictest; legacy code passes the base.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/mental-model/tsconfig"
+  questions={[
+    {
+      id: 'tsc-1',
+      type: 'single',
+      prompt: 'You\'re using Vite. The right `moduleResolution` value?',
+      options: [
+        { value: 'a', label: 'Node10' },
+        { value: 'b', label: 'NodeNext' },
+        { value: 'c', label: 'Bundler' },
+        { value: 'd', label: 'Classic' },
+      ],
+      answer: 'c',
+    },
+  ]}
+/>
+
+## What's next
+
+**`any`, `unknown`, `never` — when each is right.**
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/mental-model/tsconfig"
+  lessonHref="/paths/typescript/mental-model/tsconfig/"
+  lessonTitle="tsconfig — flags that matter"
+  nextHref="/paths/typescript/mental-model/any-unknown-never/"
+  nextTitle="any, unknown, never"
+/>

@@ -1,0 +1,109 @@
+---
+title: 'Working with third-party types (`@types`, declaration merging)'
+description: When a library has types, when you need DefinitelyTyped, and how to extend.
+sidebar:
+  order: 2
+pathSlug: typescript
+module: practical
+lessonNumber: 2
+difficulty: intermediate
+duration: 7 min
+prerequisites:
+  - Building blocks
+objectives:
+  - Find types for any library
+  - Extend types via declaration merging
+tags: [typescript, packages]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Three sources of types
+
+1. **Bundled types** — most modern packages ship `.d.ts` files. Check `package.json`'s `types` or `typings` field.
+2. **DefinitelyTyped** — `@types/<name>` packages for libraries without built-in types.
+3. **Hand-written** — `*.d.ts` files for things without any of the above.
+
+## Installing DefinitelyTyped
+
+```bash
+pnpm add -D @types/node @types/react @types/react-dom
+```
+
+These are community-maintained. Quality varies; usually fine for popular libs.
+
+## Declaration merging
+
+Add to an existing type, including library types:
+
+```ts
+// app.d.ts
+declare global {
+  interface Window {
+    plausible?: (event: string) => void;
+  }
+}
+
+window.plausible?.('signup'); // ✓ now typed
+```
+
+For module augmentation:
+
+```ts
+declare module 'react' {
+  interface CSSProperties {
+    '--brand'?: string; // allow custom CSS variables in style={{}}
+  }
+}
+```
+
+Useful for: extending `Window`, adding custom CSS variables to `style`, augmenting Express's `Request`.
+
+## Ambient declarations
+
+For files that have no types at all:
+
+```ts
+// images.d.ts
+declare module '*.svg' {
+  const src: string;
+  export default src;
+}
+```
+
+Tells TS that `import logo from './logo.svg'` returns a string.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/practical/third-party-types"
+  questions={[
+    {
+      id: 'ttt-1',
+      type: 'single',
+      prompt: 'A library has no bundled types. Where do you look first?',
+      options: [
+        { value: 'a', label: 'Write them by hand' },
+        { value: 'b', label: 'Try `pnpm add -D @types/<package-name>` (DefinitelyTyped)' },
+        { value: 'c', label: 'Use `any`' },
+        { value: 'd', label: 'Switch libraries' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**TS in monorepos.**
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/practical/third-party-types"
+  lessonHref="/paths/typescript/practical/third-party-types/"
+  lessonTitle="Working with third-party types"
+  nextHref="/paths/typescript/practical/monorepos/"
+  nextTitle="TS in monorepos"
+/>

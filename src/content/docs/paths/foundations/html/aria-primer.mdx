@@ -1,0 +1,194 @@
+---
+title: 'Accessibility primer: ARIA without the footguns'
+description: ARIA fixes things HTML can't, and breaks things HTML already had. The five rules that keep you on the right side.
+sidebar:
+  order: 5
+pathSlug: foundations
+module: html
+lessonNumber: 5
+difficulty: beginner
+duration: 12 min
+prerequisites:
+  - HTML basics; you understand semantic elements
+objectives:
+  - State the five rules of ARIA
+  - Use roles, states, and properties correctly
+  - Recognize common ARIA misuses
+tags: [html, accessibility, aria]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** ARIA is a tool for filling gaps that HTML can't fill on its own. Used wrong, it makes pages *less* accessible. The good news: you can learn the rules in 12 minutes.
+
+## Rule 0: HTML first
+
+If a native HTML element does the job, **use it**. ARIA exists to extend semantics, not replace them.
+
+- ❌ `<div role="button" tabindex="0">Submit</div>`
+- ✅ `<button>Submit</button>`
+
+90% of accessibility failures are this rule violated. Master it and you've already won most of the fight.
+
+## The five ARIA rules (paraphrased from W3C)
+
+1. **Don't use ARIA if HTML can do it.**
+2. **Don't change native semantics.** `<a role="button">` is wrong — that breaks the link's keyboard behavior.
+3. **All interactive ARIA controls must be keyboard accessible.** If you make a `role="button"`, you must handle Space and Enter and `tabindex="0"`.
+4. **Don't use `role="presentation"` or `aria-hidden="true"` on focusable elements.** That hides them from screen readers but leaves them in the tab order — confusing.
+5. **All interactive controls must have an accessible name.** Either visible text inside, `aria-label`, or `aria-labelledby`.
+
+## Roles, states, properties
+
+ARIA has three kinds of attributes:
+
+**Role** — what the thing is.
+
+```html
+<div role="dialog" aria-labelledby="dlgTitle">
+  <h2 id="dlgTitle">Confirm</h2>
+  ...
+</div>
+```
+
+Common roles you'll use: `alert`, `dialog`, `tablist`/`tab`/`tabpanel`, `menu`/`menuitem`, `tooltip`, `listbox`/`option`, `progressbar`, `status`. Most native elements have an implicit role you don't override.
+
+**State** — current condition (changes over time).
+
+```html
+<button aria-pressed="false">Mute</button>
+<input aria-invalid="true" />
+<details aria-expanded="false">…</details>
+```
+
+**Property** — fixed metadata.
+
+```html
+<input aria-label="Search" />
+<button aria-describedby="hint">Save</button>
+<p id="hint">Saves a copy to your account</p>
+```
+
+## The most-useful five attributes
+
+1. **`aria-label`** — gives an unlabeled element an accessible name. Use on icon-only buttons.
+   ```html
+   <button aria-label="Close menu">✕</button>
+   ```
+
+2. **`aria-labelledby`** — point at another element's text. Better than `aria-label` when the label is already on the page.
+   ```html
+   <h2 id="dlgTitle">Are you sure?</h2>
+   <div role="dialog" aria-labelledby="dlgTitle">…</div>
+   ```
+
+3. **`aria-describedby`** — extra description (less prominent than the label).
+   ```html
+   <input id="email" aria-describedby="emailHelp" />
+   <small id="emailHelp">We'll never share your email</small>
+   ```
+
+4. **`aria-live`** — announce changes that aren't focus-related. Toast notifications, async errors.
+   ```html
+   <div aria-live="polite">Saved!</div>
+   ```
+   `polite` waits for a quiet moment; `assertive` interrupts. Use `polite` 99% of the time.
+
+5. **`aria-expanded`** — for collapsibles, accordions, dropdowns.
+   ```html
+   <button aria-expanded="false" aria-controls="menu">Menu</button>
+   <ul id="menu" hidden>…</ul>
+   ```
+
+## Common misuses
+
+- **`aria-hidden="true"`** on a focusable element. Hide from AT *and* `tabindex="-1"`, or you've created an element keyboard users can reach but can't hear.
+- **`role="button"`** on a `<div>` without keyboard handlers. Use `<button>` instead.
+- **Missing label on icon buttons.** A `<button>` with only `<svg>` inside reads as "button" with no name.
+- **`aria-label` that contradicts visible text.** Screen readers prefer `aria-label`; sighted users see the text. Now they're on different pages, literally.
+- **Live regions on every change.** Spammy. Use them only for changes the user *needs* to know immediately.
+
+<Callout variant="tip" title='When in doubt, test'>
+Turn on VoiceOver (Cmd-F5 on macOS) or NVDA (free, Windows). Tab through your page with eyes closed. The bugs jump out within a minute.
+</Callout>
+
+## A complete accessible custom toggle
+
+```html
+<button
+  type="button"
+  aria-pressed="false"
+  aria-label="Mute audio"
+  onclick="toggle(this)"
+>
+  <svg aria-hidden="true" focusable="false"><!-- icon --></svg>
+</button>
+<script>
+  function toggle(btn) {
+    const pressed = btn.getAttribute('aria-pressed') === 'true';
+    btn.setAttribute('aria-pressed', String(!pressed));
+  }
+</script>
+```
+
+`aria-pressed` makes the screen reader announce "mute audio, toggle button, pressed" or "not pressed." `aria-hidden` on the SVG keeps the icon out of the announcement (the visible name is in `aria-label`).
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/html/aria-primer"
+  questions={[
+    {
+      id: 'aria-1',
+      type: 'single',
+      prompt: 'You\'re building a clickable card. What\'s the accessible default?',
+      options: [
+        { value: 'a', label: '<div role="button" tabindex="0">' },
+        { value: 'b', label: '<a href="..."> wrapping the card content (or <button>)' },
+        { value: 'c', label: '<div onclick> with no role' },
+        { value: 'd', label: '<span role="link">' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'aria-2',
+      type: 'single',
+      prompt: 'An icon-only button with no visible text needs…',
+      options: [
+        { value: 'a', label: 'A `title` attribute' },
+        { value: 'b', label: 'An `alt` attribute' },
+        { value: 'c', label: 'An `aria-label` (or visually-hidden text)' },
+        { value: 'd', label: 'Nothing — screen readers infer it' },
+      ],
+      answer: 'c',
+    },
+    {
+      id: 'aria-3',
+      type: 'single',
+      prompt: 'A toast appears 5 seconds after submit. Which attribute makes a screen reader announce it?',
+      options: [
+        { value: 'a', label: 'role="dialog"' },
+        { value: 'b', label: 'aria-hidden="false"' },
+        { value: 'c', label: 'aria-live="polite"' },
+        { value: 'd', label: 'tabindex="0"' },
+      ],
+      answer: 'c',
+    },
+  ]}
+/>
+
+## What's next
+
+The HTML5 module wraps here. Next module: **CSS Fundamentals** — starting with the cascade and specificity.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/html/aria-primer"
+  lessonHref="/paths/foundations/html/aria-primer/"
+  lessonTitle="Accessibility primer: ARIA without the footguns"
+  nextHref="/paths/foundations/css/cascade-specificity/"
+  nextTitle="The cascade and specificity, demystified"
+/>

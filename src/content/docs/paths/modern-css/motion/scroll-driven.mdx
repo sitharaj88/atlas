@@ -1,0 +1,104 @@
+---
+title: Scroll-driven animations
+description: Animate based on scroll position with pure CSS — no JS, no scroll listeners.
+sidebar:
+  order: 2
+pathSlug: modern-css
+module: motion
+lessonNumber: 2
+difficulty: intermediate
+duration: 8 min
+prerequisites:
+  - You've used CSS animations
+objectives:
+  - 'Use animation-timeline: scroll(...) for scroll-position-driven animation'
+  - 'Use animation-timeline: view(...) for in-viewport animations'
+tags: [css, motion, scroll]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Two CSS-only patterns that replace whole IntersectionObserver scripts.
+
+## Scroll progress bar
+
+```css
+@keyframes fill { to { transform: scaleX(1); } }
+
+.progress {
+  position: fixed; top: 0; left: 0; right: 0; height: 3px;
+  transform: scaleX(0); transform-origin: 0 0;
+  background: var(--brand);
+  animation: fill linear;
+  animation-timeline: scroll(root);
+}
+```
+
+The bar fills as the user scrolls the page. No JS.
+
+## Fade in when in view
+
+```css
+.card {
+  opacity: 0;
+  transform: translateY(2rem);
+  animation: rise linear both;
+  animation-timeline: view();
+  animation-range: entry 10% cover 30%;
+}
+@keyframes rise { to { opacity: 1; transform: none; } }
+```
+
+Each `.card` animates as it enters the viewport. `animation-range` tunes when the animation starts and ends.
+
+## Browser support
+
+Cutting-edge as of 2026. Chromium first, Safari/Firefox shipping. Wrap in `@supports`:
+
+```css
+@supports (animation-timeline: scroll()) {
+  /* scroll-driven version */
+}
+```
+
+Without support, the static styles still apply — degrade gracefully.
+
+<Callout variant="warn" title="Respect reduced-motion">
+Pair scroll-driven animations with `@media (prefers-reduced-motion: reduce)` to disable. Heavy scroll-bound parallax is a top motion-sickness trigger.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/motion/scroll-driven"
+  questions={[
+    {
+      id: 'sd-1',
+      type: 'single',
+      prompt: 'What does `animation-timeline: view()` do?',
+      options: [
+        { value: 'a', label: 'Drives the animation by the element\'s position relative to the viewport' },
+        { value: 'b', label: 'Plays the animation once on load' },
+        { value: 'c', label: 'Pauses on hover' },
+        { value: 'd', label: 'Reverses on scroll up' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+## What's next
+
+**View Transitions API** — animated transitions between page or DOM states.
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/motion/scroll-driven"
+  lessonHref="/paths/modern-css/motion/scroll-driven/"
+  lessonTitle="Scroll-driven animations"
+  nextHref="/paths/modern-css/motion/view-transitions/"
+  nextTitle="View Transitions API"
+/>

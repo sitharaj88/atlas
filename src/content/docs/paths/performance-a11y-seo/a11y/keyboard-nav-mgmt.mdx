@@ -1,0 +1,85 @@
+---
+title: Keyboard navigation and focus management
+description: Tab order, focus rings, focus management when content changes.
+sidebar:
+  order: 3
+pathSlug: performance-a11y-seo
+module: a11y
+lessonNumber: 3
+difficulty: intermediate
+duration: 5 min
+tags: [a11y, keyboard]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Visible focus is non-negotiable
+
+```css
+:focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: 2px;
+}
+```
+
+Never `:focus { outline: none; }` without a replacement.
+
+## Manage focus when DOM changes
+
+Open a modal? Focus the first interactive element inside. Close it? Restore to the trigger.
+
+```js
+function openDialog(triggerEl) {
+  dialog.showModal();
+  dialog.querySelector('h2').focus();
+  trigger = triggerEl;
+}
+function closeDialog() {
+  dialog.close();
+  trigger?.focus();
+}
+```
+
+The `<dialog>` element traps focus and handles Esc automatically.
+
+## Skip-to-main
+
+Long header → keyboard users want to skip:
+
+```html
+<a class="skip-link" href="#main">Skip to main content</a>
+<main id="main" tabindex="-1">...</main>
+```
+
+Show on focus, hide otherwise.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/a11y/keyboard-nav-mgmt"
+  questions={[
+    {
+      id: 'kn-1',
+      type: 'single',
+      prompt: 'You open a modal. What should happen to focus?',
+      options: [
+        { value: 'a', label: 'Stay where it was' },
+        { value: 'b', label: 'Move into the modal' },
+        { value: 'c', label: 'Move to body' },
+        { value: 'd', label: 'Doesn\'t matter' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/a11y/keyboard-nav-mgmt"
+  lessonHref="/paths/performance-a11y-seo/a11y/keyboard-nav-mgmt/"
+  lessonTitle="Keyboard nav and focus"
+  nextHref="/paths/performance-a11y-seo/a11y/screen-reader-testing/"
+  nextTitle="Screen reader testing"
+/>

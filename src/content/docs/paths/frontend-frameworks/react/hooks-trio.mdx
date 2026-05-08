@@ -1,0 +1,93 @@
+---
+title: 'useState, useEffect, useReducer — the trio'
+description: The three hooks that handle 95% of state and side effects.
+sidebar:
+  order: 2
+pathSlug: frontend-frameworks
+module: react
+lessonNumber: 2
+difficulty: intermediate
+duration: 8 min
+tags: [react, hooks]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## useState
+
+```jsx
+const [count, setCount] = useState(0);
+setCount(count + 1);
+setCount(c => c + 1);    // updater function — safer when you depend on prev state
+```
+
+State persists across re-renders. Updates are queued until the next render.
+
+## useEffect
+
+```jsx
+useEffect(() => {
+  const id = setInterval(tick, 1000);
+  return () => clearInterval(id); // cleanup
+}, [/* deps */]);
+```
+
+Runs after render. The deps array decides when:
+- `[]` — once after mount.
+- `[a, b]` — when a or b changed.
+- omitted — every render.
+
+Cleanup runs before the next effect AND on unmount.
+
+## useReducer
+
+```jsx
+const [state, dispatch] = useReducer(reducer, initial);
+function reducer(s, action) {
+  switch (action.type) {
+    case 'inc': return { count: s.count + 1 };
+    case 'reset': return initial;
+  }
+}
+dispatch({ type: 'inc' });
+```
+
+Better than `useState` when state has multiple related fields or transitions are complex.
+
+## Rules of hooks
+
+- Call them at the **top level** of components/custom hooks (not inside conditions or loops).
+- Call them only from **React functions** (components or other hooks).
+
+The linter (`eslint-plugin-react-hooks`) catches violations.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/react/hooks-trio"
+  questions={[
+    {
+      id: 'ht-1',
+      type: 'single',
+      prompt: 'When does `useEffect` with empty deps `[]` run?',
+      options: [
+        { value: 'a', label: 'Every render' },
+        { value: 'b', label: 'Once after mount; cleanup on unmount' },
+        { value: 'c', label: 'Never' },
+        { value: 'd', label: 'Before render' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/react/hooks-trio"
+  lessonHref="/paths/frontend-frameworks/react/hooks-trio/"
+  lessonTitle="useState, useEffect, useReducer"
+  nextHref="/paths/frontend-frameworks/react/lifting-state/"
+  nextTitle="Lifting state, prop drilling, composition"
+/>

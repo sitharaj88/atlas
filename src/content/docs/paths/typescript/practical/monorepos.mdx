@@ -1,0 +1,104 @@
+---
+title: 'TS in monorepos — project references, path aliases'
+description: Multiple packages, one repo, types that flow correctly.
+sidebar:
+  order: 3
+pathSlug: typescript
+module: practical
+lessonNumber: 3
+difficulty: intermediate
+duration: 7 min
+prerequisites:
+  - Type-safe APIs
+objectives:
+  - Set up project references
+  - Configure path aliases
+tags: [typescript, monorepos]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Project references
+
+Split a tsconfig into composable pieces:
+
+```json
+// tsconfig.base.json — shared compiler options
+{ "compilerOptions": { "strict": true, "target": "ES2022", "composite": true } }
+
+// packages/core/tsconfig.json
+{ "extends": "../../tsconfig.base.json", "include": ["src"], "compilerOptions": { "outDir": "dist" } }
+
+// packages/app/tsconfig.json
+{
+  "extends": "../../tsconfig.base.json",
+  "include": ["src"],
+  "references": [{ "path": "../core" }]
+}
+```
+
+`composite: true` enables incremental builds. `tsc --build` walks the references and builds in order.
+
+## Path aliases
+
+```json
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "~/*": ["src/*"],
+      "@core/*": ["packages/core/src/*"]
+    }
+  }
+}
+```
+
+```ts
+import { foo } from '~/lib/foo';
+import { Bar } from '@core/bar';
+```
+
+Mirror the same aliases in your bundler config (Vite: `resolve.alias`).
+
+## Workspace tools
+
+- **pnpm workspaces** — most common. `pnpm-workspace.yaml` lists packages.
+- **Turborepo** — task orchestration on top of workspaces.
+- **Nx** — opinionated monorepo platform.
+
+For TS-only setups, pnpm workspaces + project references covers most teams.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/practical/monorepos"
+  questions={[
+    {
+      id: 'mr-1',
+      type: 'single',
+      prompt: '`composite: true` enables…',
+      options: [
+        { value: 'a', label: 'Class composition' },
+        { value: 'b', label: 'Project references and incremental builds' },
+        { value: 'c', label: 'JSX' },
+        { value: 'd', label: 'Strict mode' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Migration playbook: from JS, gradually.**
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/practical/monorepos"
+  lessonHref="/paths/typescript/practical/monorepos/"
+  lessonTitle="TS in monorepos"
+  nextHref="/paths/typescript/practical/migration/"
+  nextTitle="Migration playbook"
+/>

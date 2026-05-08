@@ -1,0 +1,86 @@
+---
+title: 'CSP, CORS, Subresource Integrity'
+description: Three browser security mechanisms with nasty footguns.
+sidebar:
+  order: 2
+pathSlug: frontier
+module: security
+lessonNumber: 2
+difficulty: advanced
+duration: 6 min
+tags: [security, csp, cors]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## CSP (Content Security Policy)
+
+Tells the browser which sources are allowed to load JS, CSS, images, etc.
+
+```http
+Content-Security-Policy:
+  default-src 'self';
+  script-src 'self' 'nonce-abc123';
+  style-src 'self' 'unsafe-inline';
+  img-src 'self' data: https:;
+  connect-src 'self' https://api.atlas.dev;
+  frame-ancestors 'none';
+```
+
+A successful XSS injection still can't run scripts unless they pass the policy. Major defense-in-depth.
+
+## CORS (Cross-Origin Resource Sharing)
+
+When JS at `atlas.dev` calls `api.example.com`, the browser blocks it unless the server explicitly allows it:
+
+```http
+Access-Control-Allow-Origin: https://atlas.dev
+Access-Control-Allow-Credentials: true
+```
+
+For non-simple requests, the browser preflights with `OPTIONS`. The server must respond OK before the real request fires.
+
+CORS is **not** a server-side security measure; it's a browser-enforced policy. Other clients (curl, attackers) ignore it. Don't rely on CORS for auth.
+
+## Subresource Integrity (SRI)
+
+Verify a CDN-hosted file hasn't been tampered with:
+
+```html
+<script src="https://cdn.example.com/lib.js"
+        integrity="sha384-abc..."
+        crossorigin="anonymous"></script>
+```
+
+The browser hashes the downloaded file and refuses to execute if it doesn't match. Cheap insurance.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/security/csp-cors-sri"
+  questions={[
+    {
+      id: 'cc-1',
+      type: 'single',
+      prompt: 'CORS is enforced by…',
+      options: [
+        { value: 'a', label: 'The server' },
+        { value: 'b', label: 'The browser (it blocks the JS from reading the response)' },
+        { value: 'c', label: 'The CDN' },
+        { value: 'd', label: 'curl' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/security/csp-cors-sri"
+  lessonHref="/paths/frontier/security/csp-cors-sri/"
+  lessonTitle="CSP, CORS, SRI"
+  nextHref="/paths/frontier/security/supply-chain/"
+  nextTitle="Supply-chain (npm) hygiene"
+/>

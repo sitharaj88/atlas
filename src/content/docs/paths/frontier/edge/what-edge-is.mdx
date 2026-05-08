@@ -1,0 +1,83 @@
+---
+title: "What 'the edge' actually is"
+description: Functions running at CDN points-of-presence, close to users. Demystified.
+sidebar:
+  order: 1
+pathSlug: frontier
+module: edge
+lessonNumber: 1
+difficulty: advanced
+duration: 5 min
+tags: [edge, runtime]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What it is
+
+Traditional servers live in one or a few data centers. "Edge" means your code runs at hundreds of CDN nodes worldwide. A user in Tokyo hits Tokyo, not Virginia. Latency drops from 200ms to 20ms.
+
+## The trade-offs
+
+- **Latency** — wins for users not near your origin.
+- **Runtime** — typically a Web-Standards subset of Node (no `fs`, no `child_process`, limited Node APIs).
+- **Cold starts** — usually under 10ms (vs Lambda's hundreds).
+- **State** — none, by default. Use a globally-distributed DB or KV (Cloudflare D1, Workers KV, Upstash, Turso).
+
+## Mental model
+
+Edge functions are **stateless request handlers**. Web standards in, Web standards out:
+
+```ts
+export default {
+  async fetch(req: Request): Promise<Response> {
+    return new Response('Hello from the edge');
+  },
+};
+```
+
+Same function, all platforms (Cloudflare Workers, Vercel Edge, Deno Deploy).
+
+## When to pick edge
+
+- Geo-distributed user base.
+- Auth checks before forwarding.
+- A/B testing at the edge.
+- Light, latency-critical logic.
+
+## When NOT
+
+- Heavy compute (CPU limits per request).
+- Long-running work (timeouts).
+- Native-binary dependencies.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/edge/what-edge-is"
+  questions={[
+    {
+      id: 'we-1',
+      type: 'single',
+      prompt: 'The big benefit of edge runtimes?',
+      options: [
+        { value: 'a', label: 'Bigger compute' },
+        { value: 'b', label: 'Lower latency by running close to users; fast cold starts' },
+        { value: 'c', label: 'Native fs access' },
+        { value: 'd', label: 'Free CPU time' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/edge/what-edge-is"
+  lessonHref="/paths/frontier/edge/what-edge-is/"
+  lessonTitle="The edge"
+  nextHref="/paths/frontier/edge/providers/"
+  nextTitle="Providers — Cloudflare, Vercel, Deno Deploy"
+/>

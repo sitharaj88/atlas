@@ -1,0 +1,183 @@
+---
+title: Bundlers vs. native — when each makes sense
+description: Webpack, Vite, esbuild, Rspack, Turbopack, native ESM. What they do, when you need them, when you don't.
+sidebar:
+  order: 2
+pathSlug: foundations
+module: modules
+lessonNumber: 2
+difficulty: beginner
+duration: 10 min
+prerequisites:
+  - You\'ve completed *ES Modules*
+objectives:
+  - Articulate what a bundler actually does for you
+  - Compare the modern options at a high level
+  - Decide when to skip the bundler
+tags: [javascript, modules, bundlers]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** What bundlers actually do, the differences between the modern options, and when "no bundler" is a perfectly fine answer.
+
+## What a bundler does
+
+A bundler reads your `import` graph and produces output suitable for browsers and CDNs:
+
+1. **Resolution** — turns `import 'react'` into the real file path inside `node_modules`.
+2. **Transformation** — TS → JS, JSX → JS, modern JS → ES5, CSS modules → CSS + JS.
+3. **Bundling** — combines many files into fewer files (chunks).
+4. **Code splitting** — splits at dynamic-import boundaries so you don't ship everything up front.
+5. **Tree shaking** — removes unused exports.
+6. **Minification** — shrinks the output.
+7. **Asset handling** — `import logo from './logo.svg'` becomes a hashed URL.
+
+Without a bundler you do all of that manually (or skip them).
+
+## The modern lineup
+
+| Tool | Built on | Strengths |
+|---|---|---|
+| **Vite** | esbuild (dev) + Rollup (prod) | Best DX, fast HMR, plugin-rich. Default for new projects. |
+| **Webpack** | own, JS | Mature, configurable, ubiquitous. Slow dev. |
+| **esbuild** | Go, native | Blazing build speed; less ecosystem. |
+| **Rollup** | own, JS | Library output (clean ESM). Powers Vite's prod build. |
+| **Parcel** | own, JS/Rust | Zero-config. Less popular now. |
+| **Rspack** | Rust | Webpack-compatible API at native speed. |
+| **Turbopack** | Rust | Bundler in Next.js 15+. Webpack alternative. |
+| **Bun** | own, native | Bundler + runtime + package manager. New, growing. |
+
+For a new app: **Vite**, unless you have specific needs.
+
+For a library: **tsup** (esbuild-based) or **Rollup** for clean ESM output.
+
+## Native ESM, no bundler
+
+Modern browsers, Node ≥ 14, Deno, Bun all run ESM directly:
+
+```html
+<script type="module">
+  import { greet } from './app.js';
+  greet();
+</script>
+```
+
+```js
+// app.js — must use full filename
+import { format } from 'https://esm.sh/date-fns@3';
+export function greet() { /* ... */ }
+```
+
+Pros:
+- No build step. Save → reload. That's the loop.
+- Imports are real URLs — you can host modules anywhere.
+- Sources match what runs.
+
+Cons:
+- Every `import` in your tree is a separate request. **Slow** on the network for big apps.
+- No tree-shaking, no minification.
+- TS, JSX, CSS-in-JS, asset imports — none "just work."
+
+**Good for:** small static sites, demos, prototypes, learning. **Bad for:** production apps with dependencies.
+
+## Vite, in 60 seconds
+
+```bash
+pnpm create vite@latest my-app
+cd my-app && pnpm install
+pnpm dev
+```
+
+What's notable:
+
+- **Dev server** uses native ESM in the browser, with esbuild transpiling on the fly. No "wait 30 seconds for the bundler" — first paint is sub-second.
+- **HMR** updates only the changed module without losing state.
+- **Production build** uses Rollup for clean output.
+- **Plugins** for React, Vue, Svelte, MDX, PWA, you name it.
+
+Most modern starter kits and meta-frameworks (Astro, SvelteKit, Nuxt, Remix-on-Vite, TanStack Start) use Vite under the hood.
+
+## Import maps — the bundler-free escape hatch
+
+For smaller projects that want to use bare specifiers without a bundler:
+
+```html
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@19",
+    "react-dom/client": "https://esm.sh/react-dom@19/client"
+  }
+}
+</script>
+<script type="module">
+  import React from 'react';
+</script>
+```
+
+Native browser feature. Not popular for prod apps yet, but lovely for demos.
+
+<Callout variant="tip" title="Default to Vite">
+Unless you have a strong reason — legacy stack, Webpack ecosystem dependence, library output — **start with Vite**. The DX advantage compounds across the project's lifetime.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/modules/bundlers"
+  questions={[
+    {
+      id: 'bun-1',
+      type: 'single',
+      prompt: 'What does "tree shaking" mean?',
+      options: [
+        { value: 'a', label: 'Combining many files into one' },
+        { value: 'b', label: 'Removing exports that no one imports — eliminating dead code' },
+        { value: 'c', label: 'Renaming variables for shorter output' },
+        { value: 'd', label: 'Compressing the output' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'bun-2',
+      type: 'single',
+      prompt: 'Why is Vite\'s dev server so fast?',
+      options: [
+        { value: 'a', label: 'It minifies aggressively' },
+        { value: 'b', label: 'It uses native ESM in the browser, transpiling files on demand with esbuild' },
+        { value: 'c', label: 'It runs in a worker' },
+        { value: 'd', label: 'It pre-bundles everything ahead of time' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'bun-3',
+      type: 'single',
+      prompt: 'When can you skip a bundler entirely?',
+      options: [
+        { value: 'a', label: 'Always — bundlers are obsolete' },
+        { value: 'b', label: 'Small static sites, demos, learning projects with few dependencies' },
+        { value: 'c', label: 'Only with React' },
+        { value: 'd', label: 'Never — modern browsers can\'t run ESM' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Vite, the modern dev server** — getting hands-on with the tool you'll use every day.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/modules/bundlers"
+  lessonHref="/paths/foundations/modules/bundlers/"
+  lessonTitle="Bundlers vs. native — when each makes sense"
+  nextHref="/paths/foundations/modules/vite/"
+  nextTitle="Vite, the modern dev server"
+/>

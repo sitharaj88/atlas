@@ -1,0 +1,74 @@
+---
+title: "Express — when you'll meet it"
+description: The classic Node web framework. Old but ubiquitous; you'll inherit one eventually.
+sidebar:
+  order: 3
+pathSlug: full-stack
+module: frameworks
+lessonNumber: 3
+difficulty: beginner
+duration: 4 min
+tags: [express, node]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The shape
+
+```js
+import express from 'express';
+const app = express();
+app.use(express.json());
+app.get('/health', (req, res) => res.json({ ok: true }));
+app.post('/users', (req, res) => { /* req.body, res.json, res.status */ });
+app.listen(3000);
+```
+
+Familiar middleware-pipeline pattern. Endless tutorials online.
+
+## Why it's still around
+
+- Massive ecosystem of middleware.
+- Most tutorials and StackOverflow answers reference Express.
+- Stable API since 2010.
+
+## Why pick something else for new code
+
+- Less type-safety than Hono/Fastify.
+- Slower than Fastify for similar workloads.
+- No built-in schema validation.
+
+## In 2026
+
+If you're starting fresh, pick Hono or Fastify. If you're maintaining an Express app, fine — it works. Don't migrate just for fashion.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/frameworks/express"
+  questions={[
+    {
+      id: 'ex-1',
+      type: 'single',
+      prompt: 'For a brand-new Node API, the modern picks are…',
+      options: [
+        { value: 'a', label: 'Express' },
+        { value: 'b', label: 'Hono or Fastify' },
+        { value: 'c', label: 'jQuery' },
+        { value: 'd', label: 'Sails.js' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/frameworks/express"
+  lessonHref="/paths/full-stack/frameworks/express/"
+  lessonTitle="Express"
+  nextHref="/paths/full-stack/apis/rest-2026/"
+  nextTitle="REST in 2026"
+/>

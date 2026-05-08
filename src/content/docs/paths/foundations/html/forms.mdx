@@ -1,0 +1,242 @@
+---
+title: Forms — inputs, validation, submission
+description: HTML forms in 2026 — the input types you didn't know existed, native validation, and the submission lifecycle.
+sidebar:
+  order: 3
+pathSlug: foundations
+module: html
+lessonNumber: 3
+difficulty: beginner
+duration: 14 min
+prerequisites:
+  - HTML basics; you can write <form> and <input>
+objectives:
+  - Pick the right input type for the job (and let the browser do the work)
+  - Use built-in validation before reaching for JavaScript
+  - Understand how submissions become network requests
+tags: [html, forms, accessibility]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Modern HTML gives you 22 input types, a full validation API, and accessible-by-default behavior — for free. Most "form library" features are already in the platform.
+
+## Anatomy of a form
+
+```html
+<form action="/api/signup" method="post" novalidate>
+  <fieldset>
+    <legend>Create account</legend>
+
+    <label>
+      Email
+      <input type="email" name="email" required autocomplete="email" />
+    </label>
+
+    <label>
+      Password
+      <input
+        type="password"
+        name="password"
+        required
+        minlength="8"
+        autocomplete="new-password"
+      />
+    </label>
+
+    <label>
+      <input type="checkbox" name="terms" required />
+      I agree to the terms
+    </label>
+
+    <button type="submit">Sign up</button>
+  </fieldset>
+</form>
+```
+
+Three things make this work:
+
+1. **`<form action method>`** — where the data goes and how. Default `method` is GET.
+2. **`<label>`** wrapping each input — clicking the label focuses the input, screen readers announce them as one unit.
+3. **`name`** on every field — that becomes the key in the submitted data.
+
+## The 22 input types
+
+Many you've never reached for, all worth knowing:
+
+```html
+<input type="text" />
+<input type="email" />        <!-- mobile keyboard with @ -->
+<input type="tel" />          <!-- numeric keyboard -->
+<input type="url" />
+<input type="password" />
+<input type="search" />       <!-- shows × to clear -->
+<input type="number" />       <!-- with min/max/step -->
+<input type="range" />
+<input type="date" />
+<input type="time" />
+<input type="datetime-local" />
+<input type="month" />
+<input type="week" />
+<input type="color" />        <!-- native color picker -->
+<input type="checkbox" />
+<input type="radio" />
+<input type="file" />         <!-- with `accept` and `multiple` -->
+<input type="hidden" />
+<input type="submit" />       <!-- prefer <button> instead -->
+<input type="reset" />
+<input type="image" />
+<input type="button" />
+```
+
+Pick the right type and the browser:
+- shows the right mobile keyboard
+- validates the format
+- offers the right native picker (date, color)
+- uses the right autofill suggestions (when paired with `autocomplete`)
+
+## Built-in validation
+
+```html
+<input
+  type="email"
+  required
+  pattern="[a-z0-9.]+@[a-z0-9.-]+"
+  minlength="5"
+  maxlength="120"
+/>
+```
+
+Attributes: `required`, `min`, `max`, `step`, `minlength`, `maxlength`, `pattern` (regex), and the format implied by the input type (`email`, `url`, `number`).
+
+The browser blocks invalid submissions and shows a tooltip. Inspect via JS:
+
+```js
+const input = form.email;
+input.validity;        // ValidityState object
+input.checkValidity(); // true/false
+input.setCustomValidity('Email already in use');
+form.reportValidity(); // shows browser tooltips
+```
+
+For custom errors, set the message and the browser handles the UI.
+
+<Callout variant="warn" title="`novalidate` lets JS take over">
+Add `novalidate` to the `<form>` to disable browser-native validation popups. Then handle errors in JS for a custom UI — but **never trust client validation for security**. Validate again on the server.
+</Callout>
+
+## Autocomplete is a superpower
+
+```html
+<input autocomplete="email" />
+<input autocomplete="given-name" />
+<input autocomplete="family-name" />
+<input autocomplete="cc-number" />
+<input autocomplete="cc-exp" />
+<input autocomplete="postal-code" />
+<input autocomplete="new-password" />
+<input autocomplete="current-password" />
+<input autocomplete="one-time-code" />   <!-- for SMS OTP -->
+```
+
+The browser fills these from saved data. Conversion rates jump 20–30% on properly autocomplete-tagged forms. ([Full list of values](https://html.spec.whatwg.org/multipage/form-control-infrastructure.html#autofill).)
+
+## What happens on submit
+
+1. Browser collects every named field in the form.
+2. Encodes them based on `enctype`:
+   - `application/x-www-form-urlencoded` (default) → `email=ada%40ex.com&pw=hunter2`
+   - `multipart/form-data` (required for file uploads) → multi-part body
+   - `application/json` → not natively supported (use JS)
+3. Sends the request:
+   - GET: encoded as query string
+   - POST: in the body
+4. Browser navigates to the response page (default) — unless JS calls `event.preventDefault()`.
+
+```js
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  if (!form.checkValidity()) {
+    form.reportValidity();
+    return;
+  }
+  const data = Object.fromEntries(new FormData(form));
+  const res = await fetch(form.action, {
+    method: form.method,
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  // handle res
+});
+```
+
+`new FormData(form)` is the easiest way to grab every field. `Object.fromEntries` converts to a plain object.
+
+## Common gotchas
+
+- **`<button>` defaults to `type="submit"`** inside a form. To make a non-submitting button, write `type="button"`.
+- **Radio groups need the same `name`.** That's how the browser groups them.
+- **`<label>` must reference the input.** Either wrap it (`<label>…<input>…</label>`) or use `for`/`id`.
+- **`<input>` without `name`** is not submitted. Useful for purely visual fields; surprising for form bugs.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/html/forms"
+  questions={[
+    {
+      id: 'form-1',
+      type: 'single',
+      prompt: 'Which input type shows a numeric keyboard on mobile?',
+      options: [
+        { value: 'a', label: 'type="text"' },
+        { value: 'b', label: 'type="number"' },
+        { value: 'c', label: 'type="numeric"' },
+        { value: 'd', label: 'type="phone"' },
+      ],
+      answer: 'b',
+      explanation: '`type="tel"` also shows a phone-style numeric keyboard. Both are correct in different contexts.',
+    },
+    {
+      id: 'form-2',
+      type: 'single',
+      prompt: 'Why does autocomplete="new-password" matter?',
+      options: [
+        { value: 'a', label: 'It styles the password field' },
+        { value: 'b', label: 'It tells password managers to suggest a strong NEW password (not auto-fill an old one)' },
+        { value: 'c', label: 'It encrypts the field' },
+        { value: 'd', label: 'It enforces complexity rules' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'form-3',
+      type: 'single',
+      prompt: 'A `<button>` inside a `<form>` without an explicit `type` attribute will…',
+      options: [
+        { value: 'a', label: 'Do nothing on click' },
+        { value: 'b', label: 'Submit the form' },
+        { value: 'c', label: 'Reset the form' },
+        { value: 'd', label: 'Throw a console warning' },
+      ],
+      answer: 'b',
+      explanation: 'The default type is "submit". Add `type="button"` for a non-submitting button.',
+    },
+  ]}
+/>
+
+## What's next
+
+**Images, video, audio, and the picture element** — embedding media correctly so it loads fast and looks great on every device.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/html/forms"
+  lessonHref="/paths/foundations/html/forms/"
+  lessonTitle="Forms — inputs, validation, submission"
+  nextHref="/paths/foundations/html/images-video-audio/"
+  nextTitle="Images, video, audio, and the picture element"
+/>

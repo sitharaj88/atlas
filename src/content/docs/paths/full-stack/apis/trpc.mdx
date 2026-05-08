@@ -1,0 +1,83 @@
+---
+title: 'tRPC — types over the wire, no schema language'
+description: End-to-end type safety from server to client without schema files or codegen.
+sidebar:
+  order: 3
+pathSlug: full-stack
+module: apis
+lessonNumber: 3
+difficulty: intermediate
+duration: 6 min
+tags: [trpc, api]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The shape
+
+```ts
+// server
+import { initTRPC } from '@trpc/server';
+const t = initTRPC.create();
+
+export const appRouter = t.router({
+  greet: t.procedure.input(z.string()).query(({ input }) => `Hello ${input}`),
+  createPost: t.procedure.input(z.object({ title: z.string() })).mutation(async ({ input }) => {
+    return await db.post.create(input);
+  }),
+});
+export type AppRouter = typeof appRouter;
+```
+
+```ts
+// client
+import { createTRPCClient } from '@trpc/client';
+const trpc = createTRPCClient<AppRouter>({ url: '/trpc' });
+
+const greeting = await trpc.greet.query('Atlas');     // string
+const post = await trpc.createPost.mutate({ title: 'A' }); // typed
+```
+
+The types travel directly — no codegen, no schema file.
+
+## When tRPC
+
+- Monorepo with TS-everywhere.
+- Internal APIs (your client + your server).
+- React/TanStack-Query first.
+
+## When not
+
+- Public API serving non-TS consumers.
+- You need a versioned schema document.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/apis/trpc"
+  questions={[
+    {
+      id: 'tr-1',
+      type: 'single',
+      prompt: 'tRPC\'s headline trick is…',
+      options: [
+        { value: 'a', label: 'Code generation from a schema file' },
+        { value: 'b', label: 'Sharing TS types directly between server and client; no schema layer' },
+        { value: 'c', label: 'Faster wire format than REST' },
+        { value: 'd', label: 'Server-side rendering' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/apis/trpc"
+  lessonHref="/paths/full-stack/apis/trpc/"
+  lessonTitle="tRPC"
+  nextHref="/paths/full-stack/realtime/websockets/"
+  nextTitle="WebSockets — when bidirectional"
+/>

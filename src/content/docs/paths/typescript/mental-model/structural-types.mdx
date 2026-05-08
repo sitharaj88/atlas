@@ -1,0 +1,121 @@
+---
+title: The structural type system in plain English
+description: TypeScript checks shape, not name. The single most important thing to understand about TS.
+sidebar:
+  order: 2
+pathSlug: typescript
+module: mental-model
+lessonNumber: 2
+difficulty: beginner
+duration: 8 min
+prerequisites:
+  - You've completed *TS is JS with types*
+objectives:
+  - Explain duck typing in TS terms
+  - Predict assignability between types
+tags: [typescript, fundamentals]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Why TypeScript happily accepts a `Point2D` where you asked for a `Vec2` — and the cases where that's surprising.
+
+## Structural typing
+
+TS compares types by their **shape**, not their **name**:
+
+```ts
+type Point  = { x: number; y: number };
+type Vec2   = { x: number; y: number };
+
+const p: Point = { x: 1, y: 2 };
+const v: Vec2 = p; // ✓ same shape, different name — fine
+```
+
+Languages like Java/C# use **nominal** typing — same shape, different name = different type. TypeScript doesn't care about the name, only the shape.
+
+## Excess properties
+
+When you assign a literal directly, TS adds an **excess property check**:
+
+```ts
+type User = { id: number; name: string };
+const u: User = { id: 1, name: 'Ada', extra: 5 }; // ✗ excess
+```
+
+Excess property checks only fire on **fresh object literals**. Assign through a variable and they relax:
+
+```ts
+const data = { id: 1, name: 'Ada', extra: 5 };
+const u: User = data; // ✓ no fresh-literal check
+```
+
+## The "branding" workaround
+
+When you genuinely need nominal types (USD vs. EUR money), brand them:
+
+```ts
+type USD = number & { __brand: 'USD' };
+type EUR = number & { __brand: 'EUR' };
+
+function payInUSD(amount: USD) {}
+const x = 10 as USD;
+const y = 10 as EUR;
+payInUSD(x); // ✓
+payInUSD(y); // ✗ Argument of type 'EUR' not assignable to 'USD'
+```
+
+The `__brand` is fictional — it never exists at runtime. But TS treats `USD` and `EUR` as distinct because the brand differs.
+
+## Wider vs. narrower
+
+A type `A` is assignable to `B` if `A` has **at least** the properties `B` requires:
+
+```ts
+type A = { x: number; y: number; z: number };
+type B = { x: number; y: number };
+const a: A = { x: 1, y: 2, z: 3 };
+const b: B = a; // ✓ A has everything B needs
+```
+
+Going the other way fails — `B` doesn't have `z`.
+
+<Callout variant="tip" title="When name-based mistakes bite">
+Two types with the same shape are interchangeable. If a `RawId` and a `UserId` are both `string`, TS won\'t catch a mix-up. Brand them when correctness matters.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/mental-model/structural-types"
+  questions={[
+    {
+      id: 'st-1',
+      type: 'single',
+      prompt: 'TypeScript checks types by their…',
+      options: [
+        { value: 'a', label: 'Name' },
+        { value: 'b', label: 'Structure (shape)' },
+        { value: 'c', label: 'Memory layout' },
+        { value: 'd', label: 'Class hierarchy' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**`tsconfig.json` — the flags that actually matter.**
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/mental-model/structural-types"
+  lessonHref="/paths/typescript/mental-model/structural-types/"
+  lessonTitle="The structural type system"
+  nextHref="/paths/typescript/mental-model/tsconfig/"
+  nextTitle="tsconfig.json — the flags that actually matter"
+/>

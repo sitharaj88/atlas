@@ -1,0 +1,94 @@
+---
+title: 'Rescue toolkit: reflog, cherry-pick, bisect'
+description: Recover work, copy commits across branches, and binary-search bugs.
+sidebar:
+  order: 4
+pathSlug: devops
+module: git
+lessonNumber: 4
+difficulty: intermediate
+duration: 5 min
+tags: [git, rescue]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## reflog — your time machine
+
+Every move HEAD makes is logged for ~90 days:
+
+```bash
+git reflog
+# 1a2b3c HEAD@{0}: commit: feat: add foo
+# 9d8e7f HEAD@{1}: rebase: onto main
+# 5c6b4a HEAD@{2}: commit: WIP
+
+git reset --hard HEAD@{2}   # jump back to the WIP state
+```
+
+If you ever "lose" work, `git reflog` is the first thing to try.
+
+## cherry-pick
+
+Copy one (or a range of) commits onto the current branch:
+
+```bash
+git cherry-pick abc123              # one commit
+git cherry-pick A^..B               # range, exclusive A, inclusive B
+```
+
+Useful for hotfixes you want on both `main` and a release branch.
+
+## bisect
+
+Binary-search for the commit that broke a feature:
+
+```bash
+git bisect start
+git bisect bad                      # current is bad
+git bisect good v1.2.0              # this version was good
+# Git checks out a midpoint
+# Test it; mark good or bad
+git bisect good   # or bad
+# Repeat until found
+git bisect reset
+```
+
+Automated:
+
+```bash
+git bisect run pnpm test --run
+```
+
+Git runs the script at each midpoint; exit code decides good/bad. Finds the offending commit in `log2(N)` steps.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="devops/git/rescue-toolkit"
+  questions={[
+    {
+      id: 'rs-1',
+      type: 'single',
+      prompt: 'You force-pushed and lost a branch\'s previous commits. First thing to try?',
+      options: [
+        { value: 'a', label: 'Restore from a backup' },
+        { value: 'b', label: '`git reflog` to find the previous HEAD position, then reset' },
+        { value: 'c', label: 'Re-write the commits' },
+        { value: 'd', label: 'Give up' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="devops/git/rescue-toolkit"
+  lessonHref="/paths/devops/git/rescue-toolkit/"
+  lessonTitle="Git rescue toolkit"
+  nextHref="/paths/devops/actions/workflows-jobs/"
+  nextTitle="Workflows, jobs, steps"
+/>

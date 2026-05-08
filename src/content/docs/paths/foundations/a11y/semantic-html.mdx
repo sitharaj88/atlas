@@ -1,0 +1,157 @@
+---
+title: Semantic HTML is 80% of a11y
+description: Get the elements right, get accessibility for free. The shortlist that wins most of the battle.
+sidebar:
+  order: 1
+pathSlug: foundations
+module: a11y
+lessonNumber: 1
+difficulty: beginner
+duration: 8 min
+prerequisites:
+  - You've completed the HTML5 module
+objectives:
+  - Identify the semantic element for each common UI pattern
+  - Explain why semantic HTML helps screen readers, search engines, AND parsers
+  - Recognize anti-patterns
+tags: [accessibility, html, semantics]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Why most accessibility battles are won — or lost — at the moment you choose an HTML element. Get this right and you've solved 80%.
+
+## What you get for free
+
+Pick a `<button>` and the browser, screen readers, and your linters all agree:
+
+- **Keyboard focus** — the element is in the tab order.
+- **Role** announced — "Submit, button."
+- **Activation** — Space and Enter trigger click.
+- **Default styling** that signals interactivity.
+- **Form integration** — submits when inside a `<form>`.
+
+Pick `<div onclick>` and you have to rebuild every one of those, badly.
+
+## The shortlist
+
+| You're building… | Use |
+|---|---|
+| An action that does something | `<button>` |
+| Navigation to another URL | `<a href>` |
+| A list of things | `<ul>` / `<ol>` (with `<li>`) |
+| Tabular data | `<table>` (yes!) |
+| A form | `<form>` with `<label>`-wrapped `<input>`s |
+| The page's main heading | `<h1>` (one per page) |
+| A modal | `<dialog>` (built-in, accessible) |
+| A disclosure ("show more") | `<details>` + `<summary>` |
+| Page sections | `<header>`, `<main>`, `<nav>`, `<aside>`, `<footer>` |
+| A self-contained content block | `<article>` |
+| Meaningful emphasis | `<strong>` (importance), `<em>` (emphasis) |
+| A date or time | `<time datetime="2026-05-08">` |
+
+## Sins, ranked
+
+1. **`<div onclick>`** in place of `<button>` — keyboard users locked out.
+2. **`<a>` without `href`** styled like a link — not a real link, no keyboard activation.
+3. **Headings as visual hierarchy, not structural** — `<h2>` chosen for its size, `<h1>` skipped because the design "doesn't have a heading."
+4. **Empty `<a>` or `<button>`** with only an icon — no accessible name. Add `aria-label` or visually-hidden text.
+5. **Form inputs without labels** — `placeholder` is not a label.
+6. **Tables for layout** — `<table>` announces "table with N rows and M columns" to a screen reader. Imagine that for a navbar.
+7. **`tabindex="-1"`** on focusable interactive content.
+
+## A real example
+
+❌ Bad:
+
+```html
+<div class="card" onclick="open(123)">
+  <div class="title">Atlas</div>
+  <div class="desc">Your map to modern web development</div>
+</div>
+```
+
+A keyboard user can't reach this. A screen reader announces nothing useful.
+
+✅ Good:
+
+```html
+<a class="card" href="/posts/123">
+  <h3 class="title">Atlas</h3>
+  <p class="desc">Your map to modern web development</p>
+</a>
+```
+
+Tab gets you there. Screen reader reads "Atlas — your map to modern web development, link." Same visual, full accessibility, smaller code.
+
+## The tooling that catches mistakes
+
+- **eslint-plugin-jsx-a11y** — flags `<div onclick>`, missing alt, etc. in JSX.
+- **axe DevTools** browser extension — runs a full audit in seconds.
+- **Lighthouse** — built into Chrome DevTools.
+- **WAVE** — visual accessibility checker.
+- **VoiceOver / NVDA** — actual screen readers. Use them once a quarter.
+
+<Callout variant="tip" title="The weekly habit">
+Tab through one page of your app every Friday with eyes closed. The bugs jump out. It\'s the highest-value accessibility habit a team can have.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/a11y/semantic-html"
+  questions={[
+    {
+      id: 'sem-1',
+      type: 'single',
+      prompt: 'A clickable card that navigates somewhere. Best wrapper?',
+      options: [
+        { value: 'a', label: '<div role="link" tabindex="0">' },
+        { value: 'b', label: '<a href="..."> (or <button> if it triggers an action)' },
+        { value: 'c', label: '<span onclick>' },
+        { value: 'd', label: '<table>' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'sem-2',
+      type: 'single',
+      prompt: 'An icon-only button — what gives it an accessible name?',
+      options: [
+        { value: 'a', label: 'A title attribute' },
+        { value: 'b', label: 'aria-label or visually-hidden text inside' },
+        { value: 'c', label: 'placeholder' },
+        { value: 'd', label: 'Nothing needed; the icon is enough' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'sem-3',
+      type: 'single',
+      prompt: 'You\'re writing a "show more" disclosure. Is `<details>` / `<summary>` worth using?',
+      options: [
+        { value: 'a', label: 'No — write a custom one with aria-expanded' },
+        { value: 'b', label: 'Yes — fully accessible by default, no JS needed' },
+        { value: 'c', label: 'Only on mobile' },
+        { value: 'd', label: 'Only with React' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Keyboard navigation and focus** — the part of accessibility that's most overlooked.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/a11y/semantic-html"
+  lessonHref="/paths/foundations/a11y/semantic-html/"
+  lessonTitle="Semantic HTML is 80% of a11y"
+  nextHref="/paths/foundations/a11y/keyboard-focus/"
+  nextTitle="Keyboard navigation and focus"
+/>

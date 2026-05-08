@@ -1,0 +1,85 @@
+---
+title: Web Components and Lit
+description: Custom elements with Shadow DOM — and Lit, the small library that makes them ergonomic.
+sidebar:
+  order: 3
+pathSlug: frontend-frameworks
+module: html-first
+lessonNumber: 3
+difficulty: intermediate
+duration: 6 min
+tags: [web-components, lit]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Native custom elements
+
+```js
+class MyButton extends HTMLElement {
+  connectedCallback() {
+    this.innerHTML = `<button>${this.textContent}</button>`;
+  }
+}
+customElements.define('my-button', MyButton);
+```
+
+Now `<my-button>Save</my-button>` works in any page, framework or not.
+
+## Lit
+
+```ts
+import { LitElement, html, css } from 'lit';
+
+class MyButton extends LitElement {
+  static styles = css`button { background: navy; color: white; }`;
+  static properties = { label: { type: String } };
+  render() { return html`<button>${this.label}</button>`; }
+}
+customElements.define('my-button', MyButton);
+```
+
+Lit adds reactivity, declarative templates, and tiny size (~5 KB).
+
+## When web components shine
+
+- **Shared components across frameworks** — design systems consumed by React, Vue, Svelte all at once.
+- **Long-lived microfrontends** — frameworks change; web components persist.
+- **Browser extensions and embeds** — drop into any page.
+
+## Limitations
+
+- Shadow DOM CSS isolation is great… until you need to style across boundaries.
+- SSR is harder (declarative shadow DOM is the answer; tooling is catching up).
+- Slightly more boilerplate than React/Vue/Svelte.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/html-first/web-components-lit"
+  questions={[
+    {
+      id: 'wc-1',
+      type: 'single',
+      prompt: 'Web Components are most useful when…',
+      options: [
+        { value: 'a', label: 'You want zero JS' },
+        { value: 'b', label: 'A shared component must work across React, Vue, Svelte, etc.' },
+        { value: 'c', label: 'You want server-side rendering only' },
+        { value: 'd', label: 'You want the smallest possible bundle' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/html-first/web-components-lit"
+  lessonHref="/paths/frontend-frameworks/html-first/web-components-lit/"
+  lessonTitle="Web Components and Lit"
+  nextHref="/paths/frontend-frameworks/choosing/decision-tree/"
+  nextTitle="The choosing decision tree"
+/>

@@ -1,0 +1,73 @@
+---
+title: 'WebRTC primer — peer-to-peer, in 2 paragraphs'
+description: Real-time audio, video, and data between browsers — without a media server.
+sidebar:
+  order: 3
+pathSlug: full-stack
+module: realtime
+lessonNumber: 3
+difficulty: advanced
+duration: 5 min
+tags: [webrtc, realtime]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What WebRTC is
+
+A browser API for **peer-to-peer** real-time media (audio, video) and data channels. The browsers exchange ICE candidates via your server, then talk directly to each other.
+
+```ts
+const pc = new RTCPeerConnection();
+const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+stream.getTracks().forEach((t) => pc.addTrack(t, stream));
+// Exchange offer/answer SDP and ICE candidates with the peer through YOUR signaling server.
+```
+
+## What you still need
+
+- **Signaling server** — WebSocket/HTTP-based path for the two peers to find each other (offer, answer, ICE).
+- **STUN/TURN** — when peers can't directly reach each other (behind NAT/firewall). TURN relays media; expensive.
+- **SFU/MCU** — for multi-party calls, you usually proxy through a media server (LiveKit, Mediasoup, Janus).
+
+## When pure WebRTC
+
+- 1-to-1 calls (small project, controlled network).
+- Latency-critical data channels.
+
+## When use a media SaaS
+
+- Group calls.
+- Recording, transcription, moderation.
+- Production reliability.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/realtime/webrtc"
+  questions={[
+    {
+      id: 'rtc-1',
+      type: 'single',
+      prompt: 'WebRTC is primarily for…',
+      options: [
+        { value: 'a', label: 'Server-to-server APIs' },
+        { value: 'b', label: 'Peer-to-peer real-time media (audio, video) and data channels' },
+        { value: 'c', label: 'CDN delivery' },
+        { value: 'd', label: 'Replacing fetch' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/realtime/webrtc"
+  lessonHref="/paths/full-stack/realtime/webrtc/"
+  lessonTitle="WebRTC primer"
+  nextHref="/paths/full-stack/auth/passwords/"
+  nextTitle="Passwords done right"
+/>

@@ -1,0 +1,65 @@
+---
+title: 'Resumability (Qwik) vs. hydration'
+description: A radical alternative to hydration — never re-execute components.
+sidebar:
+  order: 2
+pathSlug: frontier
+module: islands
+lessonNumber: 2
+difficulty: advanced
+duration: 5 min
+tags: [qwik, resumability]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Hydration recap
+
+Server renders HTML → ships JS → client re-runs every component to "hydrate" event listeners. The bigger your app, the more JS, the slower hydration.
+
+## Resumability
+
+Server renders HTML AND serializes the application state (event handlers, closures). Client never "hydrates" — it lazy-loads the bits of code needed only when an event fires.
+
+```text
+Click button → load just the click handler chunk → run it
+```
+
+The result: time-to-interactive doesn't grow with app size.
+
+## Trade-offs
+
+Pros: lightning-fast TTI even on huge apps; the bigger the app, the bigger the win.
+
+Cons: smaller ecosystem, smaller team familiarity, lots of tiny chunks (HTTP/2 helps).
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/islands/qwik-resumability"
+  questions={[
+    {
+      id: 'qr-1',
+      type: 'single',
+      prompt: 'Qwik\'s resumability eliminates which step?',
+      options: [
+        { value: 'a', label: 'Server rendering' },
+        { value: 'b', label: 'Hydration — components don\'t re-execute on the client' },
+        { value: 'c', label: 'Routing' },
+        { value: 'd', label: 'JSX compilation' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/islands/qwik-resumability"
+  lessonHref="/paths/frontier/islands/qwik-resumability/"
+  lessonTitle="Qwik resumability"
+  nextHref="/paths/frontier/wasm/wasm-mental-model/"
+  nextTitle="WebAssembly — the 20-minute mental model"
+/>

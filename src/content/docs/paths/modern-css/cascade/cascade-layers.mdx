@@ -1,0 +1,169 @@
+---
+title: 'Cascade layers (`@layer`) — never lose a specificity war again'
+description: Organize your CSS into priority layers so the loud `!important` wars become a thing of the past.
+sidebar:
+  order: 2
+pathSlug: modern-css
+module: cascade
+lessonNumber: 2
+difficulty: intermediate
+duration: 10 min
+prerequisites:
+  - You've completed *The CSS cascade in 2026*
+objectives:
+  - Declare and order layers
+  - Place third-party CSS into a low-priority layer
+  - Recognize when NOT to use layers
+tags: [css, cascade, layers]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** A practical walkthrough of `@layer` — how to declare, populate, and order layers, plus the patterns that make CSS architecture clean.
+
+## Declaring layers
+
+The order of `@layer` declarations sets priority — earlier = lower priority.
+
+```css
+/* Order set at the top of your CSS */
+@layer reset, vendor, base, components, utilities;
+
+/* Add to a layer anywhere */
+@layer components {
+  .btn { padding: 0.6rem 1rem; }
+}
+
+@layer utilities {
+  .hidden { display: none; }
+}
+```
+
+Even if `.hidden` is the simplest selector, it beats `#main .complex` in `components` because **utilities is later**.
+
+## Loading external CSS into a layer
+
+```css
+@import url('reset.css') layer(reset);
+@import url('bootstrap.css') layer(vendor);
+```
+
+Anything that file declares ends up in the named layer — **even if the file uses `!important`**. Brilliant for taming third-party CSS.
+
+## Nested layers
+
+```css
+@layer components {
+  @layer button {
+    .btn { /* ... */ }
+  }
+  @layer card {
+    .card { /* ... */ }
+  }
+}
+```
+
+Use sparingly. Most projects do fine with a single level.
+
+## Anonymous layers
+
+```css
+@layer {
+  /* anonymous — can't be referenced again */
+}
+```
+
+Useful for one-off "should be lower priority than everything named" blocks.
+
+## A real-world stack
+
+```css
+@layer reset, vendor, base, components, utilities;
+
+@import 'modern-normalize.css' layer(reset);
+@import 'tailwind/base.css' layer(base);
+@import '@my/design-system.css' layer(components);
+@import 'tailwind/utilities.css' layer(utilities);
+
+@layer base {
+  body { font-family: var(--atlas-font-sans); }
+}
+```
+
+Tailwind itself uses layers internally, which is why `@import 'tailwind/base.css' layer(base)` works.
+
+## When NOT to use layers
+
+- Tiny projects with one stylesheet — overkill.
+- When your team isn't ready to commit. Mixing layered and unlayered CSS without a plan creates confusion.
+- For **third-party widgets** you don't own. If their CSS depends on `!important` for legitimate reasons, layering it changes behavior.
+
+## Common mistakes
+
+- **Forgetting to declare order at the top.** Layers are ordered by first-mention. Declare explicitly: `@layer a, b, c;`
+- **Adding to a layer not yet declared.** It works (it's added to the order), but order ends up surprising. Declare upfront.
+- **Mixing layered and unlayered** without a clear rule. Unlayered always wins — useful for project-specific overrides on top of a design system.
+
+<Callout variant="tip" title="The conventional five layers">
+A common starting point: `reset, vendor, base, components, utilities`. Reset normalizes; vendor is third-party; base sets typography and globals; components are your design-system pieces; utilities are atomic overrides. Adapt to your needs.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/cascade/cascade-layers"
+  questions={[
+    {
+      id: 'lay-1',
+      type: 'single',
+      prompt: '`@layer a, b;` then `@layer a { .x { color: red } } @layer b { .x { color: blue } }`. What color is .x?',
+      options: [
+        { value: 'a', label: 'red' },
+        { value: 'b', label: 'blue (layer b is later)' },
+        { value: 'c', label: 'Indeterminate' },
+        { value: 'd', label: 'red (declared first wins)' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'lay-2',
+      type: 'single',
+      prompt: 'You import a third-party CSS file with lots of !important. Best move?',
+      options: [
+        { value: 'a', label: 'Override every selector with even-more-important' },
+        { value: 'b', label: '`@import url(...) layer(vendor);` — neutralizes !important by layer rank' },
+        { value: 'c', label: 'Inline the styles' },
+        { value: 'd', label: 'Use a CSS reset' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'lay-3',
+      type: 'single',
+      prompt: 'Unlayered rule vs. rule in your last named layer. Who wins?',
+      options: [
+        { value: 'a', label: 'The named layer' },
+        { value: 'b', label: 'The unlayered rule' },
+        { value: 'c', label: 'Specificity decides' },
+        { value: 'd', label: 'Source order decides' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**The `:where()` and `:is()` ergonomics** — group selectors and control specificity.
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/cascade/cascade-layers"
+  lessonHref="/paths/modern-css/cascade/cascade-layers/"
+  lessonTitle="Cascade layers"
+  nextHref="/paths/modern-css/cascade/where-is/"
+  nextTitle="The :where() and :is() ergonomics"
+/>

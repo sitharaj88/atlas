@@ -1,0 +1,82 @@
+---
+title: The Composition API
+description: Vue 3's primary API. Hooks-style, with reactivity primitives baked in.
+sidebar:
+  order: 1
+pathSlug: frontend-frameworks
+module: vue
+lessonNumber: 1
+difficulty: intermediate
+duration: 6 min
+tags: [vue, composition-api]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## A component
+
+```vue
+<script setup lang="ts">
+import { ref, computed } from 'vue';
+
+const count = ref(0);
+const doubled = computed(() => count.value * 2);
+function inc() { count.value++; }
+</script>
+
+<template>
+  <button @click="inc">{{ count }} (doubled: {{ doubled }})</button>
+</template>
+```
+
+`<script setup>` runs once per component instance. Anything top-level is in the template's scope. No `data()`/`methods()`/`computed: {}` boilerplate.
+
+## Three core primitives
+
+- **`ref(v)`** — reactive value. Read/write `.value` in JS; auto-unwrapped in templates.
+- **`reactive(obj)`** — reactive object. Use for complex state shapes.
+- **`computed(fn)`** — derived reactive value. Cached, recomputed when deps change.
+
+## Composables
+
+```ts
+// useCounter.ts
+import { ref } from 'vue';
+export function useCounter() {
+  const count = ref(0);
+  return { count, inc: () => count.value++ };
+}
+```
+
+Plain JS that returns reactive state. Vue's analog of React custom hooks.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/vue/composition-api"
+  questions={[
+    {
+      id: 'cmp-1',
+      type: 'single',
+      prompt: 'In `<script setup>`, accessing `count.value++` updates a `ref`. Why `.value`?',
+      options: [
+        { value: 'a', label: 'JS doesn\'t allow reactive mutation without a wrapper' },
+        { value: 'b', label: '`ref` returns a wrapper so it can intercept reads/writes for reactivity tracking' },
+        { value: 'c', label: 'For type safety only' },
+        { value: 'd', label: 'It\'s a deprecation pattern' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/vue/composition-api"
+  lessonHref="/paths/frontend-frameworks/vue/composition-api/"
+  lessonTitle="Vue Composition API"
+  nextHref="/paths/frontend-frameworks/vue/reactivity/"
+  nextTitle="Vue's reactivity primitives"
+/>

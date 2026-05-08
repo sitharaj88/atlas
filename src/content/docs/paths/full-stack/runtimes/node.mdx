@@ -1,0 +1,75 @@
+---
+title: 'Node.js — the old guard, still going strong'
+description: The default JS runtime for the server. ESM, native fetch, perf milestones.
+sidebar:
+  order: 1
+pathSlug: full-stack
+module: runtimes
+lessonNumber: 1
+difficulty: intermediate
+duration: 5 min
+tags: [node, runtimes]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What's good
+
+- Largest ecosystem (npm).
+- Built-in `fetch`, `WebSocket`, `Web Streams` (Node 18+).
+- Native ESM (`"type": "module"`).
+- Most jobs and resources are Node-flavored.
+
+## What's still rough
+
+- TypeScript needs a transpiler (or `--experimental-strip-types`).
+- Module resolution legacy (`moduleResolution: 'NodeNext'` is the safe pick).
+- Slower startup than Bun/Deno.
+
+## Modern Node defaults
+
+```json
+// package.json
+{
+  "type": "module",
+  "engines": { "node": ">=20" }
+}
+```
+
+```bash
+node --watch src/server.ts   # auto-restart on changes
+node --env-file=.env src/server.ts  # load env without dotenv
+```
+
+`tsx` or Bun handle TS-on-the-fly when needed.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/runtimes/node"
+  questions={[
+    {
+      id: 'nd-1',
+      type: 'single',
+      prompt: 'Why pick Node for a new server project?',
+      options: [
+        { value: 'a', label: 'Fastest startup' },
+        { value: 'b', label: 'Largest ecosystem and hiring pool; works everywhere' },
+        { value: 'c', label: 'Best TypeScript support' },
+        { value: 'd', label: 'Smallest memory' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/runtimes/node"
+  lessonHref="/paths/full-stack/runtimes/node/"
+  lessonTitle="Node.js"
+  nextHref="/paths/full-stack/runtimes/deno/"
+  nextTitle="Deno — TypeScript-native, secure-by-default"
+/>

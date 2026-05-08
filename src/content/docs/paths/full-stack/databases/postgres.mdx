@@ -1,0 +1,78 @@
+---
+title: 'PostgreSQL — the safe default'
+description: A relational database that does just about everything well.
+sidebar:
+  order: 3
+pathSlug: full-stack
+module: databases
+lessonNumber: 3
+difficulty: intermediate
+duration: 6 min
+tags: [databases, postgres]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Why Postgres
+
+- Strong ACID, mature tooling.
+- JSONB columns — document flexibility within SQL.
+- Full-text search built in.
+- pgvector for AI embeddings.
+- LISTEN/NOTIFY for pub-sub.
+- Excellent indexes (GIN, GiST, BRIN, HASH).
+- Massive community, every cloud supports it.
+
+## Modern hosting
+
+- **Neon** — serverless Postgres, branching like git.
+- **Supabase** — Postgres + auth + storage + realtime.
+- **PlanetScale** (now Postgres-compatible).
+- **Fly Postgres**, **Crunchy**, **AWS RDS**, **Cloud SQL**.
+
+## Connecting from Node
+
+```ts
+import postgres from 'postgres';
+const sql = postgres(process.env.DATABASE_URL!);
+const users = await sql`SELECT * FROM users WHERE id = ${id}`;
+```
+
+`postgres` (porsager/postgres) is a tagged-template, type-aware client. Faster and friendlier than `pg`.
+
+## Patterns to learn
+
+- **Migrations.** Use Drizzle / Prisma / sqlc.
+- **Connection pooling** — PgBouncer or your DB host's built-in pooler.
+- **EXPLAIN ANALYZE** — always check query plans on slow queries.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/databases/postgres"
+  questions={[
+    {
+      id: 'pg-1',
+      type: 'single',
+      prompt: 'You need both relational integrity AND nested document fields. The right Postgres feature is…',
+      options: [
+        { value: 'a', label: 'JSONB columns' },
+        { value: 'b', label: 'Foreign keys' },
+        { value: 'c', label: 'Triggers' },
+        { value: 'd', label: 'Views' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/databases/postgres"
+  lessonHref="/paths/full-stack/databases/postgres/"
+  lessonTitle="PostgreSQL"
+  nextHref="/paths/full-stack/databases/redis/"
+  nextTitle="Redis — caches, queues, pub/sub"
+/>

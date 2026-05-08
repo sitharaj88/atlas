@@ -1,0 +1,124 @@
+---
+title: 'Modern color: oklch, color-mix, P3'
+description: Wider gamut, perceptually-uniform color spaces, and the functions that compute color in CSS.
+sidebar:
+  order: 3
+pathSlug: modern-css
+module: typography
+lessonNumber: 3
+difficulty: intermediate
+duration: 8 min
+prerequisites:
+  - You've used hex and rgb colors
+objectives:
+  - Use oklch() for perceptually uniform colors
+  - Mix colors with color-mix()
+  - Recognize when to opt into P3 wide-gamut
+tags: [css, color]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** A short tour of CSS Color 4 — the functions and color spaces that have arrived in every modern browser.
+
+## oklch — perceptually uniform
+
+```css
+:root { --brand: oklch(72% 0.18 70); }   /* lightness, chroma, hue */
+```
+
+Three components:
+
+- **L** (0–100%) — perceived lightness. Two colors with the same L *look* equally bright.
+- **C** (0–~0.4) — chroma (saturation). Higher = more vivid.
+- **H** (0–360deg) — hue.
+
+Why prefer oklch over hsl? In hsl, the same L can look very different across hues (yellow-green at 50% looks brighter than blue at 50%). Oklch matches your eye.
+
+## color-mix
+
+```css
+.btn:hover { background: color-mix(in oklch, var(--brand), white 20%); }
+```
+
+Mix two colors in a chosen color space. Great for hover states, subtle tints, theme variants:
+
+```css
+:root {
+  --brand: oklch(72% 0.18 70);
+  --brand-soft: color-mix(in oklch, var(--brand), white 80%);
+  --brand-strong: color-mix(in oklch, var(--brand), black 20%);
+}
+```
+
+## P3 — wider colors on modern screens
+
+Standard sRGB is what we've used since 2000. Modern displays cover a larger gamut: P3, Rec2020. CSS lets you opt in:
+
+```css
+.vibrant { color: color(display-p3 1 0 0.5); }
+```
+
+The browser uses P3 on capable displays and falls back gracefully. Saturated colors look more saturated.
+
+## Color contrast still matters
+
+Wider gamut doesn't change accessibility. Pair with:
+
+```css
+.btn { background: var(--brand); color: oklch(98% 0 0); }   /* near-white text */
+```
+
+The `oklch(98% 0 0)` is "very light, no chroma" — predictable contrast.
+
+<Callout variant="tip" title="Migrate gradually">
+You don\'t have to switch all colors to oklch. Use it where you\'re computing or theming, where uniformity helps. Hex still works fine for fixed brand colors.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/typography/modern-color"
+  questions={[
+    {
+      id: 'col-1',
+      type: 'single',
+      prompt: 'Why is `oklch` preferable to `hsl` for theming?',
+      options: [
+        { value: 'a', label: 'Better browser support' },
+        { value: 'b', label: 'Perceptually uniform — same L means same perceived brightness across hues' },
+        { value: 'c', label: 'It\'s shorter' },
+        { value: 'd', label: 'It supports alpha; hsl doesn\'t' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'col-2',
+      type: 'single',
+      prompt: '`color-mix(in oklch, red, white 50%)` produces…',
+      options: [
+        { value: 'a', label: 'pink (50/50 mix in oklch space)' },
+        { value: 'b', label: 'red' },
+        { value: 'c', label: 'white' },
+        { value: 'd', label: 'invalid — color-mix needs hex' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+## What's next
+
+**Accessible contrast in practice.**
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/typography/modern-color"
+  lessonHref="/paths/modern-css/typography/modern-color/"
+  lessonTitle="Modern color: oklch, color-mix, P3"
+  nextHref="/paths/modern-css/typography/accessible-contrast/"
+  nextTitle="Accessible contrast in practice"
+/>

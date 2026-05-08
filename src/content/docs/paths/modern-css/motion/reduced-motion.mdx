@@ -1,0 +1,108 @@
+---
+title: prefers-reduced-motion from day one
+description: Respect the user's motion-sickness setting. The two lines of CSS that handle it.
+sidebar:
+  order: 1
+pathSlug: modern-css
+module: motion
+lessonNumber: 1
+difficulty: intermediate
+duration: 6 min
+prerequisites:
+  - You\'ve used CSS transitions or animations
+objectives:
+  - Detect and respect prefers-reduced-motion
+  - Replace, don't remove, motion when reduced is requested
+tags: [css, motion, accessibility]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Motion-triggered nausea is real; ~30% of vestibular-disorder sufferers report it. The fix is two lines.
+
+## The blanket reset
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+```
+
+Drop into your reset. Every animation now becomes near-instant.
+
+## The targeted approach
+
+The blanket version makes UI snappy but can lose useful affordances (a checkbox checking, a focus ring sliding). Better: opt in per-component.
+
+```css
+.menu { transition: transform 200ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .menu { transition: none; }
+}
+```
+
+For animations users *want* (checkbox checks, progress indicators), keep them brief and essential.
+
+## In JavaScript
+
+```js
+const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+if (!reduce) playIntroAnimation();
+```
+
+Listen for changes:
+
+```js
+matchMedia('(prefers-reduced-motion: reduce)')
+  .addEventListener('change', e => updateMotion(e.matches));
+```
+
+## What "reduce" means
+
+Not "no motion." It means "no large or unnecessary motion." Subtle fades and brief affordances are fine. Big parallax, autoplay video, animated backgrounds — those are out.
+
+<Callout variant="tip" title="Default to reduced motion in design">
+If your design only feels right with heavy motion, it\'s probably over-designed. The reduced version should still feel polished. Build that first; add motion as enhancement.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/motion/reduced-motion"
+  questions={[
+    {
+      id: 'rm-1',
+      type: 'single',
+      prompt: 'A user sets prefers-reduced-motion. Best response?',
+      options: [
+        { value: 'a', label: 'Disable JavaScript entirely' },
+        { value: 'b', label: 'Suppress non-essential transitions/animations in CSS under @media (prefers-reduced-motion: reduce)' },
+        { value: 'c', label: 'Show a static screenshot instead' },
+        { value: 'd', label: 'Pop a confirmation dialog' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Scroll-driven animations** — animate based on scroll position, no JS.
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/motion/reduced-motion"
+  lessonHref="/paths/modern-css/motion/reduced-motion/"
+  lessonTitle="prefers-reduced-motion from day one"
+  nextHref="/paths/modern-css/motion/scroll-driven/"
+  nextTitle="Scroll-driven animations"
+/>

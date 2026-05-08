@@ -1,0 +1,53 @@
+---
+title: Security Roadmap
+description: From OWASP basics to supply-chain hygiene — the security skills web devs need.
+sidebar:
+  order: 6
+tags: [roadmap, security]
+---
+
+import Roadmap from '~/components/Roadmap.tsx';
+
+<Roadmap
+  client:visible
+  height={580}
+  nodes={[
+    { id: 'owasp', label: 'OWASP Top 10', description: 'The big classes of bugs',
+      href: '/paths/frontier/security/owasp-top-10/', position: { x: 0, y: 0 }, group: 'milestone' },
+
+    { id: 'auth', label: 'Auth', description: 'Sessions, OIDC, passkeys',
+      href: '/paths/full-stack/auth/sessions-vs-jwts/', position: { x: -200, y: 110 }, group: 'core' },
+    { id: 'pw', label: 'Password storage', description: 'Argon2, never plaintext',
+      href: '/paths/full-stack/auth/passwords/', position: { x: 0, y: 110 }, group: 'core' },
+    { id: 'authz', label: 'Authorization', description: 'Server-side, on every endpoint',
+      href: '/paths/frontier/security/owasp-top-10/', position: { x: 200, y: 110 }, group: 'core' },
+
+    { id: 'csp', label: 'CSP / CORS / SRI', description: 'Browser security headers',
+      href: '/paths/frontier/security/csp-cors-sri/', position: { x: -200, y: 230 }, group: 'core' },
+    { id: 'xss', label: 'XSS defenses', description: 'CSP + sanitize untrusted HTML',
+      href: '/paths/frontier/security/csp-cors-sri/', position: { x: 0, y: 230 }, group: 'core' },
+    { id: 'csrf', label: 'CSRF', description: 'SameSite + double-submit',
+      href: '/paths/full-stack/auth/sessions-vs-jwts/', position: { x: 200, y: 230 }, group: 'core' },
+
+    { id: 'supply', label: 'Supply chain', description: 'pnpm audit, lockfiles',
+      href: '/paths/frontier/security/supply-chain/', position: { x: -150, y: 360 }, group: 'milestone' },
+    { id: 'secrets', label: 'Secrets management', description: 'OIDC, env, no leaks',
+      href: '/paths/devops/actions/secrets/', position: { x: 150, y: 360 }, group: 'core' },
+
+    { id: 'monitor', label: 'Monitoring + audit', description: 'Detect when something breaks',
+      href: '/paths/full-stack/observability/structured-logging/',
+      position: { x: 0, y: 480 }, group: 'milestone' },
+  ]}
+  edges={[
+    { source: 'owasp', target: 'auth' },
+    { source: 'owasp', target: 'pw' },
+    { source: 'owasp', target: 'authz' },
+    { source: 'auth', target: 'csp' },
+    { source: 'authz', target: 'csrf' },
+    { source: 'csp', target: 'xss' },
+    { source: 'xss', target: 'supply' },
+    { source: 'csrf', target: 'secrets' },
+    { source: 'supply', target: 'monitor' },
+    { source: 'secrets', target: 'monitor' },
+  ]}
+/>

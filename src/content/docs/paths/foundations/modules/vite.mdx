@@ -1,0 +1,218 @@
+---
+title: Vite, the modern dev server
+description: Setting up, configuring, and using Vite — the dev tool behind most new web projects.
+sidebar:
+  order: 3
+pathSlug: foundations
+module: modules
+lessonNumber: 3
+difficulty: beginner
+duration: 12 min
+prerequisites:
+  - You've completed *Bundlers vs. native*
+objectives:
+  - Spin up a Vite project
+  - Read and customize vite.config.ts
+  - 'Use Vite features: env vars, glob imports, HMR'
+tags: [javascript, vite, modules]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Hands-on Vite — scaffolding, configuring, and the features you'll reach for.
+
+## Scaffold
+
+```bash
+pnpm create vite@latest my-app
+# Pick a template: vanilla / react / vue / svelte / lit / preact / solid / qwik
+# Pick TypeScript or JavaScript
+
+cd my-app
+pnpm install
+pnpm dev    # http://localhost:5173
+pnpm build  # → dist/
+pnpm preview # serves dist/ locally
+```
+
+That's the whole lifecycle.
+
+## Project shape
+
+```text
+my-app/
+├── index.html         ← Vite's entry point (yes, HTML is the entry)
+├── vite.config.ts
+├── tsconfig.json
+├── package.json
+├── public/            ← copied verbatim to dist/
+└── src/
+    ├── main.ts        ← imported from index.html via <script type="module">
+    └── style.css
+```
+
+Vite uses `index.html` as the entry, which is unusual but excellent — your HTML can reference whatever scripts and styles it wants, and Vite figures out the dependencies.
+
+## vite.config.ts
+
+```ts
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+
+export default defineConfig({
+  plugins: [react()],
+  server: { port: 3000, host: true }, // host: true binds to 0.0.0.0
+  build: { outDir: 'dist', sourcemap: true },
+  base: '/my-app/', // for sub-path deployment (e.g. GitHub Pages)
+  resolve: {
+    alias: { '~': '/src' },
+  },
+});
+```
+
+Aliases are powerful: `import x from '~/utils'` resolves to `src/utils`. Set them in both `vite.config.ts` and `tsconfig.json`'s `paths` for TypeScript to keep up.
+
+## Environment variables
+
+```bash
+# .env
+VITE_API_URL=https://api.atlas.dev
+PUBLIC_API_URL=https://api.atlas.dev   # ← won't be exposed; only VITE_* prefix is
+```
+
+```ts
+console.log(import.meta.env.VITE_API_URL); // 'https://api.atlas.dev'
+console.log(import.meta.env.MODE);         // 'development' or 'production'
+console.log(import.meta.env.DEV);          // boolean
+```
+
+Only env vars prefixed with `VITE_` are inlined into client code — a safety guard against shipping secrets.
+
+## Glob imports
+
+For loading many files at once (a content site, a directory of icons):
+
+```ts
+const modules = import.meta.glob('./posts/*.md');
+// { './posts/a.md': () => import('./posts/a.md'), ... }
+
+// Eager (synchronous):
+const eagerModules = import.meta.glob('./posts/*.md', { eager: true });
+```
+
+Used heavily in static-site generators built on Vite (Astro, SvelteKit).
+
+## Hot Module Replacement
+
+You don't have to do anything. Edit a file, the page updates. State is preserved if the framework supports it (React, Vue, Svelte all do).
+
+To customize HMR:
+
+```ts
+if (import.meta.hot) {
+  import.meta.hot.accept((newModule) => { /* ... */ });
+  import.meta.hot.dispose(() => { /* ... */ });
+}
+```
+
+## Asset handling
+
+```ts
+import logo from './logo.svg';        // returns the resolved URL
+import logoUrl from './logo.svg?url'; // explicit URL
+import logoRaw from './logo.svg?raw'; // file contents as string
+import LogoComponent from './logo.svg?react'; // (with vite-plugin-svgr)
+```
+
+Suffixes (`?url`, `?raw`, `?worker`) tell Vite how to handle the import.
+
+## Common plugins
+
+- **`@vitejs/plugin-react`** — React with Fast Refresh.
+- **`@vitejs/plugin-vue`** — Vue 3.
+- **`vite-tsconfig-paths`** — automatic alias from `tsconfig.json`.
+- **`vite-plugin-svgr`** — import SVGs as React components.
+- **`@vite-pwa/astro`** / **`vite-plugin-pwa`** — PWA + service worker.
+
+## Production tips
+
+- **Set `base`** if not deploying to root.
+- **Set `build.target`** to control browser support: `esnext` for modern, `es2020` for broad.
+- **Use `build.rollupOptions.output.manualChunks`** for fine-grained chunk control.
+
+```ts
+build: {
+  rollupOptions: {
+    output: {
+      manualChunks: {
+        react: ['react', 'react-dom'],
+        ui: ['lodash', 'date-fns'],
+      },
+    },
+  },
+}
+```
+
+<Callout variant="tip" title="Don't fight Vite">
+The default config is good. Custom config gets clever; clever gets brittle. Add plugins for needs; tweak when you measure a problem.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/modules/vite"
+  questions={[
+    {
+      id: 'vite-1',
+      type: 'single',
+      prompt: 'Where does Vite enter your app?',
+      options: [
+        { value: 'a', label: 'src/main.js' },
+        { value: 'b', label: 'index.html (which references the JS via <script type="module">)' },
+        { value: 'c', label: 'vite.config.ts' },
+        { value: 'd', label: 'package.json\'s "main" field' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'vite-2',
+      type: 'single',
+      prompt: 'You have an env var called `API_KEY`. Why isn\'t it readable from `import.meta.env`?',
+      options: [
+        { value: 'a', label: 'You forgot to restart the dev server' },
+        { value: 'b', label: 'Only env vars prefixed with `VITE_` are exposed to client code (safety guard)' },
+        { value: 'c', label: '.env files don\'t work in Vite' },
+        { value: 'd', label: 'Vite caches env at build time only' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'vite-3',
+      type: 'single',
+      prompt: 'Deploying to `username.github.io/my-app/`. What setting matters?',
+      options: [
+        { value: 'a', label: 'server.port' },
+        { value: 'b', label: 'base: \'/my-app/\'' },
+        { value: 'c', label: 'build.outDir' },
+        { value: 'd', label: 'plugins' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+The Modules & Tooling module wraps. Next module: **Accessibility Primer**, where you put a11y into practice.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/modules/vite"
+  lessonHref="/paths/foundations/modules/vite/"
+  lessonTitle="Vite, the modern dev server"
+  nextHref="/paths/foundations/a11y/semantic-html/"
+  nextTitle="Semantic HTML is 80% of a11y"
+/>

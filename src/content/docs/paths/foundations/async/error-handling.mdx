@@ -1,0 +1,214 @@
+---
+title: Error handling that doesn't bury bugs
+description: try/catch, error chains, and the patterns that surface failures instead of silencing them.
+sidebar:
+  order: 2
+pathSlug: foundations
+module: async
+lessonNumber: 2
+difficulty: beginner
+duration: 10 min
+prerequisites:
+  - You've completed *Callbacks → Promises → async/await*
+objectives:
+  - Wrap async code in try/catch correctly
+  - Chain errors with error.cause
+  - Distinguish expected vs. unexpected errors
+tags: [javascript, errors, async]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** When to catch, when not to, and how to keep the original error visible while adding context.
+
+## Throw, try, catch
+
+```js
+function divide(a, b) {
+  if (b === 0) throw new Error('Division by zero');
+  return a / b;
+}
+
+try {
+  const x = divide(10, 0);
+} catch (err) {
+  console.error(err.message);
+}
+```
+
+You can throw any value, but **always throw `Error` objects** (or subclasses). They have `.stack` traces, work with logging tools, and show up in DevTools properly.
+
+## Error subclasses
+
+```js
+class NotFoundError extends Error {
+  constructor(message) {
+    super(message);
+    this.name = 'NotFoundError';
+  }
+}
+
+throw new NotFoundError('User 42 not found');
+
+// Catch site
+try {
+  await getUser(42);
+} catch (err) {
+  if (err instanceof NotFoundError) return null;
+  throw err; // rethrow anything we didn't expect
+}
+```
+
+Use specific error types so the catch site can decide what to do.
+
+## error.cause — chaining without losing context
+
+When you wrap an error in higher-level context, preserve the original:
+
+```js
+try {
+  const data = await fetchUserPosts(42);
+} catch (err) {
+  throw new Error('Failed to load user posts', { cause: err });
+}
+```
+
+Modern logging tools and `console.error` follow the chain automatically. The original stack is still there.
+
+## try/catch with async/await
+
+```js
+async function load() {
+  try {
+    const a = await fetch('/a').then(r => r.json());
+    const b = await fetch('/b').then(r => r.json());
+    return { a, b };
+  } catch (err) {
+    console.error('Failed to load:', err);
+    return null;
+  }
+}
+```
+
+One try around all the awaits. Inside an `async` function, awaited rejections become thrown errors.
+
+## When NOT to catch
+
+A common bad pattern:
+
+```js
+// ❌ Silently swallowing
+try {
+  await doThing();
+} catch (e) {
+  // do nothing
+}
+```
+
+You've now hidden the failure. Production debugging becomes archaeology. Either:
+
+- **Handle** it (log, fall back, re-throw a typed error).
+- **Re-throw** it (let the caller decide).
+- **Don't catch** (let it propagate to a top-level handler).
+
+## Top-level handlers
+
+For the truly unexpected:
+
+```js
+// In the browser
+window.addEventListener('error', e => sentry.captureError(e.error));
+window.addEventListener('unhandledrejection', e => sentry.captureError(e.reason));
+
+// In Node
+process.on('uncaughtException', err => { /* log, then exit */ });
+process.on('unhandledRejection', err => { /* log */ });
+```
+
+Frameworks (React, Express, Hono) have their own error boundaries / middleware — use those when available.
+
+## Expected vs. unexpected
+
+A useful mental split:
+
+- **Expected errors** — user input is invalid, item not found, payment declined. Return them as data (`{ ok: false, error }`) or specific error subclasses. The caller is supposed to handle them.
+- **Unexpected errors** — DB is down, ran out of memory, code bug. Throw and let them bubble. Log them. The caller usually can't do anything meaningful.
+
+Don't dress up programming bugs as "user errors." The hidden bug today is the production incident next month.
+
+## Validate errors at boundaries
+
+```js
+async function loadUser(id) {
+  if (typeof id !== 'string') {
+    throw new TypeError('id must be a string');
+  }
+  // ... rest is "trusted" — no need to revalidate inside
+}
+```
+
+Validate at the **edges** (HTTP handlers, public functions). Trust the inside.
+
+<Callout variant="warn" title="A finally block runs on success AND on error">
+Use `finally` for cleanup that must happen either way: closing a connection, releasing a lock, hiding a spinner.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/async/error-handling"
+  questions={[
+    {
+      id: 'err-1',
+      type: 'single',
+      prompt: 'You wrap a low-level error to add context. Best way to keep the original visible?',
+      options: [
+        { value: 'a', label: 'Concatenate the messages: throw new Error(orig.message + \': new context\')' },
+        { value: 'b', label: 'throw new Error(\'new context\', { cause: orig })' },
+        { value: 'c', label: 'Re-throw exactly the original' },
+        { value: 'd', label: 'Log the original and throw a new one' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'err-2',
+      type: 'single',
+      prompt: 'A user submitted invalid data. Best handling?',
+      options: [
+        { value: 'a', label: 'Throw an Error and let it bubble to the global handler' },
+        { value: 'b', label: 'Return a typed result like { ok: false, error: ValidationError } OR throw a specific error subclass' },
+        { value: 'c', label: 'Log the bug to Sentry and ignore it' },
+        { value: 'd', label: 'Silently fail' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'err-3',
+      type: 'single',
+      prompt: '`try { ... } catch (e) {}` — what\'s wrong?',
+      options: [
+        { value: 'a', label: 'Nothing — defensive coding' },
+        { value: 'b', label: 'It silently swallows ALL errors, hiding bugs' },
+        { value: 'c', label: 'It throws a syntax error' },
+        { value: 'd', label: 'It only catches once' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Concurrency** — `Promise.all`, `allSettled`, `race`, `any` — running multiple async things at once.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/async/error-handling"
+  lessonHref="/paths/foundations/async/error-handling/"
+  lessonTitle="Error handling that doesn't bury bugs"
+  nextHref="/paths/foundations/async/concurrency/"
+  nextTitle="Concurrency — Promise.all, allSettled, race, any"
+/>

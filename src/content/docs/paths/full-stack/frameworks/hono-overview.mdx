@@ -1,0 +1,56 @@
+---
+title: Hono — small, fast, edge-ready
+description: The HTTP framework that runs on every JS runtime. Tiny, type-safe, built on Web Standards.
+sidebar:
+  order: 1
+pathSlug: full-stack
+module: frameworks
+lessonNumber: 1
+difficulty: intermediate
+duration: 5 min
+tags: [hono, frameworks]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Why Hono
+
+- Built on `Request` / `Response` — runs on Node, Deno, Bun, Cloudflare, Vercel, AWS Lambda.
+- Tiny core (under 20KB).
+- First-class TypeScript including a typed RPC client (`hc<typeof app>`).
+- Plugins for OpenAPI, validation (Zod), JWT, JSX rendering.
+
+## A complete tour is in the dedicated lesson
+
+For routing, validation, error handling, middleware, and tests, see [Build a REST API with Hono](/paths/full-stack/apis/rest-api-hono/).
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/frameworks/hono-overview"
+  questions={[
+    {
+      id: 'ho-1',
+      type: 'single',
+      prompt: 'Hono\'s killer feature for cross-runtime portability?',
+      options: [
+        { value: 'a', label: 'Built on Web Standards (Request/Response/fetch)' },
+        { value: 'b', label: 'JSX rendering' },
+        { value: 'c', label: 'Plugin system' },
+        { value: 'd', label: 'Built-in DB' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/frameworks/hono-overview"
+  lessonHref="/paths/full-stack/frameworks/hono-overview/"
+  lessonTitle="Hono overview"
+  nextHref="/paths/full-stack/frameworks/fastify/"
+  nextTitle="Fastify — the Node workhorse"
+/>

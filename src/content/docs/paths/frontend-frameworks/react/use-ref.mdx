@@ -1,0 +1,78 @@
+---
+title: useRef and imperative escape hatches
+description: When you actually need a ref — DOM access, mutable instance values, and the patterns that don't break React.
+sidebar:
+  order: 6
+pathSlug: frontend-frameworks
+module: react
+lessonNumber: 6
+difficulty: intermediate
+duration: 5 min
+tags: [react, refs]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Two uses of useRef
+
+**1. DOM access:**
+
+```jsx
+const inputRef = useRef(null);
+useEffect(() => inputRef.current?.focus(), []);
+return <input ref={inputRef} />;
+```
+
+**2. Mutable instance values that don't trigger re-renders:**
+
+```jsx
+const id = useRef(0);
+function next() { return ++id.current; }
+```
+
+Updates to `ref.current` don't cause renders. Useful for IDs, timers, previous values.
+
+## Forwarding refs
+
+```jsx
+const TextField = forwardRef((props, ref) => <input ref={ref} {...props} />);
+```
+
+In React 19, this changes — refs are passed as a regular prop, no `forwardRef` wrapper needed.
+
+## When NOT to reach for refs
+
+- To "force a render" — use state.
+- To skip controlled inputs — usually a smell.
+- To work around a re-render issue — find the root cause first.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/react/use-ref"
+  questions={[
+    {
+      id: 'ur-1',
+      type: 'single',
+      prompt: 'Updating `ref.current` triggers a re-render?',
+      options: [
+        { value: 'a', label: 'Yes' },
+        { value: 'b', label: 'No' },
+        { value: 'c', label: 'Only the first time' },
+        { value: 'd', label: 'Only when wrapped in useCallback' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/react/use-ref"
+  lessonHref="/paths/frontend-frameworks/react/use-ref/"
+  lessonTitle="useRef and imperative escape hatches"
+  nextHref="/paths/frontend-frameworks/react/suspense-transitions/"
+  nextTitle="Suspense, transitions, deferred values"
+/>

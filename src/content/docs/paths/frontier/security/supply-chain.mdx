@@ -1,0 +1,72 @@
+---
+title: 'Supply-chain (npm) hygiene'
+description: Defending against malicious packages and typo-squatting.
+sidebar:
+  order: 3
+pathSlug: frontier
+module: security
+lessonNumber: 3
+difficulty: advanced
+duration: 5 min
+tags: [security, supply-chain]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The threats
+
+- **Malicious packages** — typo-squatted names ("expres" instead of "express"), or hijacked legitimate ones.
+- **Postinstall scripts** that exfiltrate env vars.
+- **Compromised maintainer accounts**.
+- **Transitive dependencies** you never audited.
+
+## Hygiene
+
+- **Pin versions.** `pnpm-lock.yaml` is your friend; commit it.
+- **`pnpm audit`** in CI. Fail on high/critical.
+- **Disable postinstall scripts** by default: `npm config set ignore-scripts true` (then opt in for trusted packages).
+- **Renovate / Dependabot** — automated updates with diff visibility.
+- **Verify package signing** — provenance via `npm install --audit-signatures`.
+
+## Read what you install
+
+```bash
+pnpm dlx npq install some-package    # nags about red flags before installing
+```
+
+For a critical dependency, **read the package.json scripts**, **scan the source size** (10KB pkg with 50MB postinstall is suspicious).
+
+## Stay smaller
+
+The more deps you have, the bigger the surface. Audit lock files in PRs. Push back on adding packages for tiny needs.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/security/supply-chain"
+  questions={[
+    {
+      id: 'sup-1',
+      type: 'single',
+      prompt: 'Which is a strong defense against npm supply-chain attacks?',
+      options: [
+        { value: 'a', label: 'Always installing latest' },
+        { value: 'b', label: 'Lockfile committed + `pnpm audit` in CI + disabling postinstall scripts by default' },
+        { value: 'c', label: 'Avoiding TypeScript' },
+        { value: 'd', label: 'Inline all dependencies' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/security/supply-chain"
+  lessonHref="/paths/frontier/security/supply-chain/"
+  lessonTitle="Supply-chain hygiene"
+  nextHref="/paths/frontier/security/auth-footguns/"
+  nextTitle="Auth-related footguns"
+/>

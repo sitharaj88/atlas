@@ -1,0 +1,183 @@
+---
+title: The cascade and specificity, demystified
+description: How the browser picks one CSS rule over another — origin, layer, specificity, order — in plain English.
+sidebar:
+  order: 1
+pathSlug: foundations
+module: css
+lessonNumber: 1
+difficulty: beginner
+duration: 12 min
+prerequisites:
+  - You\'ve written some CSS
+objectives:
+  - Trace the cascade through its four steps
+  - Calculate specificity without guessing
+  - Use !important as a last resort, and know its alternative
+tags: [css, cascade, specificity]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** When two CSS rules try to style the same property, the browser runs an algorithm to pick one. Understand it once and stop wondering "why isn't my style applying?"
+
+## The cascade in four steps
+
+Browser walks through these in order. As soon as one declares a winner, it stops.
+
+1. **Origin and importance** — user agent vs. user vs. author. (Author CSS — yours — is the middle layer; `!important` flips priority within an origin.)
+2. **Cascade layers** — `@layer` rules. Later layers beat earlier ones. Unlayered styles win against layered.
+3. **Specificity** — how specific the selector is.
+4. **Source order** — last declaration wins.
+
+Most fights happen at steps 3 and 4.
+
+## Specificity, the math
+
+Count three numbers, written `[a, b, c]`:
+
+- **a** = inline `style="..."` declarations (only `[1, 0, 0]` or `[0, 0, 0]`)
+- **b** = number of IDs (`#thing`)
+- **c** = number of classes, attributes, pseudo-classes (`.foo`, `[type="text"]`, `:hover`)
+- **d** = number of types and pseudo-elements (`p`, `::before`)
+
+Read left to right; bigger wins. `[0, 1, 0, 0]` beats any number of classes.
+
+| Selector | Specificity |
+|---|---|
+| `*` | `0,0,0,0` |
+| `p` | `0,0,0,1` |
+| `.btn` | `0,0,1,0` |
+| `p.btn` | `0,0,1,1` |
+| `.btn.large` | `0,0,2,0` |
+| `#header .btn` | `0,1,1,0` |
+| `<style="…">` (inline) | `1,0,0,0` |
+| `!important` | beats all the above (within its origin) |
+
+`:not(.x)`, `:is(...)`, `:has(...)` take the specificity of their *most specific* argument. `:where(...)` always has zero specificity — useful for resets.
+
+## A worked example
+
+```html
+<a class="link" href="...">Hello</a>
+```
+
+```css
+.link        { color: orange; }   /* 0,1,0 */
+a            { color: blue;   }   /* 0,0,1 */
+```
+
+`.link` wins (`0,1,0` > `0,0,1`). The link is orange.
+
+```css
+.link        { color: orange; }       /* 0,1,0 */
+header a     { color: blue;   }       /* 0,1,1 */
+```
+
+`header a` wins. Two factors: a class and a type.
+
+## Cascade layers — the modern escape hatch
+
+Specificity wars used to end with `!important`. Now `@layer` is cleaner:
+
+```css
+@layer reset, base, components, utilities;
+
+@layer reset {
+  *, *::before, *::after { box-sizing: border-box; }
+}
+@layer base {
+  body { font-family: system-ui; }
+}
+@layer components {
+  .btn { padding: 0.6rem 1rem; background: navy; color: white; }
+}
+@layer utilities {
+  .hidden { display: none; }
+}
+```
+
+Layers declared later **always** beat earlier ones, regardless of specificity. So a single class in `utilities` beats `#some-id .complex .selector` in `components`. No more `!important`.
+
+Unlayered styles win over all layers — useful for overrides, dangerous if you're not careful.
+
+## When to reach for `!important`
+
+- ❌ "I can't figure out why my style won't apply." → Inspect with DevTools, find the actual winner.
+- ❌ "I want my reset to win." → Use `@layer` instead.
+- ✅ Utility classes that *must* win (`.hidden { display: none !important; }`) — but `@layer utilities` covers this too.
+- ✅ Overriding a third-party stylesheet you don't control.
+
+## Inheritance vs. cascade
+
+Two different things:
+
+- **Cascade** picks which rule applies to *this* element.
+- **Inheritance** decides what value to use when no rule applies — most properties inherit from the parent (color, font, line-height); some don't (margin, padding, border, background).
+
+If a child has nothing styling its color, it inherits the parent's. The cascade isn't involved at all.
+
+<Callout variant="tip" title="The DevTools secret weapon">
+Open DevTools → Elements → Styles. The browser shows every rule that *could* apply, with strikethroughs on the ones that lost. The winning rules are highlighted. This is the fastest way to debug "why isn\'t my CSS working?"
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/css/cascade-specificity"
+  questions={[
+    {
+      id: 'cas-1',
+      type: 'single',
+      prompt: 'Which has higher specificity?',
+      options: [
+        { value: 'a', label: '#header .btn' },
+        { value: 'b', label: '.btn.btn--large.btn--primary' },
+        { value: 'c', label: 'They\'re equal' },
+        { value: 'd', label: 'It depends on order' },
+      ],
+      answer: 'a',
+      explanation: 'A single ID (1,0,0) beats any number of classes (0,3,0).',
+    },
+    {
+      id: 'cas-2',
+      type: 'single',
+      prompt: 'You define `@layer reset, components;` then write `.btn` rules inside both. Which wins?',
+      options: [
+        { value: 'a', label: 'reset (declared first, so highest priority)' },
+        { value: 'b', label: 'components (later layers win)' },
+        { value: 'c', label: 'Whichever has more declarations' },
+        { value: 'd', label: 'Always reset' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'cas-3',
+      type: 'single',
+      prompt: 'A specificity fight; how do you usually solve it WITHOUT `!important`?',
+      options: [
+        { value: 'a', label: 'Add more classes to the loser' },
+        { value: 'b', label: 'Move the loser to a later cascade layer (or unlayer it)' },
+        { value: 'c', label: 'Write inline styles' },
+        { value: 'd', label: 'Nothing works without !important' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**The box model** — every element is a rectangle, and you should know exactly how big.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/css/cascade-specificity"
+  lessonHref="/paths/foundations/css/cascade-specificity/"
+  lessonTitle="The cascade and specificity, demystified"
+  nextHref="/paths/foundations/css/box-model/"
+  nextTitle="The box model"
+/>

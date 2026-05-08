@@ -1,0 +1,116 @@
+---
+title: TypeScript utility types cheatsheet
+description: Every built-in type helper, with an example.
+sidebar:
+  order: 7
+tags: [typescript, cheatsheet]
+---
+
+> Print-friendly.
+
+## Object transforms
+
+```ts
+type User = { id: number; name: string; email?: string };
+
+Partial<User>                  // all optional → { id?, name?, email? }
+Required<User>                 // all required (removes ?)
+Readonly<User>                 // all readonly
+Pick<User, 'id' | 'name'>      // { id, name }
+Omit<User, 'email'>            // { id, name }
+Record<'a' | 'b', User>        // { a: User, b: User }
+NonNullable<T | null>          // T (strips null/undefined)
+```
+
+## Function transforms
+
+```ts
+type Fn = (a: string, b: number) => boolean;
+
+Parameters<Fn>                 // [string, number]
+ReturnType<Fn>                 // boolean
+ConstructorParameters<typeof Date>  // arguments to `new Date(...)`
+InstanceType<typeof Date>      // Date
+ThisParameterType<Fn>          // unknown unless explicit `this`
+OmitThisParameter<Fn>          // Fn without explicit `this`
+```
+
+## String/key transforms
+
+```ts
+Uppercase<'hello'>             // 'HELLO'
+Lowercase<'HELLO'>             // 'hello'
+Capitalize<'hello'>            // 'Hello'
+Uncapitalize<'Hello'>          // 'hello'
+```
+
+## Async
+
+```ts
+type P = Promise<Promise<string>>;
+Awaited<P>                      // string
+```
+
+## Conditional & extraction
+
+```ts
+type Kind = 'cat' | 'dog' | 'fish';
+
+Extract<Kind, 'cat' | 'fish'>   // 'cat' | 'fish'
+Exclude<Kind, 'fish'>           // 'cat' | 'dog'
+```
+
+## keyof / typeof / index access
+
+```ts
+keyof User                      // 'id' | 'name' | 'email'
+typeof someValue                // type of a runtime value
+User['name']                    // string
+User['id' | 'name']             // number | string
+```
+
+## Build your own (recipes)
+
+```ts
+// Make selected keys required
+type WithRequired<T, K extends keyof T> = T & { [P in K]-?: T[P] };
+
+// Deep partial
+type DeepPartial<T> = { [K in keyof T]?: T[K] extends object ? DeepPartial<T[K]> : T[K] };
+
+// Readonly deep
+type DeepReadonly<T> = { readonly [K in keyof T]: T[K] extends object ? DeepReadonly<T[K]> : T[K] };
+
+// Mutable (strip readonly)
+type Mutable<T> = { -readonly [K in keyof T]: T[K] };
+
+// Filter keys whose values match a type
+type StringKeys<T> = { [K in keyof T as T[K] extends string ? K : never]: T[K] };
+
+// Extract function names
+type Methods<T> = { [K in keyof T as T[K] extends (...args: any) => any ? K : never]: T[K] };
+```
+
+## When to reach for `as const`
+
+```ts
+const dirs = ['n', 's', 'e', 'w'] as const;
+type Dir = typeof dirs[number];   // 'n' | 's' | 'e' | 'w'
+```
+
+The cleanest way to derive a union from a list.
+
+## When to reach for `infer`
+
+In conditional types:
+
+```ts
+type ElementOf<T> = T extends (infer E)[] ? E : never;
+type X = ElementOf<number[]>;   // number
+```
+
+## Tips
+
+- Don't memorize all of these. Hover the type in your IDE — the inline tooltip shows the resolved type.
+- `Pick`, `Omit`, `Partial`, and `Record` cover 80% of daily needs.
+- For tricky cases, drop into `lib.es5.d.ts` and read how the standard library types work.

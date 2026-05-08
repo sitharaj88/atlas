@@ -1,0 +1,82 @@
+---
+title: Structured logging
+description: Logs as JSON, queryable in your log tool. The minimum bar for a production app.
+sidebar:
+  order: 1
+pathSlug: full-stack
+module: observability
+lessonNumber: 1
+difficulty: intermediate
+duration: 5 min
+tags: [logging, observability]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Strings vs. JSON
+
+```js
+// ❌ unstructured
+console.log(`User ${user.id} bought ${product.name} for $${total}`);
+
+// ✓ structured
+log.info({ userId: user.id, productId: product.id, total }, 'purchase');
+```
+
+Structured logs are queryable. "Show me all purchases > $1000 today" is instant.
+
+## Pino — fast structured logging for Node
+
+```ts
+import pino from 'pino';
+const log = pino();
+
+log.info({ orderId, total }, 'order.created');
+log.error({ err }, 'failed to send email');
+```
+
+Pino is the fastest Node logger and most providers (Logtail, Datadog, Grafana) accept its JSON output natively.
+
+## What to log
+
+- **Request ID / trace ID** — correlate requests across services.
+- **User ID / org ID** — pivot logs per user.
+- **Outcome / duration** — for everything that talks to the network.
+- **Error stacks** — always. Pino auto-serializes Error objects.
+
+## What NOT to log
+
+- **Passwords, tokens, full credit card numbers, full user PII.**
+- **HTTP request bodies of sensitive endpoints.**
+- **Health check spam** — sample or filter.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/observability/structured-logging"
+  questions={[
+    {
+      id: 'lg-1',
+      type: 'single',
+      prompt: 'Structured logs win over plain string logs because…',
+      options: [
+        { value: 'a', label: 'They\'re shorter' },
+        { value: 'b', label: 'They\'re queryable — filter by field, aggregate by attribute, alert on conditions' },
+        { value: 'c', label: 'They\'re color-coded' },
+        { value: 'd', label: 'They use less disk' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/observability/structured-logging"
+  lessonHref="/paths/full-stack/observability/structured-logging/"
+  lessonTitle="Structured logging"
+  nextHref="/paths/full-stack/observability/tracing/"
+  nextTitle="Tracing with OpenTelemetry"
+/>

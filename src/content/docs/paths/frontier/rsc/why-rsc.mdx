@@ -1,0 +1,66 @@
+---
+title: Why RSC exists — the bundle-size problem
+description: Server Components in 2 minutes. Less code shipped to the client.
+sidebar:
+  order: 1
+pathSlug: frontier
+module: rsc
+lessonNumber: 1
+difficulty: advanced
+duration: 4 min
+tags: [react, rsc]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> Detailed walkthrough: [React Server Components, demystified](/paths/frontend-frameworks/react/server-components/).
+
+## The problem
+
+Classic React ships every component to the browser, even ones that never re-render and have no interactivity. A Markdown blog ships a 200KB Markdown parser to render text the user sees as plain HTML.
+
+## RSC's answer
+
+Components marked as "server components" run on the server, render to a serialized format, and **never ship to the client**. Only the genuinely interactive components ("client components" with `'use client'`) get hydrated.
+
+## Bundle math
+
+| | Classic React | RSC |
+|---|---|---|
+| Markdown parser | shipped | server-only |
+| DB client | (you'd never ship it; required separate API) | server-only, called directly |
+| Like button | shipped | shipped |
+| Layout, header, footer | shipped | server-only |
+
+For content-heavy pages, JS bundle drops 70-90%.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/rsc/why-rsc"
+  questions={[
+    {
+      id: 'wrsc-1',
+      type: 'single',
+      prompt: 'RSC differs from classic SSR primarily by…',
+      options: [
+        { value: 'a', label: 'Faster TTFB' },
+        { value: 'b', label: 'Server components\' code is NEVER shipped to the client (SSR ships every component)' },
+        { value: 'c', label: 'Better TypeScript' },
+        { value: 'd', label: 'Replacing JSX' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/rsc/why-rsc"
+  lessonHref="/paths/frontier/rsc/why-rsc/"
+  lessonTitle="Why RSC"
+  nextHref="/paths/frontier/rsc/server-vs-client/"
+  nextTitle="Server vs. client components — the rules"
+/>

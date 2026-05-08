@@ -1,0 +1,100 @@
+---
+title: Conditional types and infer
+description: Types that branch — and the keyword that pulls types out of other types.
+sidebar:
+  order: 1
+pathSlug: typescript
+module: type-level
+lessonNumber: 1
+difficulty: advanced
+duration: 8 min
+prerequisites:
+  - You've completed the Generics module
+objectives:
+  - Read and write conditional types
+  - Use infer to extract types
+tags: [typescript, type-level]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Conditional types
+
+```ts
+type IsString<T> = T extends string ? true : false;
+
+type A = IsString<'hello'>; // true
+type B = IsString<42>;      // false
+```
+
+`T extends X ? Y : Z` — pick Y if T is assignable to X, else Z.
+
+## Distributive
+
+When T is a union, conditional types **distribute** over each member:
+
+```ts
+type ToArray<T> = T extends any ? T[] : never;
+type X = ToArray<string | number>;   // string[] | number[]
+```
+
+To opt out, wrap in tuples: `[T] extends [X]`.
+
+## infer
+
+Extract a type from a position:
+
+```ts
+type ReturnType<F> = F extends (...args: any[]) => infer R ? R : never;
+
+type Fn = () => string;
+type R = ReturnType<Fn>; // string
+```
+
+`infer R` says "name this position R for the true branch."
+
+## Common library types
+
+```ts
+type Awaited<T>     = T extends PromiseLike<infer U> ? Awaited<U> : T;
+type Parameters<F>  = F extends (...args: infer P) => any ? P : never;
+type ReturnType<F>  = F extends (...args: any) => infer R ? R : never;
+type ConstructorReturn<C> = C extends abstract new (...args: any) => infer R ? R : never;
+```
+
+These ship in `lib.es5.d.ts`. Read them — that's how you learn the language.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/type-level/conditional-types"
+  questions={[
+    {
+      id: 'cnd-1',
+      type: 'single',
+      prompt: 'What does `infer` do?',
+      options: [
+        { value: 'a', label: 'Imports a type from another module' },
+        { value: 'b', label: 'Names a type position so you can use it in the conditional branches' },
+        { value: 'c', label: 'Inserts runtime checks' },
+        { value: 'd', label: 'Same as `extends`' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Mapped types.**
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/type-level/conditional-types"
+  lessonHref="/paths/typescript/type-level/conditional-types/"
+  lessonTitle="Conditional types and infer"
+  nextHref="/paths/typescript/type-level/mapped-types/"
+  nextTitle="Mapped types"
+/>

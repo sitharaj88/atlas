@@ -1,0 +1,74 @@
+---
+title: 'Router patterns — file-based vs code-first'
+description: Two ways apps map URLs to components, and the trade-offs of each.
+sidebar:
+  order: 1
+pathSlug: frontend-frameworks
+module: data
+lessonNumber: 1
+difficulty: intermediate
+duration: 6 min
+tags: [react, routing]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## File-based
+
+Folder structure becomes routes. `app/posts/[id]/page.tsx` → `/posts/:id`. Used by Next.js, Remix/React Router 7, TanStack Start, Astro, SvelteKit.
+
+Pros: convention. Easy to find the file for a route. Routing config is implicit.
+
+Cons: nesting and dynamic segments require care. Editor refactors don't always understand routes.
+
+## Code-first
+
+Routes are JS data:
+
+```js
+const routes = [
+  { path: '/', element: <Home /> },
+  { path: '/posts/:id', element: <Post /> },
+];
+```
+
+Used by older React Router, Solid Router (option), Vue Router.
+
+Pros: explicit. Easy to share, transform, generate.
+
+Cons: more boilerplate. The bigger the app, the more painful.
+
+## Verdict for new apps
+
+**Use a file-based router** that ships with a meta-framework. The convention is well-trodden, the tooling is excellent, and you avoid hand-maintaining a routes table.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/data/router-patterns"
+  questions={[
+    {
+      id: 'rt-1',
+      type: 'single',
+      prompt: 'A file at `app/posts/[id]/page.tsx` (Next.js) maps to URL…',
+      options: [
+        { value: 'a', label: '/posts' },
+        { value: 'b', label: '/posts/:id' },
+        { value: 'c', label: '/[id]' },
+        { value: 'd', label: '/page' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/data/router-patterns"
+  lessonHref="/paths/frontend-frameworks/data/router-patterns/"
+  lessonTitle="Router patterns"
+  nextHref="/paths/frontend-frameworks/data/server-vs-client-state/"
+  nextTitle="Server state vs. client state"
+/>

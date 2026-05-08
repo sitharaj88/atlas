@@ -1,0 +1,84 @@
+---
+title: 'INP — Interaction to Next Paint (the new one)'
+description: How responsive your page feels. Replaced FID in 2024.
+sidebar:
+  order: 3
+pathSlug: performance-a11y-seo
+module: web-vitals
+lessonNumber: 2
+difficulty: intermediate
+duration: 6 min
+tags: [performance, inp]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What it measures
+
+Time from a user input (click, tap, key) to the next paint that reflects it. Reported INP is the **slowest** of all interactions in a session (one outlier per 50). Goal: ≤ 200ms at the 75th percentile.
+
+## Common causes
+
+- Long JS tasks blocking the main thread.
+- Big React re-renders on every keystroke.
+- Layout thrashing inside event handlers.
+- Synchronous calls to slow APIs from a click handler.
+
+## Fixes
+
+**Yield to the browser:**
+
+```js
+async function processItems(items) {
+  for (let i = 0; i < items.length; i++) {
+    process(items[i]);
+    if (i % 100 === 0) await new Promise(r => setTimeout(r));
+  }
+}
+```
+
+**Defer non-urgent updates (React):**
+
+```jsx
+const [input, setInput] = useState('');
+const deferredInput = useDeferredValue(input);
+return (
+  <>
+    <input value={input} onChange={e => setInput(e.target.value)} />
+    <ExpensiveResults query={deferredInput} />
+  </>
+);
+```
+
+**Don't read layout in handlers** (`offsetWidth`, `getBoundingClientRect`) — causes synchronous reflow.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/web-vitals/inp"
+  questions={[
+    {
+      id: 'inp-1',
+      type: 'single',
+      prompt: 'Big React re-render on every keystroke hurts which metric?',
+      options: [
+        { value: 'a', label: 'LCP' },
+        { value: 'b', label: 'INP' },
+        { value: 'c', label: 'CLS' },
+        { value: 'd', label: 'TTFB' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/web-vitals/inp"
+  lessonHref="/paths/performance-a11y-seo/web-vitals/inp/"
+  lessonTitle="INP"
+  nextHref="/paths/performance-a11y-seo/web-vitals/cls/"
+  nextTitle="CLS — Cumulative Layout Shift"
+/>

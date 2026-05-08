@@ -1,0 +1,122 @@
+---
+title: Primitives, literals, unions, intersections
+description: The atoms of TypeScript types and how they combine.
+sidebar:
+  order: 1
+pathSlug: typescript
+module: building-blocks
+lessonNumber: 1
+difficulty: beginner
+duration: 8 min
+prerequisites:
+  - You've completed the mental-model module
+objectives:
+  - Use literal types for finite states
+  - Combine with unions and intersections
+tags: [typescript, types]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Primitives
+
+```ts
+let n: number;
+let s: string;
+let b: boolean;
+let big: bigint;
+let sym: symbol;
+let nul: null;
+let und: undefined;
+```
+
+## Literal types
+
+A type with exactly one possible value:
+
+```ts
+let role: 'admin' | 'user' | 'guest' = 'user';
+let port: 80 | 443 = 443;
+```
+
+`'admin'` is both a value and a type — a value of type `'admin'`. Unions of literals make finite-state types.
+
+## Unions
+
+```ts
+type ID = string | number;
+function find(id: ID) { /* ... */ }
+
+// Discriminated union — one common literal field
+type Result<T> = { ok: true; value: T } | { ok: false; error: string };
+```
+
+Discriminated unions are the workhorse pattern. Branch on the literal:
+
+```ts
+function handle<T>(r: Result<T>) {
+  if (r.ok) return r.value;
+  else return r.error;
+}
+```
+
+## Intersections
+
+Combine types:
+
+```ts
+type Named = { name: string };
+type Aged  = { age: number };
+type Person = Named & Aged;     // { name: string; age: number }
+```
+
+`&` is "AND" (must satisfy both); `|` is "OR" (satisfies either).
+
+## Const assertions
+
+```ts
+const dirs = ['n', 's', 'e', 'w'] as const;
+type Dir = typeof dirs[number]; // 'n' | 's' | 'e' | 'w'
+```
+
+`as const` deeply freezes literals into their narrowest types. The cleanest way to get a union from a list.
+
+<Callout variant="tip" title="Discriminated unions over enums">
+Most teams now prefer discriminated unions over `enum`. Better tree-shaking, cleaner type narrowing, no runtime cost.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/building-blocks/primitives-unions"
+  questions={[
+    {
+      id: 'pu-1',
+      type: 'single',
+      prompt: '`type T = "a" | "b"; const x: T = "c";` — what happens?',
+      options: [
+        { value: 'a', label: 'Allowed at runtime' },
+        { value: 'b', label: 'TS error: "c" is not assignable to "a" | "b"' },
+        { value: 'c', label: 'Compiles to empty' },
+        { value: 'd', label: 'No effect' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Object types vs. interfaces vs. types.**
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/building-blocks/primitives-unions"
+  lessonHref="/paths/typescript/building-blocks/primitives-unions/"
+  lessonTitle="Primitives, literals, unions, intersections"
+  nextHref="/paths/typescript/building-blocks/types-vs-interfaces/"
+  nextTitle="Types vs. interfaces"
+/>

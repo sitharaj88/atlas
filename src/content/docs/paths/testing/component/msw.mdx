@@ -1,0 +1,82 @@
+---
+title: Mock Service Worker for API stubs
+description: Intercept network calls at the network layer. Same setup for tests, dev, and Storybook.
+sidebar:
+  order: 3
+pathSlug: testing
+module: component
+lessonNumber: 3
+difficulty: intermediate
+duration: 5 min
+tags: [testing, msw]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Why MSW
+
+Mocking `fetch` is OK for unit tests. For integration tests, MSW intercepts at the network layer — your code runs unchanged, the response comes from your handler.
+
+## Setup
+
+```ts
+import { setupServer } from 'msw/node';
+import { http, HttpResponse } from 'msw';
+
+const server = setupServer(
+  http.get('/api/users/:id', ({ params }) => {
+    return HttpResponse.json({ id: params.id, name: 'Ada' });
+  }),
+);
+
+beforeAll(() => server.listen());
+afterEach(() => server.resetHandlers());
+afterAll(() => server.close());
+```
+
+In the browser, MSW uses a real Service Worker. In Node tests, it patches `fetch`.
+
+## In Storybook
+
+Use the same handlers in Storybook, dev, and tests. One source of truth for stubs.
+
+## Test errors
+
+```ts
+it('shows error on 500', async () => {
+  server.use(http.get('/api/users/:id', () => HttpResponse.error()));
+  render(<UserPage />);
+  expect(await screen.findByText(/something went wrong/i)).toBeInTheDocument();
+});
+```
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="testing/component/msw"
+  questions={[
+    {
+      id: 'msw-1',
+      type: 'single',
+      prompt: 'MSW intercepts requests at…',
+      options: [
+        { value: 'a', label: 'The component level' },
+        { value: 'b', label: 'The network layer — your code calls fetch unchanged; MSW responds' },
+        { value: 'c', label: 'The DOM' },
+        { value: 'd', label: 'The bundler' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="testing/component/msw"
+  lessonHref="/paths/testing/component/msw/"
+  lessonTitle="MSW"
+  nextHref="/paths/testing/e2e/page-object-model/"
+  nextTitle="Page Object Model"
+/>

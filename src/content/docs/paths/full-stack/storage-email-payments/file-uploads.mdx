@@ -1,0 +1,89 @@
+---
+title: 'File uploads — direct-to-S3 patterns'
+description: Don't proxy uploads through your server. Get a presigned URL and upload direct.
+sidebar:
+  order: 1
+pathSlug: full-stack
+module: storage-email-payments
+lessonNumber: 1
+difficulty: intermediate
+duration: 6 min
+tags: [storage, s3, uploads]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The wrong way
+
+Browser → your server (multipart) → S3. Doubles the bandwidth bill, blocks server resources.
+
+## The right way
+
+```text
+1. Browser → server: "I want to upload `photo.jpg`"
+2. Server uses S3 SDK to issue a presigned URL (5 min TTL).
+3. Server replies: { uploadUrl, fileKey }.
+4. Browser PUTs the file directly to S3 via the presigned URL.
+5. Browser → server: "Upload done, key=fileKey"
+6. Server validates, stores reference in DB.
+```
+
+The big bytes never touch your server.
+
+## Implementation
+
+```ts
+// Server (using @aws-sdk/client-s3 + @aws-sdk/s3-request-presigner)
+import { getSignedUrl } from '@aws-sdk/s3-request-presigner';
+import { PutObjectCommand } from '@aws-sdk/client-s3';
+
+app.post('/api/upload-url', async (c) => {
+  const { name, type } = await c.req.json();
+  const key = `uploads/${crypto.randomUUID()}/${name}`;
+  const url = await getSignedUrl(s3, new PutObjectCommand({
+    Bucket: 'my-bucket', Key: key, ContentType: type,
+  }), { expiresIn: 300 });
+  return c.json({ uploadUrl: url, key });
+});
+```
+
+Works with **S3, Cloudflare R2, Backblaze B2, MinIO** — all S3-compatible.
+
+## Validation
+
+The browser can lie about file type. After upload:
+
+- Read the first bytes server-side, sniff the actual format.
+- Re-encode images server-side (sharp) — strips metadata, normalizes.
+- Reject suspicious uploads.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/storage-email-payments/file-uploads"
+  questions={[
+    {
+      id: 'fu-1',
+      type: 'single',
+      prompt: 'Why use presigned URLs for uploads?',
+      options: [
+        { value: 'a', label: 'It\'s faster than HTTP' },
+        { value: 'b', label: 'The big file goes browser → S3 directly; your server stays light' },
+        { value: 'c', label: 'It\'s the only way' },
+        { value: 'd', label: 'It uses HTTPS' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/storage-email-payments/file-uploads"
+  lessonHref="/paths/full-stack/storage-email-payments/file-uploads/"
+  lessonTitle="File uploads"
+  nextHref="/paths/full-stack/storage-email-payments/email/"
+  nextTitle="Email — transactional and marketing"
+/>

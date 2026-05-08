@@ -1,0 +1,83 @@
+---
+title: Pull-request CI you actually trust
+description: A solid CI baseline that catches real bugs and stays green for green PRs.
+sidebar:
+  order: 4
+pathSlug: testing
+module: quality-gates
+lessonNumber: 4
+difficulty: intermediate
+duration: 5 min
+tags: [ci, testing]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The minimum
+
+```yaml
+- run: pnpm install --frozen-lockfile
+- run: pnpm lint
+- run: pnpm tsc --noEmit
+- run: pnpm vitest --run
+- run: pnpm exec playwright install --with-deps
+- run: pnpm exec playwright test
+```
+
+Order matters: cheap fast checks first, slow E2E last.
+
+## Branch protection
+
+In GitHub: Settings → Branches → require status checks before merging.
+
+Don't add **manual gates** that humans bypass. Either it's required or it's not.
+
+## Sharding for speed
+
+E2E tests split nicely:
+
+```yaml
+strategy: { matrix: { shard: [1, 2, 3, 4] } }
+- run: pnpm exec playwright test --shard=${{ matrix.shard }}/4
+```
+
+Tests that took 12 minutes serially run in 3.
+
+## Detecting regressions
+
+Run **the same suite** on `main` after merge — if main goes red, you know within minutes.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="testing/quality-gates/pr-ci"
+  questions={[
+    {
+      id: 'prci-1',
+      type: 'single',
+      prompt: 'Order CI steps from cheap to expensive because…',
+      options: [
+        { value: 'a', label: 'Habit' },
+        { value: 'b', label: 'Fast failures save CI minutes and developer wait time' },
+        { value: 'c', label: 'It\'s required by GitHub' },
+        { value: 'd', label: 'It improves test quality' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## Path complete
+
+You\'ve finished **Testing & Quality**. Combine with [DevOps for Web](/paths/devops/) (CI plumbing) and [Performance, A11y & SEO](/paths/performance-a11y-seo/) (regressions you'll want to catch).
+
+<LessonComplete
+  client:idle
+  lessonId="testing/quality-gates/pr-ci"
+  lessonHref="/paths/testing/quality-gates/pr-ci/"
+  lessonTitle="PR CI"
+  nextHref="/paths/devops/"
+  nextTitle="DevOps for Web Developers"
+/>

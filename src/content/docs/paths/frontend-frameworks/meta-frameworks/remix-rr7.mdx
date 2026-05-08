@@ -1,0 +1,77 @@
+---
+title: Remix → React Router 7 — web-fundamentals first
+description: A meta-framework that doubles down on Web Standards — Request, Response, FormData.
+sidebar:
+  order: 2
+pathSlug: frontend-frameworks
+module: meta-frameworks
+lessonNumber: 2
+difficulty: intermediate
+duration: 6 min
+tags: [react, remix, react-router]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The pitch
+
+Remix (now React Router 7) treats the browser like the web platform it is. Forms post HTTP. Loaders run on the server, return data. Actions handle mutations. Everything is `Request` and `Response`.
+
+```tsx
+// loaders run on the server, return data to the component
+export async function loader({ params }) {
+  return { post: await db.post.find(params.id) };
+}
+
+export default function Post() {
+  const { post } = useLoaderData<typeof loader>();
+  return <article>{post.body}</article>;
+}
+
+// actions handle mutations from <Form>
+export async function action({ request }) {
+  const data = await request.formData();
+  await db.post.update(/* ... */);
+  return redirect('/posts');
+}
+```
+
+No client-side fetch library, no global state for server data. The browser can submit forms even without JS.
+
+## When to pick
+
+- Web-platform-first culture.
+- Heavy form/mutation workflows.
+- You like progressive enhancement.
+- You want to deploy anywhere with a Web-Fetch-compatible runtime (Cloudflare, Deno, Node).
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/meta-frameworks/remix-rr7"
+  questions={[
+    {
+      id: 'rr-1',
+      type: 'single',
+      prompt: 'A `loader` in Remix/RR7 runs on…',
+      options: [
+        { value: 'a', label: 'The client only' },
+        { value: 'b', label: 'The server, returning data the component reads via useLoaderData' },
+        { value: 'c', label: 'The build step' },
+        { value: 'd', label: 'A web worker' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/meta-frameworks/remix-rr7"
+  lessonHref="/paths/frontend-frameworks/meta-frameworks/remix-rr7/"
+  lessonTitle="Remix / React Router 7"
+  nextHref="/paths/frontend-frameworks/meta-frameworks/astro/"
+  nextTitle="Astro — islands for content sites"
+/>

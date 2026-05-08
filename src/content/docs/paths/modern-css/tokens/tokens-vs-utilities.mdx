@@ -1,0 +1,100 @@
+---
+title: Tokens vs. variables vs. utilities
+description: Three layers of design abstraction — and how they fit together.
+sidebar:
+  order: 1
+pathSlug: modern-css
+module: tokens
+lessonNumber: 1
+difficulty: intermediate
+duration: 8 min
+prerequisites:
+  - You've used CSS variables
+objectives:
+  - Distinguish primitive tokens, semantic tokens, and utility classes
+  - Layer them from raw to semantic to applied
+tags: [css, tokens, design-systems]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** A clean three-layer model — primitives, semantics, utilities — that scales from solo project to design system.
+
+## The three layers
+
+```css
+/* Layer 1 — primitive tokens (the raw scale) */
+:root {
+  --color-blue-500: oklch(60% 0.15 240);
+  --space-4: 1rem;
+  --radius-md: 8px;
+}
+
+/* Layer 2 — semantic tokens (named for usage) */
+:root {
+  --color-bg: white;
+  --color-text: oklch(20% 0 0);
+  --color-link: var(--color-blue-500);
+  --color-card-border: var(--color-gray-200);
+  --space-section: var(--space-12);
+}
+
+/* Layer 3 — utilities or component CSS */
+.btn { background: var(--color-link); padding: var(--space-2) var(--space-4); }
+.text-link { color: var(--color-link); }
+```
+
+Components reference **semantic** tokens. Semantic tokens reference **primitives**. Primitives are the only place actual values live.
+
+## Why three layers?
+
+- **Theming** — flip semantic tokens for dark mode without changing the primitive palette.
+- **Refactoring** — change `--color-link` once; everything updates.
+- **Communication** — designers and developers agree on names that match design intent.
+
+## Tokens vs. utilities
+
+A **token** is a value (`--color-link`).
+A **utility** is a one-property class (`.text-link`).
+
+Tokens are what the design system exposes. Utilities are how they get applied. Both can coexist (Tailwind, for example, generates utilities from tokens).
+
+<Callout variant="tip" title="Don't skip the primitive layer">
+The temptation is to write semantic tokens directly: `--color-link: oklch(...)`. Then dark mode means rewriting every semantic. The primitive layer makes theming a one-line edit.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/tokens/tokens-vs-utilities"
+  questions={[
+    {
+      id: 'tok-1',
+      type: 'single',
+      prompt: 'What\'s the relationship between primitive and semantic tokens?',
+      options: [
+        { value: 'a', label: 'They\'re the same' },
+        { value: 'b', label: 'Semantic tokens REFERENCE primitives — they\'re named for usage, not value' },
+        { value: 'c', label: 'Semantic comes first; primitives are derived' },
+        { value: 'd', label: 'Only one layer is needed' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Light/dark/high-contrast theming with CSS variables.**
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/tokens/tokens-vs-utilities"
+  lessonHref="/paths/modern-css/tokens/tokens-vs-utilities/"
+  lessonTitle="Tokens vs. variables vs. utilities"
+  nextHref="/paths/modern-css/tokens/theming/"
+  nextTitle="Light/dark/high-contrast theming"
+/>

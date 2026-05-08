@@ -1,0 +1,106 @@
+---
+title: 'User-defined type guards (`x is T`)'
+description: Custom narrowing functions you can plug into if-statements.
+sidebar:
+  order: 2
+pathSlug: typescript
+module: narrowing
+lessonNumber: 2
+difficulty: intermediate
+duration: 6 min
+prerequisites:
+  - The narrowing flowchart
+objectives:
+  - Write a x is T predicate
+tags: [typescript, narrowing]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## The shape
+
+```ts
+function isString(x: unknown): x is string {
+  return typeof x === 'string';
+}
+
+function isUser(x: unknown): x is User {
+  return typeof x === 'object' && x !== null && 'id' in x && 'name' in x;
+}
+```
+
+The return type `x is T` tells TypeScript "if this returns true, treat x as T."
+
+## Use it
+
+```ts
+function process(x: unknown) {
+  if (isUser(x)) {
+    x.name; // ✓ TS knows x is User
+  }
+}
+```
+
+## Asserting type guards
+
+```ts
+function assertString(x: unknown): asserts x is string {
+  if (typeof x !== 'string') throw new Error('not a string');
+}
+
+function f(x: unknown) {
+  assertString(x);
+  x.toUpperCase(); // ✓ x is string from here on
+}
+```
+
+`asserts x is T` — narrows AND throws if not. Useful for invariants.
+
+## Validation libraries
+
+In real apps, use **Zod** or **Valibot**:
+
+```ts
+import { z } from 'zod';
+const User = z.object({ id: z.number(), name: z.string() });
+type User = z.infer<typeof User>;
+
+const u = User.parse(data); // throws if invalid; types inferred
+```
+
+The schema is the type. One source of truth for runtime + compile-time.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="typescript/narrowing/type-guards"
+  questions={[
+    {
+      id: 'tg-1',
+      type: 'single',
+      prompt: 'A function with return type `x is User` is called…',
+      options: [
+        { value: 'a', label: 'A type assertion' },
+        { value: 'b', label: 'A type predicate / user-defined type guard' },
+        { value: 'c', label: 'A generic constraint' },
+        { value: 'd', label: 'A class' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Discriminated unions — the workhorse pattern.**
+
+<LessonComplete
+  client:idle
+  lessonId="typescript/narrowing/type-guards"
+  lessonHref="/paths/typescript/narrowing/type-guards/"
+  lessonTitle="User-defined type guards"
+  nextHref="/paths/typescript/narrowing/discriminated-unions/"
+  nextTitle="Discriminated unions"
+/>

@@ -1,0 +1,152 @@
+---
+title: 'DNS, IP, and what `localhost` actually is'
+description: The naming system behind every URL — and why "localhost" is special.
+sidebar:
+  order: 2
+pathSlug: foundations
+module: web-platform
+lessonNumber: 2
+difficulty: beginner
+duration: 10 min
+prerequisites:
+  - You\'ve read *How the web works*
+objectives:
+  - Trace a DNS lookup from cache to authoritative server
+  - Explain what localhost, 127.0.0.1, and 0.0.0.0 mean
+  - Use dig and the browser to inspect DNS in real time
+tags: [dns, networking, fundamentals]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** How the internet's "phonebook" works, why your browser sometimes resolves a name in 0 ms and sometimes in 200, and what `localhost` is actually pointing at.
+
+## The lookup
+
+Computers route packets between IP addresses (`104.21.x.x`), not human-friendly names (`atlas.dev`). DNS is the service that translates one to the other. When you type a URL, the browser asks:
+
+```text
+1. Browser cache         — saw it 30 seconds ago? done.
+2. OS cache              — `dscacheutil` on macOS, `nscd` on Linux.
+3. Resolver (ISP / 1.1.1.1) — asks the global DNS hierarchy on your behalf.
+4. Root server           — "ask the .dev server" (returns NS records)
+5. TLD server (.dev)     — "ask atlas.dev's authoritative server"
+6. Authoritative server  — "atlas.dev is at 104.21.234.18"
+```
+
+Each step caches its answer. The TTL ("time to live") on each record decides how long. Most sites set TTLs of 5 minutes to 1 hour.
+
+## Record types worth knowing
+
+| Type | What it stores |
+|---|---|
+| **A** | IPv4 address (`104.21.234.18`) |
+| **AAAA** | IPv6 address |
+| **CNAME** | Alias to another name (`learn.atlas.dev` → `atlas.dev`) |
+| **MX** | Mail server for the domain |
+| **TXT** | Free-form text — used for SPF, DKIM, domain verification |
+| **NS** | Which nameserver is authoritative |
+
+## See it for yourself
+
+```bash
+# Resolve a domain
+dig atlas.dev +short
+
+# Show every step (and TTLs)
+dig atlas.dev +trace
+
+# Use a specific resolver
+dig @1.1.1.1 atlas.dev
+
+# Reverse: what name is at this IP?
+dig -x 104.21.234.18 +short
+```
+
+## What `localhost` actually is
+
+`localhost` is a name that resolves to your **own machine** — specifically, the loopback interface. It's hardcoded:
+
+```text
+/etc/hosts (macOS, Linux):
+  127.0.0.1   localhost
+  ::1         localhost   (IPv6)
+```
+
+Three almost-equivalent things you'll see:
+
+- **`localhost`** — the name. Always loopback.
+- **`127.0.0.1`** — the IPv4 loopback address. Always your own machine.
+- **`0.0.0.0`** — "all interfaces" (when binding a server). Listening here means anyone who can reach your machine can connect.
+
+<Callout variant="warn" title="0.0.0.0 vs 127.0.0.1 when starting a dev server">
+`pnpm dev --host 127.0.0.1` only accepts connections from your machine. `--host 0.0.0.0` accepts from your phone on the same Wi-Fi. Useful for mobile testing, dangerous on a public network.
+</Callout>
+
+## When DNS goes wrong
+
+- **Stale cache.** Site moved to a new IP, your resolver still serves the old one. Flush: `sudo killall -HUP mDNSResponder` (macOS), `sudo systemctl restart systemd-resolved` (Linux).
+- **DNSSEC failure.** Some ISPs misconfigure validation. Switch to `1.1.1.1` or `8.8.8.8`.
+- **Captive portal.** Hotel Wi-Fi hijacks DNS to push you to a login page. You'll see "Could not resolve host."
+- **Hosts file overrides.** Useful for testing — point a domain at your local box. Forgotten entries cause hours of confusion.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="foundations/web-platform/dns-ip-localhost"
+  questions={[
+    {
+      id: 'dns-1',
+      type: 'single',
+      prompt: 'Which DNS record type maps a name to an IPv4 address?',
+      options: [
+        { value: 'a', label: 'CNAME' },
+        { value: 'b', label: 'A' },
+        { value: 'c', label: 'TXT' },
+        { value: 'd', label: 'NS' },
+      ],
+      answer: 'b',
+    },
+    {
+      id: 'dns-2',
+      type: 'single',
+      prompt: 'You start a dev server with `--host 0.0.0.0`. Who can reach it?',
+      options: [
+        { value: 'a', label: 'Only your machine (same as 127.0.0.1)' },
+        { value: 'b', label: 'Anyone with network access to your machine' },
+        { value: 'c', label: 'Only IPv6 clients' },
+        { value: 'd', label: 'Only Docker containers' },
+      ],
+      answer: 'b',
+      explanation: '`0.0.0.0` means "bind to all interfaces" — your local Wi-Fi, your VPN, etc.',
+    },
+    {
+      id: 'dns-3',
+      type: 'single',
+      prompt: 'You change a DNS record. Why don\'t users see the change immediately?',
+      options: [
+        { value: 'a', label: 'DNS doesn\'t support updates' },
+        { value: 'b', label: 'Resolvers cache records based on the TTL' },
+        { value: 'c', label: 'Browsers ignore DNS entirely' },
+        { value: 'd', label: 'It only works on weekdays' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+Time to look inside a request. **HTTP requests and responses, hands-on with curl** — pulling the abstraction apart byte by byte.
+
+<LessonComplete
+  client:idle
+  lessonId="foundations/web-platform/dns-ip-localhost"
+  lessonHref="/paths/foundations/web-platform/dns-ip-localhost/"
+  lessonTitle="DNS, IP, and what localhost actually is"
+  nextHref="/paths/foundations/web-platform/http-requests-and-responses/"
+  nextTitle="HTTP requests and responses"
+/>

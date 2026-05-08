@@ -1,0 +1,71 @@
+---
+title: Visual regression testing
+description: Catch unintended visual changes — design drift, responsive bugs, font swaps.
+sidebar:
+  order: 2
+pathSlug: testing
+module: quality-gates
+lessonNumber: 2
+difficulty: intermediate
+duration: 4 min
+tags: [testing, visual-regression]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Tools
+
+- **Playwright's `toHaveScreenshot`** — built-in, free.
+- **Chromatic** — Storybook + visual diffs in the cloud.
+- **Percy** — older, cloud diffs.
+- **Lost Pixel** — open-source, GitHub-native.
+
+## What to capture
+
+- Stable components in many states (Storybook + visual diffs).
+- Critical pages at common breakpoints.
+
+## Avoid
+
+- Time-stamps, "last updated" labels.
+- Non-deterministic data.
+- Animations (disable them in tests).
+
+## A workflow
+
+1. PR opens.
+2. CI captures screenshots.
+3. Compares against main's baselines.
+4. Diffs over a tolerance fail the build, with screenshots in the report.
+5. Reviewer accepts or rejects the diff in the UI.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="testing/quality-gates/visual-regression"
+  questions={[
+    {
+      id: 'vr-1',
+      type: 'single',
+      prompt: 'Visual regression catches…',
+      options: [
+        { value: 'a', label: 'Slow tests' },
+        { value: 'b', label: 'Unintended visual changes — bumps, alignment shifts, font swaps' },
+        { value: 'c', label: 'Type errors' },
+        { value: 'd', label: 'Memory leaks' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="testing/quality-gates/visual-regression"
+  lessonHref="/paths/testing/quality-gates/visual-regression/"
+  lessonTitle="Visual regression"
+  nextHref="/paths/testing/quality-gates/type-check-as-test/"
+  nextTitle="Type-checking as a test"
+/>

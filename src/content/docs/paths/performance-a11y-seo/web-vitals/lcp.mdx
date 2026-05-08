@@ -1,0 +1,78 @@
+---
+title: 'LCP — Largest Contentful Paint'
+description: Make the largest visible content show up fast. The most-fixable Core Web Vital.
+sidebar:
+  order: 2
+pathSlug: performance-a11y-seo
+module: web-vitals
+lessonNumber: 1
+difficulty: intermediate
+duration: 6 min
+tags: [performance, lcp]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What it measures
+
+When the largest visible image/text/video element finished rendering. Goal: ≤ 2.5s at the 75th percentile.
+
+## Common causes
+
+- LCP image discovered late (deep in the HTML or via JS).
+- Server slow to send the first byte (TTFB).
+- Render-blocking CSS / JS in head.
+- Web font that swaps in late.
+
+## Fixes
+
+```html
+<!-- Hint the browser early -->
+<link rel="preload" as="image" href="/hero.avif" fetchpriority="high">
+
+<!-- LCP image: high priority and not lazy -->
+<img src="/hero.avif" alt="..." fetchpriority="high" decoding="async">
+
+<!-- Inline above-the-fold CSS -->
+<style>/* critical */</style>
+
+<!-- Font that doesn't block text -->
+@font-face { font-display: swap; }
+```
+
+`fetchpriority="high"` is the single biggest win for LCP images.
+
+## Verify
+
+DevTools → Performance → Run → look for the LCP marker. Hover to see the LCP element. Check whether it was render-blocked or network-blocked.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="performance-a11y-seo/web-vitals/lcp"
+  questions={[
+    {
+      id: 'lcp-1',
+      type: 'single',
+      prompt: 'For your hero image, the highest-leverage attribute for LCP is…',
+      options: [
+        { value: 'a', label: 'loading="lazy"' },
+        { value: 'b', label: 'fetchpriority="high"' },
+        { value: 'c', label: 'decoding="async"' },
+        { value: 'd', label: 'srcset' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="performance-a11y-seo/web-vitals/lcp"
+  lessonHref="/paths/performance-a11y-seo/web-vitals/lcp/"
+  lessonTitle="LCP"
+  nextHref="/paths/performance-a11y-seo/web-vitals/inp/"
+  nextTitle="INP — Interaction to Next Paint"
+/>

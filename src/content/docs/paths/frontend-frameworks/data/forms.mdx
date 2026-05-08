@@ -1,0 +1,83 @@
+---
+title: 'Forms — React Hook Form, Conform, native form'
+description: Three approaches to forms in React. Pick by app shape, not by hype.
+sidebar:
+  order: 4
+pathSlug: frontend-frameworks
+module: data
+lessonNumber: 4
+difficulty: intermediate
+duration: 6 min
+tags: [react, forms]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## React Hook Form (RHF)
+
+Uncontrolled by default. Best for big complex forms with conditional fields:
+
+```jsx
+const { register, handleSubmit, formState: { errors } } = useForm();
+return (
+  <form onSubmit={handleSubmit(onSubmit)}>
+    <input {...register('email', { required: true })} />
+    {errors.email && <span>required</span>}
+  </form>
+);
+```
+
+## Conform
+
+Newer, server-action-friendly, progressive-enhancement-first. Pairs with Zod for validation. Best fit for Remix/Next App Router.
+
+## Native HTML form (with React 19)
+
+For simple forms, just use `<form>` with React 19's `<form action>`:
+
+```jsx
+async function action(formData) {
+  'use server';
+  await save(formData.get('email'));
+}
+return <form action={action}><input name="email" /><button>Save</button></form>;
+```
+
+Server Actions handle submission. No client-side state needed.
+
+## Pick by complexity
+
+- Trivial form (1–3 fields, no validation) → native.
+- Complex form (multi-step, conditional, dynamic) → RHF or Conform.
+- Server-driven app → Conform or native form actions.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/data/forms"
+  questions={[
+    {
+      id: 'fm-1',
+      type: 'single',
+      prompt: 'For a 50-field complex form with conditional logic, best tool?',
+      options: [
+        { value: 'a', label: 'Native form, no library' },
+        { value: 'b', label: 'React Hook Form (or Conform)' },
+        { value: 'c', label: 'useState for every field' },
+        { value: 'd', label: 'Redux' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/data/forms"
+  lessonHref="/paths/frontend-frameworks/data/forms/"
+  lessonTitle="Forms in React"
+  nextHref="/paths/frontend-frameworks/meta-frameworks/nextjs/"
+  nextTitle="Next.js — the conventional choice"
+/>

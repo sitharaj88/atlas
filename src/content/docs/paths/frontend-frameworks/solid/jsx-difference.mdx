@@ -1,0 +1,71 @@
+---
+title: "Why JSX still feels like React (until it doesn't)"
+description: SolidJS uses JSX but the rules differ in a few key spots.
+sidebar:
+  order: 2
+pathSlug: frontend-frameworks
+module: solid
+lessonNumber: 2
+difficulty: intermediate
+duration: 5 min
+tags: [solid, jsx]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Same look, different rules
+
+```jsx
+// React
+function List({ items }) {
+  return <ul>{items.map(i => <li>{i.name}</li>)}</ul>;
+}
+
+// Solid
+import { For } from 'solid-js';
+function List(props) {
+  return <ul><For each={props.items}>{(i) => <li>{i.name}</li>}</For></ul>;
+}
+```
+
+In Solid:
+- **Use `<For>`** instead of `.map()` for lists. The compiler optimizes it.
+- **`props.items`** — never destructure props. Destructuring would unwrap the reactivity.
+- **Components run once.** No `useEffect` for re-runs; use `createEffect`.
+
+## Mental shift
+
+In React, "render" runs the component function every time state changes. In Solid, the component function runs once; *expressions* re-run.
+
+Once you internalize that, signals make perfect sense.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/solid/jsx-difference"
+  questions={[
+    {
+      id: 'sjs-1',
+      type: 'single',
+      prompt: 'In Solid, why avoid destructuring props?',
+      options: [
+        { value: 'a', label: 'It\'s slower' },
+        { value: 'b', label: 'Destructuring reads the values once, breaking reactivity' },
+        { value: 'c', label: 'It\'s a TypeScript limitation' },
+        { value: 'd', label: 'It\'s a style preference' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/solid/jsx-difference"
+  lessonHref="/paths/frontend-frameworks/solid/jsx-difference/"
+  lessonTitle="Solid JSX rules"
+  nextHref="/paths/frontend-frameworks/html-first/htmx/"
+  nextTitle="HTMX — hypermedia as state"
+/>

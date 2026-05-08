@@ -1,0 +1,118 @@
+---
+title: Variable fonts and OpenType features
+description: One file, every weight and width. Plus the OpenType features that turn good type into great type.
+sidebar:
+  order: 2
+pathSlug: modern-css
+module: typography
+lessonNumber: 2
+difficulty: intermediate
+duration: 8 min
+prerequisites:
+  - You\'ve loaded a custom font before
+objectives:
+  - Load and use a variable font
+  - Toggle OpenType features (font-feature-settings)
+tags: [css, typography, fonts]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Variable fonts ship every weight and style in one file. Smaller download, more flexibility.
+
+## Loading a variable font
+
+```css
+@font-face {
+  font-family: 'Inter';
+  src: url('/fonts/Inter.var.woff2') format('woff2-variations');
+  font-weight: 100 900;     /* range of supported weights */
+  font-style: normal;
+  font-display: swap;
+}
+```
+
+Now `font-weight: 437;` works (any number in the range, not just 400/700).
+
+## font-variation-settings
+
+For axes beyond weight (slant, optical size, width):
+
+```css
+h1 {
+  font-family: 'Fraunces';
+  font-variation-settings: 'opsz' 144, 'SOFT' 50;
+  font-weight: 600;
+}
+```
+
+Common axes: `wght` (weight), `wdth` (width), `slnt` (slant), `ital` (italic), `opsz` (optical size). Custom axes have uppercase names.
+
+## OpenType features
+
+```css
+:root { font-feature-settings: 'cv11' 1, 'ss01' 1; } /* alternate glyphs */
+.lining { font-feature-settings: 'lnum' 1; }   /* lining figures */
+.tabular { font-variant-numeric: tabular-nums; } /* monospaced digits — for tables */
+.no-ligatures { font-variant-ligatures: none; }
+```
+
+Use `font-variant-*` properties when available — they're the higher-level API. Fall back to `font-feature-settings` for raw control.
+
+## Subsetting
+
+Variable fonts can still be 200KB+. Subset to your character set:
+
+```text
+glyphhanger https://atlas.dev --subset='Inter-Variable.ttf'
+```
+
+Or use Google Fonts with `&text=...` to subset to a specific string.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/typography/variable-fonts"
+  questions={[
+    {
+      id: 'vf-1',
+      type: 'single',
+      prompt: 'Why use a variable font?',
+      options: [
+        { value: 'a', label: 'One file ships every weight and style — smaller total download' },
+        { value: 'b', label: 'Better browser support than non-variable' },
+        { value: 'c', label: 'Required by HTTP/3' },
+        { value: 'd', label: 'It\'s a preference, no real benefit' },
+      ],
+      answer: 'a',
+    },
+    {
+      id: 'vf-2',
+      type: 'single',
+      prompt: 'You want monospaced digits in a table of numbers. The right CSS?',
+      options: [
+        { value: 'a', label: 'font-family: monospace' },
+        { value: 'b', label: 'font-variant-numeric: tabular-nums' },
+        { value: 'c', label: 'letter-spacing: 0' },
+        { value: 'd', label: 'font-feature-settings: \'mono\'' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Modern color: oklch, color-mix, P3.**
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/typography/variable-fonts"
+  lessonHref="/paths/modern-css/typography/variable-fonts/"
+  lessonTitle="Variable fonts and OpenType features"
+  nextHref="/paths/modern-css/typography/modern-color/"
+  nextTitle="Modern color: oklch, color-mix, P3"
+/>

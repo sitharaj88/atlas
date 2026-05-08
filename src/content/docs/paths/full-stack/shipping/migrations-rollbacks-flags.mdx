@@ -1,0 +1,92 @@
+---
+title: 'Migrations, rollbacks, feature flags'
+description: Three production-ops patterns that turn deployment from scary to routine.
+sidebar:
+  order: 3
+pathSlug: full-stack
+module: shipping
+lessonNumber: 3
+difficulty: intermediate
+duration: 6 min
+tags: [migrations, rollbacks, flags]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Migrations
+
+Schema changes paired with code changes. Run **before** the new code deploys, or interleaved if multi-step.
+
+Tools:
+- **Drizzle Kit / Prisma Migrate** — generate from schema diffs.
+- **sqlx, Atlas, dbmate** — write SQL by hand.
+
+Always:
+- Number migrations sequentially.
+- Test in staging.
+- Have a rollback plan (or accept that some are forward-only).
+- Avoid long-running migrations on big tables in a single transaction.
+
+## Rollbacks
+
+When a deploy goes wrong:
+
+1. **First action: revert.** Don't try to fix forward in production at 2 AM.
+2. Most platforms support one-click revert to the previous version.
+3. If the migration was destructive, rolling back the code without rolling back the schema is fine — code should tolerate the new schema.
+4. Document what went wrong. Improve the runbook.
+
+## Feature flags
+
+Decouple **deploy** from **release**. Code ships; the feature stays off until you flip a flag.
+
+```ts
+if (await flags.isEnabled('new-checkout', { userId })) {
+  return newCheckout();
+} else {
+  return oldCheckout();
+}
+```
+
+Tools: LaunchDarkly, GrowthBook, Unleash, simple Postgres-backed table.
+
+Patterns:
+- **Kill switch** — instantly disable a buggy feature.
+- **Gradual rollout** — enable for 1%, 10%, 50%, 100%.
+- **A/B test** — assign by hash of user ID.
+- **Per-user override** — turn on for specific users for testing.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/shipping/migrations-rollbacks-flags"
+  questions={[
+    {
+      id: 'mrf-1',
+      type: 'single',
+      prompt: 'A new feature ships behind a flag. What\'s the main benefit?',
+      options: [
+        { value: 'a', label: 'It\'s faster' },
+        { value: 'b', label: 'You can release the feature without a deploy and disable it instantly if broken' },
+        { value: 'c', label: 'It saves money' },
+        { value: 'd', label: 'It bypasses code review' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## Path complete
+
+You\'ve finished **Full-Stack Web Development**. Combine with [DevOps for Web](/paths/devops/), [Testing & Quality](/paths/testing/), and [Performance, A11y & SEO](/paths/performance-a11y-seo/) for production-grade shipping.
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/shipping/migrations-rollbacks-flags"
+  lessonHref="/paths/full-stack/shipping/migrations-rollbacks-flags/"
+  lessonTitle="Migrations, rollbacks, flags"
+  nextHref="/paths/performance-a11y-seo/"
+  nextTitle="Performance, A11y & SEO"
+/>

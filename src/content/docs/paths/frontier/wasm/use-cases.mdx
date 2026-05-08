@@ -1,0 +1,65 @@
+---
+title: "Real use cases (and where it's overkill)"
+description: When Wasm earns its place.
+sidebar:
+  order: 3
+pathSlug: frontier
+module: wasm
+lessonNumber: 3
+difficulty: advanced
+duration: 4 min
+tags: [wasm]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Real-world wins
+
+- **Photoshop on the web** — Adobe.
+- **Figma's renderer** — handles huge documents at 60fps.
+- **FFmpeg.wasm** — video transcoding in browser.
+- **SQL.js, sqlite-wasm** — SQLite in the browser.
+- **Pyodide** — Python in the browser.
+- **TensorFlow.js with Wasm backend** — ML inference 5–10× faster.
+- **Codec libraries** — AV1 decoders, image format polyfills.
+
+## Where Wasm doesn't help
+
+- Form-driven CRUD apps.
+- Anything bottlenecked on network or DOM.
+- Simple animations (CSS transforms still beat).
+
+## Engineering cost
+
+Wasm projects ship in megabytes (often 1-5 MB). Code-split aggressively, lazy-load on demand. Compile via wasm-opt, brotli-compress.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontier/wasm/use-cases"
+  questions={[
+    {
+      id: 'uc-1',
+      type: 'single',
+      prompt: 'Which is a great Wasm use case?',
+      options: [
+        { value: 'a', label: 'A signup form' },
+        { value: 'b', label: 'Video transcoding in the browser' },
+        { value: 'c', label: 'Routing' },
+        { value: 'd', label: 'Generating HTML' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontier/wasm/use-cases"
+  lessonHref="/paths/frontier/wasm/use-cases/"
+  lessonTitle="Wasm use cases"
+  nextHref="/paths/frontier/graphics/canvas-webgl-webgpu/"
+  nextTitle="Canvas, WebGL, WebGPU — what's different"
+/>

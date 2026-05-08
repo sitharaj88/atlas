@@ -1,17 +1,29 @@
 ---
 import Default from '@astrojs/starlight/components/Footer.astro';
 import type { Props } from '@astrojs/starlight/props';
+import KeyboardShortcuts from '../KeyboardShortcuts.tsx';
+import Comments from '../Comments.tsx';
 const props = Astro.props as Props;
+
+// Show comments on lessons only — anything under paths/<slug>/<module>/...
+const id = props.entry?.id ?? '';
+const isLesson = id.startsWith('paths/') && id.split('/').length >= 4;
 ---
 
 <Default {...props}><slot /></Default>
+
+{isLesson && <Comments client:visible />}
+
+<KeyboardShortcuts client:idle />
+
 <div class="atlas-footer-meta">
   <p>
     <strong>Atlas</strong> · Your map to modern web development. Free and open-source. Built with
     Astro, Starlight, and a lot of late nights.
   </p>
   <p class="atlas-mute">
-    © {new Date().getFullYear()} · Released under the MIT license. Content under CC BY-SA 4.0.
+    © {new Date().getFullYear()} · Released under the MIT license. Content under CC BY-SA 4.0. ·
+    Press <kbd>?</kbd> for keyboard shortcuts.
   </p>
 </div>
 
@@ -26,5 +38,15 @@ const props = Astro.props as Props;
   }
   .atlas-footer-meta p {
     margin: var(--atlas-sp-2) 0;
+  }
+  .atlas-footer-meta kbd {
+    display: inline-block;
+    padding: 0.1em 0.4em;
+    border: 1px solid var(--sl-color-hairline-shade);
+    border-bottom-width: 2px;
+    border-radius: 4px;
+    background: var(--sl-color-gray-7);
+    font-family: var(--atlas-font-mono);
+    font-size: 0.85em;
   }
 </style>

@@ -1,0 +1,78 @@
+---
+title: 'Fine-grained signals, no VDOM'
+description: SolidJS — the JSX you know, the reactivity you don't.
+sidebar:
+  order: 1
+pathSlug: frontend-frameworks
+module: solid
+lessonNumber: 1
+difficulty: intermediate
+duration: 5 min
+tags: [solid, signals]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## A component
+
+```jsx
+import { createSignal, createMemo } from 'solid-js';
+
+function Counter() {
+  const [count, setCount] = createSignal(0);
+  const doubled = createMemo(() => count() * 2);
+  return (
+    <button onClick={() => setCount(count() + 1)}>
+      {count()} (doubled: {doubled()})
+    </button>
+  );
+}
+```
+
+## The big difference
+
+Solid components run **once**. The framework tracks every signal access. When a signal changes, only the precise DOM expressions that depend on it re-execute. Not the component, not the JSX — just the `{count()}` text node.
+
+Result: extreme performance with React-like ergonomics.
+
+## When Solid
+
+- You want React's mental model with much less re-rendering.
+- Performance-critical UI.
+- You're starting fresh.
+
+## When not Solid
+
+- You need React's ecosystem of libraries.
+- Hiring developers familiar with the stack.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/solid/signals"
+  questions={[
+    {
+      id: 'sl-1',
+      type: 'single',
+      prompt: 'In Solid, calling `count()` does what?',
+      options: [
+        { value: 'a', label: 'Re-renders the component' },
+        { value: 'b', label: 'Reads the signal value AND tracks the dependency in the surrounding reactive scope' },
+        { value: 'c', label: 'Sets the count to 1' },
+        { value: 'd', label: 'Triggers an effect' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/solid/signals"
+  lessonHref="/paths/frontend-frameworks/solid/signals/"
+  lessonTitle="Solid signals"
+  nextHref="/paths/frontend-frameworks/solid/jsx-difference/"
+  nextTitle="Why JSX still feels like React (until it doesn't)"
+/>

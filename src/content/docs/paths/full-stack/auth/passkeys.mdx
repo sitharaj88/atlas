@@ -1,0 +1,71 @@
+---
+title: 'Passkeys (WebAuthn) — the post-password future'
+description: Public-key cryptography for login. No phishing, no password reuse, no fishy "verify your account" emails.
+sidebar:
+  order: 4
+pathSlug: full-stack
+module: auth
+lessonNumber: 4
+difficulty: advanced
+duration: 6 min
+tags: [auth, passkeys, webauthn]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## What a passkey is
+
+A public-private keypair stored by the user's device (iCloud Keychain, Google Password Manager, 1Password, etc.). Private key never leaves the device. Server stores the public key only.
+
+Login = device prompts user (Face ID, fingerprint), signs a challenge, sends signature back. Server verifies.
+
+## Why it matters
+
+- **Phishing-resistant** — keys are bound to your domain. A fake site can't trick the device into signing.
+- **No password to leak.** Database breach exposes only public keys (useless to an attacker).
+- **No reuse.** Each site has a unique keypair.
+
+## Implementation
+
+Use **`@simplewebauthn/server`** + **`@simplewebauthn/browser`**. Two flows:
+
+1. **Register** — server generates a challenge, browser asks device to create a credential, server stores the credential's public key.
+2. **Authenticate** — server generates a challenge, browser asks device to sign, server verifies.
+
+A library is mandatory. WebAuthn has many edge cases.
+
+## When to ship
+
+- New apps — passkeys + OIDC + email-magic-link as fallbacks.
+- Migration — add passkeys alongside passwords; let users opt in.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="full-stack/auth/passkeys"
+  questions={[
+    {
+      id: 'pk-1',
+      type: 'single',
+      prompt: 'Why are passkeys phishing-resistant?',
+      options: [
+        { value: 'a', label: 'They\'re long passwords' },
+        { value: 'b', label: 'Keys are bound to the domain — a fake site can\'t solicit a valid signature' },
+        { value: 'c', label: 'They use TLS' },
+        { value: 'd', label: 'Browsers detect phishing automatically' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="full-stack/auth/passkeys"
+  lessonHref="/paths/full-stack/auth/passkeys/"
+  lessonTitle="Passkeys (WebAuthn)"
+  nextHref="/paths/full-stack/databases/relational-vs-document/"
+  nextTitle="Relational vs. document databases"
+/>

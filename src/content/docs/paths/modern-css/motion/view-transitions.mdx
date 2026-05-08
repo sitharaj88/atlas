@@ -1,0 +1,115 @@
+---
+title: View Transitions API for SPA-like navigation in MPAs
+description: Smooth animated transitions between page or DOM states — works for traditional MPAs and SPAs alike.
+sidebar:
+  order: 3
+pathSlug: modern-css
+module: motion
+lessonNumber: 3
+difficulty: intermediate
+duration: 8 min
+prerequisites:
+  - You've used CSS animations
+objectives:
+  - Trigger a same-document view transition
+  - Customize the transition with view-transition-name
+  - Enable cross-document transitions
+tags: [css, motion, transitions]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** The View Transitions API gives you native, accessible page-transition animations for free.
+
+## Same-document transition
+
+```js
+async function showContent(html) {
+  if (!document.startViewTransition) {
+    main.innerHTML = html;
+    return;
+  }
+  document.startViewTransition(() => {
+    main.innerHTML = html;
+  });
+}
+```
+
+The browser captures a snapshot, runs your DOM update, then animates from old to new state. Default crossfade.
+
+## Customize with names
+
+```css
+.hero { view-transition-name: hero; }
+
+::view-transition-old(hero),
+::view-transition-new(hero) {
+  animation-duration: 600ms;
+}
+
+::view-transition-old(hero) { animation: slide-left 600ms; }
+::view-transition-new(hero) { animation: slide-right 600ms; }
+```
+
+Elements with the same `view-transition-name` morph between states. Hero image grows from card to detail page — three lines of CSS.
+
+## Cross-document (MPA) transitions
+
+For traditional multi-page sites, opt in:
+
+```css
+@view-transition { navigation: auto; }
+```
+
+Now navigation between same-origin pages animates automatically. Astro and other static-site generators leverage this.
+
+## With reduced motion
+
+```css
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none;
+  }
+}
+```
+
+<Callout variant="tip" title="Pair with named transitions">
+Mark your hero, header, and primary navigation with `view-transition-name`s; the rest crossfades. The result feels like a polished native app, with vanilla CSS.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/motion/view-transitions"
+  questions={[
+    {
+      id: 'vt-1',
+      type: 'single',
+      prompt: 'How do you make two elements morph between page states?',
+      options: [
+        { value: 'a', label: 'Give both `view-transition-name: <same>`' },
+        { value: 'b', label: 'Wrap both in a <transition> element' },
+        { value: 'c', label: 'Use position: relative' },
+        { value: 'd', label: 'Set the same id on both' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+## What's next
+
+The Motion module wraps. Next: **Design Tokens & Theming.**
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/motion/view-transitions"
+  lessonHref="/paths/modern-css/motion/view-transitions/"
+  lessonTitle="View Transitions API"
+  nextHref="/paths/modern-css/tokens/tokens-vs-utilities/"
+  nextTitle="Tokens vs. variables vs. utilities"
+/>

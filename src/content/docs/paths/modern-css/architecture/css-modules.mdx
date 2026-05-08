@@ -1,0 +1,104 @@
+---
+title: CSS Modules — scoped styles in component code
+description: Class names that can't collide, written in plain CSS. The simplest way to scope.
+sidebar:
+  order: 2
+pathSlug: modern-css
+module: architecture
+lessonNumber: 2
+difficulty: intermediate
+duration: 6 min
+prerequisites:
+  - You've used a bundler (Vite, Webpack)
+objectives:
+  - Use a .module.css file
+  - Compose classes safely
+tags: [css, modules, architecture]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** A way to scope CSS automatically — your `.btn` is unique to this file, no global pollution.
+
+## The setup
+
+```css
+/* button.module.css */
+.btn { padding: 0.6rem 1rem; border-radius: 8px; }
+.btn:hover { background: navy; }
+```
+
+```jsx
+// button.jsx
+import s from './button.module.css';
+export function Button(props) {
+  return <button className={s.btn}>{props.children}</button>;
+}
+```
+
+The bundler turns `.btn` into something like `.button_btn__a1b2c3`. Two components can both have a `.btn` and they don't collide.
+
+## Composes
+
+Reuse a class from another file:
+
+```css
+.primary {
+  composes: btn from './base.module.css';
+  background: var(--brand);
+}
+```
+
+`composes` is CSS Modules-specific syntax (not standard CSS). The runtime joins the class lists.
+
+## When CSS Modules wins
+
+- You like writing CSS, not utility soup.
+- Your team prefers strict scoping.
+- You want a file per component, no global side effects.
+
+## When it loses
+
+- You want one global utility-first system (use Tailwind).
+- You want types on your styles (use Vanilla Extract).
+- You don't have a bundler (use plain CSS or Lightning CSS).
+
+<Callout variant="tip" title="Pair with semantic CSS">
+CSS Modules let you write component CSS without naming-collision anxiety. Combine with the cascade-layer pattern: scoped components in a `components` layer, utilities later.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/architecture/css-modules"
+  questions={[
+    {
+      id: 'cm-1',
+      type: 'single',
+      prompt: 'Why do CSS Modules prevent class name collisions?',
+      options: [
+        { value: 'a', label: 'They don\'t — you have to namespace manually' },
+        { value: 'b', label: 'The bundler hashes class names per file' },
+        { value: 'c', label: 'They run in a Shadow DOM' },
+        { value: 'd', label: 'Browsers handle it natively' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+## What's next
+
+**Vanilla Extract — types for your styles.**
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/architecture/css-modules"
+  lessonHref="/paths/modern-css/architecture/css-modules/"
+  lessonTitle="CSS Modules — scoped styles"
+  nextHref="/paths/modern-css/architecture/vanilla-extract/"
+  nextTitle="Vanilla Extract — typed styles"
+/>

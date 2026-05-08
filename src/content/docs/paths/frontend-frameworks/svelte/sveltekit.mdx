@@ -1,0 +1,93 @@
+---
+title: SvelteKit for full-stack apps
+description: Routing, loaders, form actions — the meta-framework for Svelte.
+sidebar:
+  order: 3
+pathSlug: frontend-frameworks
+module: svelte
+lessonNumber: 3
+difficulty: intermediate
+duration: 5 min
+tags: [svelte, sveltekit]
+---
+
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+## Shape
+
+```
+src/routes/
+├── +page.svelte           # / (component)
+├── +page.server.ts        # / loader (server only)
+├── posts/
+│   ├── +page.svelte
+│   └── [id]/
+│       ├── +page.svelte
+│       └── +page.server.ts
+└── api/
+    └── +server.ts         # /api endpoint
+```
+
+`+page.svelte` is the page. `+page.server.ts` runs server-only logic (loaders, actions). `+server.ts` is an HTTP endpoint.
+
+## Loaders
+
+```ts
+// +page.server.ts
+export async function load({ params }) {
+  return { post: await db.post.find(params.id) };
+}
+```
+
+```svelte
+<!-- +page.svelte -->
+<script>
+  export let data;
+</script>
+<h1>{data.post.title}</h1>
+```
+
+## Form actions
+
+```ts
+export const actions = {
+  default: async ({ request }) => {
+    const data = await request.formData();
+    await save(data);
+    return { success: true };
+  },
+};
+```
+
+Server-side form handling, progressive-enhancement friendly.
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="frontend-frameworks/svelte/sveltekit"
+  questions={[
+    {
+      id: 'sk-1',
+      type: 'single',
+      prompt: 'In SvelteKit, `+page.server.ts` runs…',
+      options: [
+        { value: 'a', label: 'On the client' },
+        { value: 'b', label: 'On the server (loaders, actions)' },
+        { value: 'c', label: 'At build time only' },
+        { value: 'd', label: 'On both client and server' },
+      ],
+      answer: 'b',
+    },
+  ]}
+/>
+
+<LessonComplete
+  client:idle
+  lessonId="frontend-frameworks/svelte/sveltekit"
+  lessonHref="/paths/frontend-frameworks/svelte/sveltekit/"
+  lessonTitle="SvelteKit"
+  nextHref="/paths/frontend-frameworks/solid/signals/"
+  nextTitle="SolidJS — fine-grained signals"
+/>

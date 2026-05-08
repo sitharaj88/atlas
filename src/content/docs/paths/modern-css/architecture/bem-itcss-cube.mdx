@@ -1,0 +1,98 @@
+---
+title: 'BEM, ITCSS, CUBE — when each shines'
+description: Three CSS methodologies that pre-date layers. Their ideas still apply.
+sidebar:
+  order: 4
+pathSlug: modern-css
+module: architecture
+lessonNumber: 4
+difficulty: intermediate
+duration: 8 min
+prerequisites:
+  - You\'ve written CSS at scale
+objectives:
+  - Recognize each methodology and the problem it solves
+  - Combine ideas with modern features (layers, cascade)
+tags: [css, architecture, methodology]
+---
+
+import Callout from '~/components/Callout.astro';
+import Quiz from '~/components/Quiz.tsx';
+import LessonComplete from '~/components/LessonComplete.tsx';
+
+> **What you'll learn.** Three methodologies you'll meet in legacy code (and idea-mining for new code).
+
+## BEM — Block, Element, Modifier
+
+```css
+.card { /* block */ }
+.card__title { /* element of block */ }
+.card--featured { /* modifier on block */ }
+.card__title--large { /* modifier on element */ }
+```
+
+Long, ugly, but unambiguous. BEM solves naming collisions through convention. CSS Modules and Tailwind both eliminate the need.
+
+## ITCSS — Inverted Triangle CSS
+
+Layer your CSS by specificity:
+
+```text
+1. Settings    — variables
+2. Tools       — mixins, functions
+3. Generic     — resets, normalize
+4. Elements    — bare HTML elements (h1, a)
+5. Objects     — design patterns (.media, .stack)
+6. Components  — UI components (.card, .btn)
+7. Utilities   — overrides, !important if needed
+```
+
+Specificity grows as you go down. `@layer` (modern) is the spiritual successor.
+
+## CUBE — Composition Utility Block Exception
+
+Andy Bell's modern methodology. Compose from utilities (axioms), then build blocks, then handle exceptions. Pairs well with `@layer`.
+
+## What to take from each
+
+- **BEM** — explicit naming when scoping isn't an option.
+- **ITCSS** — order CSS by specificity. Now: use `@layer`.
+- **CUBE** — small, composable axioms before bespoke blocks.
+
+<Callout variant="tip" title="Don't pick a methodology, pick the principles">
+The valuable part is the philosophy: scope, order, layered specificity. Modern CSS (layers, modules, container queries) lets you apply the principles without buying the entire methodology.
+</Callout>
+
+## Quick check
+
+<Quiz
+  client:idle
+  lessonId="modern-css/architecture/bem-itcss-cube"
+  questions={[
+    {
+      id: 'bem-1',
+      type: 'single',
+      prompt: '`.card__title--large` is which methodology?',
+      options: [
+        { value: 'a', label: 'BEM' },
+        { value: 'b', label: 'ITCSS' },
+        { value: 'c', label: 'CUBE' },
+        { value: 'd', label: 'Atomic' },
+      ],
+      answer: 'a',
+    },
+  ]}
+/>
+
+## What's next
+
+The Architecture module wraps. Final module: **Build a Design System.**
+
+<LessonComplete
+  client:idle
+  lessonId="modern-css/architecture/bem-itcss-cube"
+  lessonHref="/paths/modern-css/architecture/bem-itcss-cube/"
+  lessonTitle="BEM, ITCSS, CUBE"
+  nextHref="/paths/modern-css/design-system/from-scratch/"
+  nextTitle="Build a design system from scratch"
+/>
