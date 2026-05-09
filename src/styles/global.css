@@ -424,6 +424,11 @@
     font-weight: 500;
   }
 
+  /* Hide the pagination wrapper if both prev and next are disabled (empty). */
+  .pagination-links:empty {
+    display: none !important;
+  }
+
   /* Pagination links at the bottom of articles */
   .pagination-links a {
     border-radius: var(--atlas-radius-lg) !important;
@@ -435,6 +440,20 @@
   .pagination-links a:hover {
     border-color: var(--atlas-amber-400) !important;
     transform: translateY(-2px);
+  }
+  /* When only one of prev/next exists (first or last page in a section),
+     Starlight's auto-fit grid stretches the lone card to 100% width.
+     Cap it at half-width and pin it to the correct side based on rel. */
+  @media (min-width: 50rem) {
+    .pagination-links:has(> a:only-child) {
+      grid-template-columns: minmax(min(18rem, 100%), 1fr) minmax(min(18rem, 100%), 1fr) !important;
+    }
+    .pagination-links > a[rel='prev']:only-child {
+      grid-column: 1;
+    }
+    .pagination-links > a[rel='next']:only-child {
+      grid-column: 2;
+    }
   }
 
   /* Code block frames — modern radius */
