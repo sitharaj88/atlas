@@ -49,10 +49,21 @@ const GROUP_LABELS: Record<Group, string> = {
 
 function AtlasNode({ data }: NodeProps<Node<NodeData>>) {
   const { label, description, href, group, done } = data;
-  const Wrapper: keyof JSX.IntrinsicElements = href ? 'a' : 'div';
-  const wrapperProps = href
-    ? { href: withBase(href), 'aria-label': `${label}${done ? ' (completed)' : ''}` }
-    : {};
+  const ariaLabel = `${label}${done ? ' (completed)' : ''}`;
+  const innerContent = (
+    <>
+      <div className="atlas-rm-node__top">
+        <span className="atlas-rm-node__group">{GROUP_LABELS[group]}</span>
+        {done ? (
+          <span className="atlas-rm-node__done" aria-hidden="true">
+            ✓
+          </span>
+        ) : null}
+      </div>
+      <strong className="atlas-rm-node__title">{label}</strong>
+      {description ? <span className="atlas-rm-node__desc">{description}</span> : null}
+    </>
+  );
 
   return (
     <div
@@ -65,18 +76,13 @@ function AtlasNode({ data }: NodeProps<Node<NodeData>>) {
         .join(' ')}
     >
       <Handle type="target" position={Position.Top} className="atlas-rm-handle" />
-      <Wrapper className="atlas-rm-node__inner" {...wrapperProps}>
-        <div className="atlas-rm-node__top">
-          <span className="atlas-rm-node__group">{GROUP_LABELS[group]}</span>
-          {done ? (
-            <span className="atlas-rm-node__done" aria-hidden="true">
-              ✓
-            </span>
-          ) : null}
-        </div>
-        <strong className="atlas-rm-node__title">{label}</strong>
-        {description ? <span className="atlas-rm-node__desc">{description}</span> : null}
-      </Wrapper>
+      {href ? (
+        <a className="atlas-rm-node__inner" href={withBase(href)} aria-label={ariaLabel}>
+          {innerContent}
+        </a>
+      ) : (
+        <div className="atlas-rm-node__inner">{innerContent}</div>
+      )}
       <Handle type="source" position={Position.Bottom} className="atlas-rm-handle" />
     </div>
   );
@@ -284,7 +290,21 @@ export default function Roadmap({ nodes, edges, height = 620 }: Props) {
           color: var(--sl-color-gray-3);
         }
 
-        :global(.atlas-rm-handle) {
+        /* React Flow injects padding/bg/border on the .react-flow__node
+           wrapper around our custom node type — reset those so our own
+           atlas-rm-node card can own the entire visual. */
+        .react-flow__node-atlas {
+          padding: 0;
+          background: transparent;
+          border: 0;
+          box-shadow: none;
+          width: auto;
+          font-size: inherit;
+          color: inherit;
+          text-align: left;
+        }
+
+        .atlas-rm-handle {
           opacity: 0;
           width: 6px;
           height: 6px;
@@ -293,7 +313,7 @@ export default function Roadmap({ nodes, edges, height = 620 }: Props) {
           pointer-events: none;
         }
 
-        :global(.atlas-rm-node) {
+        .atlas-rm-node {
           position: relative;
           width: 232px;
           border-radius: 14px;
@@ -304,32 +324,32 @@ export default function Roadmap({ nodes, edges, height = 620 }: Props) {
             filter 180ms ease,
             box-shadow 180ms ease;
         }
-        :global(.atlas-rm-node:hover) {
+        .atlas-rm-node:hover {
           transform: translateY(-2px);
           filter: drop-shadow(0 10px 18px color-mix(in oklch, var(--atlas-rm-accent, var(--sl-color-text)) 18%, transparent));
         }
-        :global(.atlas-rm-node--milestone) {
+        .atlas-rm-node--milestone {
           --atlas-rm-accent: var(--atlas-rm-milestone);
           --atlas-rm-border: linear-gradient(135deg,
             var(--atlas-amber-400, #F5B14A) 0%,
             var(--atlas-amber-600, #d8902b) 100%);
         }
-        :global(.atlas-rm-node--core) {
+        .atlas-rm-node--core {
           --atlas-rm-accent: var(--atlas-rm-core);
           --atlas-rm-border: color-mix(in oklch, var(--atlas-rm-core) 55%, var(--sl-color-hairline-shade));
         }
-        :global(.atlas-rm-node--optional) {
+        .atlas-rm-node--optional {
           --atlas-rm-accent: var(--atlas-rm-optional);
           --atlas-rm-border: color-mix(in oklch, var(--atlas-rm-optional) 55%, var(--sl-color-hairline-shade));
         }
-        :global(.atlas-rm-node.is-done) {
+        .atlas-rm-node.is-done {
           --atlas-rm-accent: var(--atlas-rm-done);
           --atlas-rm-border: linear-gradient(135deg,
             color-mix(in oklch, var(--atlas-rm-done) 95%, white) 0%,
             var(--atlas-rm-done) 100%);
         }
 
-        :global(.atlas-rm-node__inner) {
+        .atlas-rm-node__inner {
           display: block;
           padding: 0.75rem 0.9rem 0.85rem;
           border-radius: 13px;
@@ -339,20 +359,20 @@ export default function Roadmap({ nodes, edges, height = 620 }: Props) {
           line-height: 1.35;
           text-align: left;
         }
-        :global(.atlas-rm-node--milestone .atlas-rm-node__inner) {
+        .atlas-rm-node--milestone .atlas-rm-node__inner {
           background:
             linear-gradient(180deg,
               color-mix(in oklch, var(--atlas-rm-milestone) 9%, var(--sl-color-bg)) 0%,
               var(--sl-color-bg) 60%);
         }
-        :global(.atlas-rm-node.is-done .atlas-rm-node__inner) {
+        .atlas-rm-node.is-done .atlas-rm-node__inner {
           background:
             linear-gradient(180deg,
               color-mix(in oklch, var(--atlas-rm-done) 11%, var(--sl-color-bg)) 0%,
               var(--sl-color-bg) 60%);
         }
 
-        :global(.atlas-rm-node__top) {
+        .atlas-rm-node__top {
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -364,8 +384,8 @@ export default function Roadmap({ nodes, edges, height = 620 }: Props) {
           color: var(--atlas-rm-accent);
           font-weight: 600;
         }
-        :global(.atlas-rm-node__group) { line-height: 1; }
-        :global(.atlas-rm-node__done) {
+        .atlas-rm-node__group { line-height: 1; }
+        .atlas-rm-node__done {
           display: inline-flex;
           align-items: center;
           justify-content: center;
@@ -377,14 +397,14 @@ export default function Roadmap({ nodes, edges, height = 620 }: Props) {
           font-size: 0.7rem;
           line-height: 1;
         }
-        :global(.atlas-rm-node__title) {
+        .atlas-rm-node__title {
           display: block;
           font-size: 0.88rem;
           font-weight: 700;
           color: var(--sl-color-white, var(--sl-color-text));
           margin: 0;
         }
-        :global(.atlas-rm-node__desc) {
+        .atlas-rm-node__desc {
           display: block;
           margin-top: 0.25rem;
           font-size: 0.74rem;
@@ -392,37 +412,35 @@ export default function Roadmap({ nodes, edges, height = 620 }: Props) {
           color: var(--sl-color-gray-3);
           line-height: 1.45;
         }
-        :global(.atlas-rm-node__inner:hover .atlas-rm-node__title) {
+        .atlas-rm-node__inner:hover .atlas-rm-node__title {
           color: var(--atlas-rm-accent);
         }
-        :global(.atlas-rm-node__inner:focus-visible) {
+        .atlas-rm-node__inner:focus-visible {
           outline: 2px solid var(--atlas-rm-accent);
           outline-offset: 3px;
         }
 
-        :global(.react-flow__attribution) { display: none; }
-        :global(.react-flow__edge-path) {
-          stroke-linecap: round;
-        }
-        :global(.react-flow__controls) {
+        .react-flow__attribution { display: none; }
+        .react-flow__edge-path { stroke-linecap: round; }
+        .react-flow__controls {
           border-radius: 10px;
           overflow: hidden;
           box-shadow: 0 6px 18px color-mix(in oklch, black 20%, transparent);
           border: 1px solid var(--sl-color-hairline);
         }
-        :global(.react-flow__controls-button) {
+        .react-flow__controls-button {
           background: var(--sl-color-bg);
           border-bottom: 1px solid var(--sl-color-hairline);
           color: var(--sl-color-text);
           width: 30px;
           height: 30px;
         }
-        :global(.react-flow__controls-button:hover) {
+        .react-flow__controls-button:hover {
           background: var(--sl-color-gray-6);
           color: var(--atlas-rm-milestone);
         }
-        :global(.react-flow__controls-button svg) { fill: currentColor; }
-        :global(.react-flow__minimap) {
+        .react-flow__controls-button svg { fill: currentColor; }
+        .react-flow__minimap {
           border-radius: 10px;
           overflow: hidden;
           border: 1px solid var(--sl-color-hairline);
@@ -430,9 +448,9 @@ export default function Roadmap({ nodes, edges, height = 620 }: Props) {
         }
 
         @media (max-width: 48rem) {
-          :global(.atlas-rm-node) { width: 200px; }
-          :global(.atlas-rm-node__title) { font-size: 0.82rem; }
-          :global(.atlas-rm-node__desc) { font-size: 0.7rem; }
+          .atlas-rm-node { width: 200px; }
+          .atlas-rm-node__title { font-size: 0.82rem; }
+          .atlas-rm-node__desc { font-size: 0.7rem; }
           .atlas-roadmap-shell__progress { margin-left: 0; }
         }
       `}</style>
